@@ -1302,14 +1302,17 @@ export default function Dashboard() {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={visaoEconomica.anual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
-                <XAxis dataKey="mes" stroke="#3D2F28" />
-                <YAxis stroke="#3D2F28" />
-                <Tooltip formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} />
-                <Legend />
-                <Line type="monotone" dataKey="receitas" stroke="#C98A75" name="Receitas" strokeWidth={2} />
-                <Line type="monotone" dataKey="custos" stroke="#C98A75" name="Custos" strokeWidth={2} />
-                <Line type="monotone" dataKey="lucro" stroke="#3D2F28" name="Lucro" strokeWidth={2} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#D8CBB9" vertical={false} />
+                <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                  formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
+                />
+                <Legend iconType="circle" />
+                <Line type="monotone" dataKey="receitas" stroke="#C98A75" name="Receitas" strokeWidth={3} dot={{ r: 4, fill: "#C98A75" }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="custos" stroke="#8E9E8C" name="Custos" strokeWidth={3} dot={{ r: 4, fill: "#8E9E8C" }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="lucro" stroke="#3D2F28" name="Lucro" strokeWidth={3} dot={{ r: 4, fill: "#3D2F28" }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1328,11 +1331,19 @@ export default function Dashboard() {
               <div className="h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={vendasPorMes}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
-                    <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} />
-                    <YAxis stroke="#3D2F28" fontSize={12} />
-                    <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]} />
-                    <Bar dataKey="total" fill="#3D2F28" radius={[6, 6, 0, 0]} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CBB9" />
+                    <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                    <Tooltip 
+                      cursor={{ fill: '#D8CBB9', opacity: 0.2 }}
+                      contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                      formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]} 
+                    />
+                    <Bar dataKey="total" fill="#C98A75" radius={[6, 6, 0, 0]}>
+                      {vendasPorMes.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={index === vendasPorMes.length - 1 ? '#C98A75' : '#D8CBB9'} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -1349,10 +1360,13 @@ export default function Dashboard() {
                 <div className="h-[160px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={fluxoCaixa}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#C98A7533" />
-                      <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} />
-                      <YAxis stroke="#3D2F28" fontSize={12} />
-                      <Tooltip formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CBB9" />
+                      <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                        formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]} 
+                      />
                       <Line
                         type="monotone"
                         dataKey="saldo"

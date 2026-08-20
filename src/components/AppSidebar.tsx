@@ -291,13 +291,13 @@ export function AppSidebar() {
                                         <Lock className="h-3.5 w-3.5 text-sfb-baunilha/40" />
                                       )}
                                       {item.title === "Vendas" && temEncomendasHoje && !bloqueado && (
-                                        <Badge className="bg-sfb-baunilha text-sfb-terracota text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
+                                        <Badge className="bg-sfb-terracota text-sfb-baunilha text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>
                                       )}
                                       {item.title === "Parceiros" && aniversariantesClientes.length > 0 && !bloqueado && (
-                                        <div className="w-5 h-5 rounded-full bg-sfb-baunilha flex items-center justify-center animate-bounce ml-1 ring-1 ring-sfb-baunilha/20">
-                                          <Cake className="h-3 w-3 text-sfb-terracota" />
+                                        <div className="w-5 h-5 rounded-full bg-sfb-terracota flex items-center justify-center animate-bounce ml-1 ring-1 ring-sfb-terracota/20">
+                                          <Cake className="h-3 w-3 text-sfb-baunilha" />
                                         </div>
                                       )}
                                     </>
