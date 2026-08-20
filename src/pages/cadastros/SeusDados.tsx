@@ -29,7 +29,7 @@ import {
   Clock,
   ChevronLeft,
 } from "lucide-react";
-import meusDadosFooter from "@/assets/meus-dados-hero-banner.png";
+
 import { HeroBanner } from "@/components/HeroBanner";
 import { SignaturePad } from "@/components/SignaturePad";
 import { useForm } from "react-hook-form";
@@ -388,12 +388,10 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6 relative">
-      {/* ===== HERO BANNER padronizado (mesmo padrão da página Cadastros) ===== */}
+      {/* ===== HERO BANNER padronizado - Imagem removida conforme solicitação ===== */}
       <HeroBanner
-        image={meusDadosFooter}
         title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
         subtitle="Gerencie seu perfil e os dados empresariais usados em toda a plataforma."
-        imageAlt="Meus Dados"
       />
 
 
