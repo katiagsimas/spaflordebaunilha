@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler, Tag, DollarSign, Package } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { BookOpen, Utensils, Ruler, Tag, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
@@ -22,7 +22,7 @@ export default function Precificacao() {
     {
       title: "Embalagens",
       description: "Controle de embalagens e materiais secundários",
-      icon: Package,
+      icon: Ruler,
       to: "/precificacao/embalagens",
     },
     {
@@ -70,5 +70,3 @@ export default function Precificacao() {
     </div>
   );
 }
-
-import { Settings } from "lucide-react";
