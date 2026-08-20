@@ -5,7 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { AlterarSenhaObrigatoria } from '@/components/auth/AlterarSenhaObrigatoria';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+ import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
 import sfbLogoAsset from '@/assets/sfb-logo-full.png.asset.json';
@@ -27,6 +28,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [mostrarAlterarSenha, setMostrarAlterarSenha] = useState(false);
   const [planoExpirado, setPlanoExpirado] = useState(false);
   const { signIn, user } = useAuth();
@@ -55,7 +57,7 @@ export default function Login() {
     setPlanoExpirado(false);
     try {
       const validated = loginSchema.parse({ email: email.trim(), password });
-      await signIn(validated.email, validated.password);
+      await signIn(validated.email, validated.password, rememberMe);
 
       const { data: { user: loggedUser } } = await supabase.auth.getUser();
       if (loggedUser) {
@@ -162,10 +164,24 @@ export default function Login() {
                     </div>
                   </div>
 
-                  <div className="flex justify-end">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="rememberMe" 
+                        checked={rememberMe}
+                        onCheckedChange={(checked) => setRememberMe(checked === true)}
+                        className="border-sfb-areia data-[state=checked]:bg-sfb-terracota data-[state=checked]:border-sfb-terracota"
+                      />
+                      <label
+                        htmlFor="rememberMe"
+                        className="text-sm font-body text-sfb-cacau leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        Lembrar-me
+                      </label>
+                    </div>
                     <Link
                       to="/auth/forgot-password"
-                      className="text-sm font-body text-sfb-dourado hover:underline"
+                      className="text-sm font-body text-sfb-terracota hover:underline"
                     >
                       Esqueci minha senha
                     </Link>
