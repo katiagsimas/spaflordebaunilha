@@ -13,7 +13,7 @@ import { Lock, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { validarSenhaForte } from '@/lib/validacaoSenha';
-import caixaAcucarIcon from '@/assets/caixa-acucar-logo-full.png';
+import sfbIcon from '@/assets/sfb-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
 import authRightBg from '@/assets/auth-right-bg.png';
 
@@ -159,7 +159,7 @@ export default function ResetPassword() {
         <div className="w-full max-w-md relative z-10 space-y-8">
           <div className="text-center">
             <img
-              src={caixaAcucarIcon}
+              src={sfbIcon}
               alt="Spa Flor de Baunilha"
               className="mx-auto w-full max-w-sm h-auto"
             />
@@ -179,7 +179,7 @@ export default function ResetPassword() {
         {/* Brand header */}
         <div className="text-center">
           <img
-            src={caixaAcucarIcon}
+            src={sfbIcon}
             alt="Spa Flor de Baunilha"
             className="mx-auto w-full max-w-sm h-auto"
           />
