@@ -16,11 +16,9 @@ import { LoadingMascote } from "@/components/LoadingMascote";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 import { FloatingNavigation } from "@/components/FloatingNavigation";
-import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
-import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
 
 import { UserMenu, UserGreeting } from "@/components/UserMenu";
-import { MotherPlanSelector } from "@/components/MotherPlanSelector";
+
 import Dashboard from "./pages/Dashboard";
 import Encomendas from "./pages/Encomendas";
 import EncomendasLista from "./pages/EncomendasLista";
@@ -80,8 +78,6 @@ import LogsAdmin from "./pages/admin/Logs";
 import Governanca from "./pages/admin/Governanca";
 import CofreBackups from "./pages/admin/CofreBackups";
 import GovernancaHub from "./pages/Governanca";
-import Upgrade from "./pages/Upgrade";
-import { PlanoGuard } from "./components/PlanoGuard";
 import { MotherGuard } from "./components/MotherGuard";
 
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
@@ -170,7 +166,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 <SidebarToggleLabeled />
               </div>
               <div className="flex-1 flex items-center justify-center">
-                <MotherPlanSelector />
               </div>
               <div className="flex items-center gap-2">
                 <BackupBadge texto={ultimoBackupTexto} />
@@ -180,7 +175,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </div>
 
           </header>
-          <AlertaExpiracaoPlano />
+          
           
           <main className="flex-1 min-w-0 px-3 sm:px-4 md:px-8 pt-2 pb-6 md:pb-8 bg-app overflow-x-hidden md:overflow-x-visible">
             
@@ -207,7 +202,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <PlanExpirationWatcher />
+              
           <Routes>
             {/* Auth routes */}
             <Route path="/auth/login" element={<AuthLogin />} />
