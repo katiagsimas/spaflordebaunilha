@@ -10,6 +10,8 @@ import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
 
 
 export default function Cadastros() {
