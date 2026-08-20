@@ -76,7 +76,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     label: "MEU NEGÓCIO",
     items: [
       { title: "Meu Dinheiro", url: "/financeiro", icon: Wallet, active: true },
-      { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true, adminOnly: true },
+      { title: "Meu Salário", url: "/meu-salario", icon: Sparkles, active: true },
       
     ],
   },
