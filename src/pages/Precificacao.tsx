@@ -35,12 +35,12 @@ export default function Precificacao() {
 
   return (
     <div className="min-h-screen bg-background">
-      <PageHeader
-        title="Cardápio & Precificação"
-        description="Gestão de custos e formação de preços dos seus produtos"
-      />
-      
-      <div className="p-4 md:p-6">
+      <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
+        <PageHeader
+          title="Cardápio & Precificação"
+          description="Gestão de custos e formação de preços dos seus produtos"
+        />
+        
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {menuItems.map((item) => (
             <Card 
