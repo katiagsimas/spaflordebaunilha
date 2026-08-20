@@ -180,16 +180,16 @@ export function AppSidebar() {
 
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border" style={{ width: open ? '280px' : undefined }}>
-      <SidebarHeader className="h-14 border-b border-sfb-dourado/30 px-4 py-0 flex items-center justify-center bg-sfb-vinho">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sfb-terracota" style={{ width: open ? '280px' : undefined }}>
+      <SidebarHeader className="h-14 border-b border-sfb-baunilha/30 px-4 py-0 flex items-center justify-center bg-sfb-terracota">
         {open && (
           <div className="flex items-center gap-2.5">
             <img src="/sfb-logo-dourado.png" alt="Spa Flor de Baunilha" className="h-7 w-7 drop-shadow" />
             <div className="flex flex-col leading-tight">
-              <span className="font-display text-base text-sfb-creme tracking-wide">
+              <span className="font-display text-base text-sfb-baunilha tracking-wide">
                 Spa Flor de Baunilha
               </span>
-              <span className="text-[9px] font-body font-light text-sfb-dourado/80 tracking-[0.2em] uppercase">
+              <span className="text-[9px] font-body font-light text-sfb-baunilha/80 tracking-[0.2em] uppercase">
                 by Spa Flor de Baunilha
               </span>
             </div>
