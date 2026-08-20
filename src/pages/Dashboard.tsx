@@ -1183,13 +1183,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Aniversariantes — fundo vinho */}
+        {/* Aniversariantes — fundo terracota */}
         <div className="relative overflow-hidden rounded-2xl bg-sfb-terracota text-sfb-baunilha shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
           <img
             src={illuPresenteVinho}
             alt=""
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-0 h-[90%] w-auto max-w-[42%] object-contain object-bottom-left"
+            className="pointer-events-none absolute bottom-0 left-0 h-[80%] w-auto max-w-[35%] object-contain object-bottom-left"
           />
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
@@ -1210,11 +1210,11 @@ export default function Dashboard() {
           </div>
           <div className="relative px-6 pb-6 pt-4 min-h-[140px]">
             {aniversariantes.length === 0 ? (
-              <p className="pt-2 text-sm font-body italic text-sfb-creme/70 pl-[45%] sm:pl-[48%]">
+              <p className="pt-2 text-sm font-body italic text-sfb-baunilha/70 pl-[38%] sm:pl-[42%]">
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-sfb-baunilha/20 pl-[45%] sm:pl-[48%]">
+              <ul className="divide-y divide-dashed divide-sfb-baunilha/20 pl-[38%] sm:pl-[42%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
