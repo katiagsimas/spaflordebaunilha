@@ -95,6 +95,7 @@ const BANCOS_OFICIAIS: Record<string, string> = {
   'daycoval': '707',
   'unicred': '136',
   'banco cooperativo': '756',
+  'emanapay': '301',
 };
 
 export default function Bancos() {
