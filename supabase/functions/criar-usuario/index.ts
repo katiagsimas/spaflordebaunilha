@@ -91,7 +91,6 @@ Deno.serve(async (req) => {
     }
 
     const requestBody = await req.json()
-    const { email, nomeCompleto, nomeConfeitaria, planoId, role } = requestBody
 
     // === NOVO: tipo de usuário (mestre/membro) ===
     // tipoUsuario = 'mestre'  -> cria grupo novo (ou usa criarGrupo=true), passa pelo onboarding
@@ -109,26 +108,15 @@ Deno.serve(async (req) => {
       )
     }
 
-    const planoTipo = requestBody.planoTipo || null
     const hoje = new Date().toISOString().split('T')[0]
-    let planoInicio: string | null = requestBody.planoInicio || hoje
-    let planoFim: string | null = null
 
     const diasMap: Record<string, number> = { anual: 365, mensal: 30 }
 
-    if (requestBody.planoFim) {
-      planoFim = requestBody.planoFim
     } else if (requestBody.planoExpiraEm) {
-      planoFim = requestBody.planoExpiraEm.split('T')[0]
-    } else if (planoTipo) {
-      const fim = new Date(planoInicio!)
-      fim.setDate(fim.getDate() + (diasMap[planoTipo] ?? 365))
-      planoFim = fim.toISOString().split('T')[0]
     }
 
     const isImersao = false
 
-    console.log('Dados:', { email, tipoUsuario, groupId, roleGroup, planoId })
 
     // Verificar se o usuário existe no Auth
     const { data: authUsers } = await supabaseAdmin.auth.admin.listUsers()
@@ -145,10 +133,6 @@ Deno.serve(async (req) => {
     const planoFields: Record<string, any> = tipoUsuario === 'membro'
       ? { origem_criacao: 'admin_membro' }
       : {
-          plano_id: planoId || null,
-          plano_tipo: planoTipo,
-          plano_inicio: planoInicio,
-          plano_fim: planoFim,
           origem_criacao: isImersao ? 'imersao' : 'admin',
         }
 
@@ -181,7 +165,6 @@ Deno.serve(async (req) => {
             updated_at: new Date().toISOString()
           })
           .eq('id', userId)
-        await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo)
         console.log('Usuário reativado:', userId)
       }
     } else if (existingAuthUser && !existingProfile) {
@@ -197,7 +180,6 @@ Deno.serve(async (req) => {
           ...planoFields,
           primeiro_acesso: true,
         })
-      await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo)
     } else {
       // Novo usuário - criar com senha temporária
       const senhaTemporaria = crypto.randomUUID()
@@ -224,7 +206,6 @@ Deno.serve(async (req) => {
         }
       })
       const magicLink = linkData?.properties?.action_link || null
-      await enviarEmailBoasVindas(email, nomeCompleto, planoId || 'base', planoTipo, magicLink)
     }
 
     // === Vínculo com Grupo ===
@@ -328,16 +309,11 @@ Deno.serve(async (req) => {
       acao: 'criou_usuario',
       usuario_afetado_id: userId,
       usuario_afetado_email: email,
-      detalhes: { planoId, planoTipo, planoInicio, planoFim, nomeCompleto, nomeConfeitaria }
     })
 
     // Record plan history
     await supabaseAdmin.from('historico_planos').insert({
       user_id: userId,
-      plano_novo: planoId || 'base',
-      plano_tipo_novo: planoTipo || 'mensal',
-      plano_inicio: planoInicio,
-      plano_fim: planoFim,
       tipo_evento: 'criacao',
       origem: 'admin',
       admin_id: callerUser.id,
@@ -364,8 +340,6 @@ Deno.serve(async (req) => {
 async function enviarEmailBoasVindas(
   email: string,
   nome: string | null,
-  planoId: string,
-  _planoTipo: string | null,
   _magicLink?: string | null
 ) {
   const resendApiKey = Deno.env.get('RESEND_API_KEY')
@@ -377,7 +351,6 @@ async function enviarEmailBoasVindas(
   const nomeDisplay = escapeHtml(nome || 'Confeiteira')
   const emailSafe = escapeHtml(email)
   const planoNome =
-    planoId === 'negocio' ? 'Flor de Baunilha Business'
     : 'Flor de Baunilha Lite'
 
 

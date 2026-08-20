@@ -37,7 +37,6 @@ async function resolverPlano(
     if (offerCode) {
       const { data: produtoOferta, error: errOferta } = await supabaseAdmin
         .from('hotmart_produtos')
-        .select('plano_id, plano_tipo, ativo')
         .eq('product_id', productId)
         .eq('offer_code', offerCode)
         .maybeSingle()
@@ -49,15 +48,12 @@ async function resolverPlano(
           console.log('resolverPlano - product+offer encontrado mas inativo:', productId, offerCode)
           return null
         }
-        console.log('resolverPlano - match exato product+offer:', productId, offerCode, '→', produtoOferta.plano_id, produtoOferta.plano_tipo)
-        return { planoId: produtoOferta.plano_id, planoTipo: produtoOferta.plano_tipo, source: 'productId+offer' }
       }
     }
 
     // 2) Match por produto sem oferta específica (offer_code IS NULL)
     const { data: produto, error } = await supabaseAdmin
       .from('hotmart_produtos')
-      .select('plano_id, plano_tipo, ativo')
       .eq('product_id', productId)
       .is('offer_code', null)
       .maybeSingle()
@@ -69,8 +65,6 @@ async function resolverPlano(
         console.log('resolverPlano - productId encontrado (sem oferta) mas inativo:', productId)
         return null
       }
-      console.log('resolverPlano - match por productId (offer NULL):', productId, '→', produto.plano_id, produto.plano_tipo)
-      return { planoId: produto.plano_id, planoTipo: produto.plano_tipo, source: 'productId' }
     }
   }
 
@@ -234,21 +228,13 @@ Deno.serve(async (req) => {
 
       const { data: existingProfile } = await supabaseAdmin
         .from('profiles')
-        .select('id, ativo, plano_id, plano_tipo, plano_fim')
         .eq('email', email)
         .single()
 
       const hojeISO = planoInicio
       const planoFields = {
-        plano_id: planoId,
-        plano_tipo: planoTipo,
-        plano_inicio: planoInicio,
-        plano_fim: planoFim,
         origem_criacao: 'webhook',
       }
-      const planoAnterior = existingProfile?.plano_id ?? null
-      const planoTipoAnterior = existingProfile?.plano_tipo ?? null
-      const planoFimAnterior = existingProfile?.plano_fim ?? null
       const ativoAnterior = existingProfile?.ativo ?? false
       const aindaVigente = !!planoFimAnterior && planoFimAnterior >= hojeISO
 
@@ -273,8 +259,6 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Calcula plano_fim efetivo conforme o tipo do evento
-      // - renovação simples / upgrade: estende a partir do plano_fim atual (não perde dias)
       // - downgrade: NÃO sobrescreve plano atual; só agenda
       // - demais: hoje + duração
       let planoFimEfetivo = planoFim
@@ -325,10 +309,6 @@ Deno.serve(async (req) => {
               primeiro_acesso: tipoEvento === 'reativacao'
                 ? (existingProfile.ativo === false)
                 : false,
-              plano_id: planoId,
-              plano_tipo: planoTipo,
-              plano_inicio: planoInicio,
-              plano_fim: planoFimEfetivo,
               origem_criacao: 'webhook',
               // Limpa qualquer plano pendente anterior (upgrade cancela downgrade agendado)
               plano_pendente_id: null,
@@ -503,11 +483,7 @@ Deno.serve(async (req) => {
       await supabaseAdmin.from('historico_planos').insert({
         user_id: userId,
         plano_anterior: planoAnterior,
-        plano_tipo_anterior: planoTipoAnterior,
         plano_novo: planoId,
-        plano_tipo_novo: planoTipo,
-        plano_inicio: tipoEvento === 'downgrade_agendado' ? pendenteInicio : planoInicio,
-        plano_fim: tipoEvento === 'downgrade_agendado' ? pendenteFim : planoFimEfetivo,
         tipo_evento: tipoEvento,
         origem: 'webhook',
         observacao: observacaoBits.length ? observacaoBits.join(' | ') : null,
@@ -538,7 +514,6 @@ Deno.serve(async (req) => {
         // Get current plan for history
         const { data: currentProfile } = await supabaseAdmin
           .from('profiles')
-          .select('plano_id, plano_tipo, plano_inicio, plano_fim')
           .eq('id', profile.id)
           .single()
 
@@ -550,10 +525,6 @@ Deno.serve(async (req) => {
         // Record cancellation history
         await supabaseAdmin.from('historico_planos').insert({
           user_id: profile.id,
-          plano_anterior: currentProfile?.plano_id,
-          plano_tipo_anterior: currentProfile?.plano_tipo,
-          plano_inicio: currentProfile?.plano_inicio,
-          plano_fim: currentProfile?.plano_fim,
           tipo_evento: 'cancelamento',
           origem: 'webhook',
           observacao: `Evento: ${event}`,
@@ -612,17 +583,12 @@ Deno.serve(async (req) => {
         // Get current plan for history
         const { data: currentProfile } = await supabaseAdmin
           .from('profiles')
-          .select('plano_id, plano_tipo')
           .eq('id', profile.id)
           .single()
 
         await supabaseAdmin
           .from('profiles')
           .update({
-            plano_id: planoId,
-            plano_tipo: planoTipo,
-            plano_inicio: planoInicio,
-            plano_fim: planoFim,
             updated_at: new Date().toISOString()
           })
           .eq('id', profile.id)
@@ -630,12 +596,7 @@ Deno.serve(async (req) => {
         // Record plan switch history
         await supabaseAdmin.from('historico_planos').insert({
           user_id: profile.id,
-          plano_anterior: currentProfile?.plano_id,
           plano_novo: planoId,
-          plano_tipo_anterior: currentProfile?.plano_tipo,
-          plano_tipo_novo: planoTipo,
-          plano_inicio: planoInicio,
-          plano_fim: planoFim,
           tipo_evento: 'alteracao',
           origem: 'webhook',
           observacao: `SWITCH_PLAN: ${switchPlanName}`,
