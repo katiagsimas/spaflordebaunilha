@@ -713,6 +713,9 @@ export default function Usuarios() {
                     const group = groupId ? groupsMap[groupId] : null;
                     const groupName = group?.name || '-';
                     
+                    // Um usuário é considerado "Membro" se ele está em um grupo e NÃO é o master dele
+                    const isMember = group && group.master_user_id !== profile.id;
+                    
 
                     const syncStatus = (profile as any).sync_status;
 
