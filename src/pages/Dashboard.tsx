@@ -1021,7 +1021,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
               <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
-                {saudacaoPorHora().texto}, {getPrimeiroNome(profile?.nome_completo, user?.email)}!
+                {saudacaoPorHora().texto}, {profile?.nome_completo || getPrimeiroNome(profile?.nome_completo, user?.email)}!
               </h1>
               <div className="mt-2 flex items-center gap-3">
                 <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
