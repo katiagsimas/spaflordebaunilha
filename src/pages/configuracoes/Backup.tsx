@@ -887,16 +887,10 @@ export default function Backup() {
                         .from("backups" as any)
                         .select("id", { count: "exact", head: true })
                         .eq("usuario_id", user.id) as any);
-                      const eraOnboarding = (count ?? 0) === 0;
-                      if (eraOnboarding) {
+                      const hasBackups = (count ?? 0) > 0;
+                      if (!hasBackups) {
                         toast.info("Gerando seu primeiro backup...");
                         await realizarBackup();
-                      }
-                      await queryClient.invalidateQueries({ queryKey: ["onboarding-status"] });
-                      await queryClient.refetchQueries({ queryKey: ["onboarding-status"], type: "active" });
-                      if (eraOnboarding) {
-                        toast.success("Configuração concluída! Bem-vindo(a) ao Spa Flor de Baunilha 🎉");
-                        setTimeout(() => navigate("/onboarding/concluido", { replace: true }), 50);
                       }
                     }
                   } catch {
