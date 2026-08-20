@@ -63,7 +63,7 @@ export default function PrePreparoForm() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const isEditMode = !!id;
 
-  const onboardingPendente = profile && !(profile as any).onboarding_concluido;
+  
 
 
   // Campos básicos

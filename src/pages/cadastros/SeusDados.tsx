@@ -327,19 +327,11 @@ export default function SeusDados() {
       if (error) throw error;
     },
     onSuccess: async () => {
-      const eraOnboarding =
-        profile?.primeiro_acesso === true || (profile as any)?.onboarding_concluido !== true;
       await queryClient.invalidateQueries({ queryKey: ["profile", user?.id, activeGroup?.id] });
       await queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       await queryClient.invalidateQueries({ queryKey: ["business-profile", user?.id] });
       await queryClient.refetchQueries({ queryKey: ["profile", user?.id], type: "active" });
       toast.success("✅ Dados salvos com sucesso!");
-      if (eraOnboarding) {
-        setTimeout(
-          () => navigate("/onboarding/progresso", { replace: true }),
-          50
-        );
-      }
     },
     onError: (error: any) => {
       toast.error(error?.message ? `Erro: ${error.message}` : "Erro ao salvar dados.");
