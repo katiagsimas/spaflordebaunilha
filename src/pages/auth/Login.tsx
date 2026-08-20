@@ -203,11 +203,12 @@ export default function Login() {
               </form>
             </Card>
 
-            <p className="text-center text-xs font-body text-sfb-creme/40">
+            <p className="text-center text-xs font-body text-sfb-cacau/50">
               Sistema de gestão para confeitarias
             </p>
         </div>
-      </div>
+      </AuthSplitLayout>
+
     </>
   );
 }
