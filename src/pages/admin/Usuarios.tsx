@@ -30,7 +30,6 @@ import { EmptyState } from '@/components/EmptyState';
 
 import { EditarUsuarioDialog } from '@/components/admin/EditarUsuarioDialog';
 
-import { getPlanoLabel } from '@/lib/planos';
 import { CriarUsuarioDialog } from '@/components/admin/CriarUsuarioDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { toast } from '@/hooks/use-toast';
@@ -48,10 +47,6 @@ interface UserProfile {
   nome_confeitaria: string | null;
   created_at: string;
   ativo?: boolean;
-  plano_id?: string | null;
-  plano_inicio?: string | null;
-  plano_fim?: string | null;
-  plano_tipo?: string | null;
   last_login?: string | null;
   origem_criacao?: string | null;
   tem_dados?: boolean;
@@ -101,7 +96,6 @@ export default function Usuarios() {
     queryFn: async () => {
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, email, nome_completo, nome_confeitaria, created_at, ativo, plano_id, plano_inicio, plano_fim, plano_tipo, last_login, origem_criacao, owner_group_id')
         .order('created_at', { ascending: false });
       
       if (profilesError) throw profilesError;
@@ -217,10 +211,6 @@ export default function Usuarios() {
       if (masterProfile) {
         profileEfetivo = {
           ...profileEfetivo,
-          plano_id: masterProfile.plano_id,
-          plano_inicio: masterProfile.plano_inicio,
-          plano_fim: masterProfile.plano_fim,
-          plano_tipo: masterProfile.plano_tipo
         };
       }
     }
@@ -239,9 +229,6 @@ export default function Usuarios() {
       total: profilesComRoles.length,
       ativos: profilesComRoles.filter(u => u.ativo !== false).length,
       inativos: profilesComRoles.filter(u => u.ativo === false).length,
-      baseAnual: apenasUsuarios.filter(u => u.ativo !== false && (!u.plano_id || u.plano_id === 'base')).length,
-      negocioMensal: apenasUsuarios.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'mensal').length,
-      negocioAnual: apenasUsuarios.filter(u => u.ativo !== false && u.plano_id === 'negocio' && u.plano_tipo === 'anual').length,
     });
   }, [profilesComRoles]);
 
@@ -255,16 +242,12 @@ export default function Usuarios() {
     if (!filtroCard) return matchEmail && usuario.ativo !== false;
 
     const isAtivo = usuario.ativo !== false;
-    const isBase = !usuario.plano_id || usuario.plano_id === 'base';
-    const isNegocio = usuario.plano_id === 'negocio';
 
     switch (filtroCard) {
       case 'total': return matchEmail;
       case 'ativos': return matchEmail && isAtivo;
       case 'inativos': return matchEmail && !isAtivo;
       case 'baseAnual': return matchEmail && isAtivo && isBase;
-      case 'negocioMensal': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'mensal';
-      case 'negocioAnual': return matchEmail && isAtivo && isNegocio && usuario.plano_tipo === 'anual';
       default: return matchEmail;
     }
   }) || [];
@@ -287,9 +270,6 @@ export default function Usuarios() {
         'Grupo': group?.name || 'N/A',
         'Status': usuario.ativo !== false ? 'Ativo' : 'Inativo',
         'Permissão': isAdmin ? 'Administrador' : 'Usuário',
-        'Plano': getPlanoLabel(usuario.plano_id),
-        'Início do Plano': usuario.plano_inicio ? new Date(usuario.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
-        'Expiração do Plano': usuario.plano_fim ? new Date(usuario.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR') : 'N/A',
       };
     });
 
@@ -763,7 +743,6 @@ export default function Usuarios() {
                         <TableCell>
                           <div className="flex flex-col gap-1">
                             <Badge variant="outline" className="font-body text-xs w-fit">
-                              {profile.plano_id === 'negocio' ? 'Business' : profile.plano_id === 'controle' ? 'Controle' : 'Lite'}
                             </Badge>
                             {isMember && group && (
                               <Badge variant="secondary" className="text-[9px] h-4 px-1 bg-slate-100 text-slate-600 border-slate-200 w-fit">
@@ -789,8 +768,6 @@ export default function Usuarios() {
                         <TableCell>
                           <div className="flex flex-col gap-0.5">
                             <span className="text-sm">
-                              {profile.plano_inicio
-                                ? new Date(profile.plano_inicio + 'T00:00:00').toLocaleDateString('pt-BR')
                                 : '-'}
                             </span>
                             {isMember && (
@@ -801,8 +778,6 @@ export default function Usuarios() {
                         <TableCell>
                           <div className="flex flex-col gap-0.5">
                             <span className="text-sm">
-                              {profile.plano_fim
-                                ? new Date(profile.plano_fim + 'T00:00:00').toLocaleDateString('pt-BR')
                                 : '-'}
                             </span>
                             {isMember && (
