@@ -10,7 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Loader2, Mail } from 'lucide-react';
 import sfbIcon from '@/assets/sfb-logo-full.png';
 import authBrandImage from '@/assets/auth-brand-image.png';
-import authRightBg from '@/assets/auth-right-bg.png';
+import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
 import { BackButton } from '@/components/BackButton';
 
 export default function ForgotPassword() {
@@ -162,32 +162,20 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex bg-sfb-preto">
-      {/* Lado esquerdo — Imagem de marca */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-        <img
-          src={authBrandImage}
-          alt="Spa Flor de Baunilha"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-      </div>
-
-      {/* Lado direito — Formulário */}
-      <div
-        className="flex-1 flex items-center justify-center p-6 relative"
-        style={{
-          backgroundImage: `url(${authRightBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
-        {renderContent()}
-      </div>
+    <div 
+      className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-sfb-baunilha"
+      style={{
+        backgroundImage: `url(${authBackgroundAsset.url})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <div className="absolute inset-0 opacity-[0.04]" style={{
+        backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+        backgroundSize: '40px 40px'
+      }} />
+      {renderContent()}
     </div>
   );
 }
