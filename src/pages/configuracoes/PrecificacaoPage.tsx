@@ -37,7 +37,7 @@ export default function PrecificacaoPage() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Configure valor/hora e tempo de preparo das receitas
+              Configure valor/hora e tempo de preparo dos itens
             </CardDescription>
           </CardHeader>
         </Card>
@@ -59,7 +59,7 @@ export default function PrecificacaoPage() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Kg, litros, unidades e outras medidas usadas nas receitas
+              Kg, litros, unidades e outras medidas usadas nos itens
             </CardDescription>
           </CardHeader>
         </Card>

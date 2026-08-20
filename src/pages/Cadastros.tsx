@@ -41,7 +41,7 @@ export default function Cadastros() {
                   Valores de Mão de Obra
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
-                  Configure valor/hora e tempo de preparo das receitas
+                  Configure valor/hora e tempo de preparo dos itens
                 </p>
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function Cadastros() {
                   Unidades de Medidas
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
-                  Kg, litros, unidades e outras medidas usadas nas receitas
+                  Kg, litros, unidades e outras medidas usadas nos itens
                 </p>
               </div>
             </div>
