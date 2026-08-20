@@ -78,10 +78,6 @@ import {
 
 import { useResumoDashboard } from '@/hooks/useResumoDashboard';
 import { TabelaInadimplencia } from '@/components/financeiro/TabelaInadimplencia';
-import { useModuleHelp } from '@/hooks/useModuleHelp';
-import { HelpButton } from '@/components/help/HelpButton';
-import { ModuleHelpDrawer } from '@/components/help/ModuleHelpDrawer';
-import { financeiroHelp } from '@/components/help/contents/financeiroHelp';
 import dinheiroHero from '@/assets/dinheiro-hero-banner.png';
 import { HeroBanner } from '@/components/HeroBanner';
 
@@ -116,7 +112,7 @@ export default function Financeiro() {
 
   // Estados do dashboard
   const { inadimplenciaClientes, inadimplenciaFornecedores } = useResumoDashboard();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   useEffect(() => {
     fetchResumo();
@@ -393,10 +389,6 @@ export default function Financeiro() {
           </div>
 
 
-          {/* Botão de ajuda padronizado: canto esquerdo, abaixo do header */}
-          <div className="flex justify-start">
-            <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
-          </div>
 
 
           {/* CARDS DE NAVEGAÇÃO 2x3 */}
@@ -705,7 +697,6 @@ export default function Financeiro() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <ModuleHelpDrawer content={financeiroHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
 
   );

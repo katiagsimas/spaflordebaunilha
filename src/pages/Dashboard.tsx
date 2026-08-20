@@ -31,10 +31,6 @@ import {
   Loader2,
   ArrowRight
 } from "lucide-react";
-import { useModuleHelp } from "@/hooks/useModuleHelp";
-import { HelpButton } from "@/components/help/HelpButton";
-import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
-import { dashboardHelp } from "@/components/help/contents/dashboardHelp";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -114,7 +110,7 @@ export default function Dashboard() {
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const { isAdmin } = useIsAdmin();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
@@ -1039,8 +1035,7 @@ export default function Dashboard() {
 
 
       {/* ===== BOTÃO DE AJUDA + FILTROS DE PERÍODO ===== */}
-      <div className="flex items-center justify-between">
-        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <Label className="text-xs font-body uppercase tracking-widest text-sfb-cacau/60">Período</Label>
           <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
@@ -1427,7 +1422,6 @@ export default function Dashboard() {
         </div>
       )}
     </div>
-      <ModuleHelpDrawer content={dashboardHelp} isOpen={isHelpOpen} onClose={closeHelp} />
     </div>
   );
 }

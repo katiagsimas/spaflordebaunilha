@@ -37,10 +37,6 @@ import { EncomendasDoDia } from "@/components/EncomendasDoDia";
 
 import { useEncomendasHoje } from "@/hooks/useEncomendasHoje";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useModuleHelp } from "@/hooks/useModuleHelp";
-import { HelpButton } from "@/components/help/HelpButton";
-import { ModuleHelpDrawer } from "@/components/help/ModuleHelpDrawer";
-import { encomendaHelp } from "@/components/help/contents/encomendaHelp";
 import { EncomendaStatusCard } from "@/components/encomendas/EncomendaStatusCard";
 
 
@@ -980,7 +976,7 @@ const Encomendas = () => {
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -1021,7 +1017,6 @@ const Encomendas = () => {
       </div>
 
       <div className="flex items-center justify-start gap-3">
-        <HelpButton isOpen={isHelpOpen} onClick={toggleHelp} />
         <Dialog open={dialogOpen} onOpenChange={(open) => {
           setDialogOpen(open);
           if (!open) resetForm();
@@ -1733,7 +1728,7 @@ const Encomendas = () => {
 
 
       </div>
-      <ModuleHelpDrawer content={encomendaHelp} isOpen={isHelpOpen} onClose={closeHelp} />
+      
 
       {/* ===== BOTÕES FLUTUANTES ===== */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 sm:bottom-6 sm:right-6">
