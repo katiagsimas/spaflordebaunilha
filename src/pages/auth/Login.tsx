@@ -93,20 +93,8 @@ export default function Login() {
     <>
       <AlterarSenhaObrigatoria open={mostrarAlterarSenha} />
 
-      <div 
-        className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-sfb-baunilha"
-        style={{
-          backgroundImage: `url(${authBackgroundAsset.url})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-        }}
-      >
-        {/* Subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
-          backgroundSize: '40px 40px'
-        }} />
+      <AuthSplitLayout>
+
 
         <div className="w-full max-w-md relative z-10 space-y-8">
             {/* Brand header */}
