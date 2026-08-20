@@ -9,8 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail } from 'lucide-react';
 import sfbIcon from '@/assets/sfb-logo-full.png';
-import authBrandImage from '@/assets/auth-brand-image.png';
-import authBackgroundAsset from '@/assets/auth-background.png.asset.json';
+import { AuthSplitLayout } from '@/components/auth/AuthSplitLayout';
+
 import { BackButton } from '@/components/BackButton';
 
 export default function ForgotPassword() {
