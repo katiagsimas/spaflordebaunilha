@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Favor remover as instruções de Projeto/botão de Ajuda
+// Execute esta instrucao no projeto: Remova o botão "Ajuda" de todas as páginas deste projeto, suas funcionalidades e qualquer menção neste projeto, garanta persistência no banco de dados e integridade das demais funcionalidades
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
