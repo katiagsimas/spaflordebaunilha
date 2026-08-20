@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, 
 import { usePlano } from "@/hooks/usePlano";
 import { useMotherView } from "@/hooks/useMotherView";
 
-import { useOnboardingStatus } from "@/hooks/useOnboardingStatus";
+
 
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,8 +99,6 @@ export function AppSidebar() {
   const effectiveIsMother = isMother && !simulating;
   const effectiveIsAdmin = isAdmin && !simulating;
   
-  // Verificação de Onboarding Pendente
-  const { onboardingPendente } = useOnboardingStatus();
 
   const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
 
@@ -217,10 +215,6 @@ export function AppSidebar() {
                     .map((item) => {
                       const Icon = item.icon;
                       
-                      // Esconder itens se o onboarding estiver pendente (exceto para Admin/Mother)
-                      const isBloqueadoPorOnboarding = onboardingPendente && ["Vendas", "Fichas Técnicas", "Receitas", "Ingredientes", "Clientes", "Parceiros"].some(t => item.title.includes(t));
-                      
-                      if (isBloqueadoPorOnboarding) return null;
 
                       const bloqueado = !isPlanoLoading && !effectiveIsAdmin && item.active && rotaBloqueada(item.url);
 

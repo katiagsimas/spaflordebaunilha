@@ -14,7 +14,7 @@ import { GroupProvider } from "@/contexts/GroupContext";
 import { GlobalLoadingProvider, useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import { LoadingMascote } from "@/components/LoadingMascote";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { FirstAccessRedirect } from "@/components/FirstAccessRedirect";
+
 import { FloatingNavigation } from "@/components/FloatingNavigation";
 import { AlertaExpiracaoPlano } from "@/components/AlertaExpiracaoPlano";
 import { PlanExpirationWatcher } from "@/components/PlanExpirationWatcher";
@@ -95,9 +95,6 @@ import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
 import Negociacoes from "./pages/comercial/Negociacoes";
-import OnboardingBemVinda from "./pages/onboarding/BemVinda";
-import OnboardingProgresso from "./pages/onboarding/Progresso";
-import OnboardingConcluido from "./pages/onboarding/Concluido";
 
 
 
@@ -188,7 +185,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <AlertaExpiracaoPlano />
           
           <main className="flex-1 min-w-0 px-3 sm:px-4 md:px-8 pt-2 pb-6 md:pb-8 bg-app overflow-x-hidden md:overflow-x-visible">
-            <FirstAccessRedirect />
+            
             {children}
           </main>
 
@@ -224,10 +221,6 @@ const App = () => (
           {/* Redirecionar raiz para Dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          {/* Onboarding de primeiro acesso */}
-          <Route path="/onboarding/bem-vinda" element={<ProtectedRoute><Layout><OnboardingBemVinda /></Layout></ProtectedRoute>} />
-          <Route path="/onboarding/progresso" element={<ProtectedRoute><Layout><OnboardingProgresso /></Layout></ProtectedRoute>} />
-          <Route path="/onboarding/concluido" element={<ProtectedRoute><Layout><OnboardingConcluido /></Layout></ProtectedRoute>} />
 
           {/* Dashboard Principal */}
           <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
