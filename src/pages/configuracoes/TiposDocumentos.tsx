@@ -148,7 +148,8 @@ export default function TiposDocumentos() {
         if (!user || !activeGroupId) return;
 
         const { data: codigo, error } = await supabase.rpc('gerar_proximo_codigo_tipo_documento', {
-          p_user_id: user.id
+          p_user_id: user.id,
+          p_owner_group_id: activeGroupId
         });
 
         if (error) {
