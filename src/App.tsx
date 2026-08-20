@@ -91,6 +91,7 @@ import NovaProposta from "./pages/comercial/NovaProposta";
 import RelatorioPropostas from "./pages/comercial/RelatorioPropostas";
 import Contratos from "./pages/comercial/Contratos";
 import Negociacoes from "./pages/comercial/Negociacoes";
+import ProdutosRevenda from "./pages/ProdutosRevenda";
 
 
 
