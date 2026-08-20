@@ -67,7 +67,7 @@ export default function PrecificacaoPage() {
         {/* Card: Categorias */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-sfb-terracota/60"
-          onClick={() => navigate("/configuracoes/categorias-receitas")}
+          onClick={() => navigate("/configuracoes/categorias")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">

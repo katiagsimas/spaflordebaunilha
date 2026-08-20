@@ -252,7 +252,7 @@ const App = () => (
           <Route path="/configuracoes/tags-encomendas" element={<Navigate to="/encomendas/tags" replace />} />
           <Route path="/configuracoes/backup" element={<ProtectedRoute><Layout><BackupPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           
