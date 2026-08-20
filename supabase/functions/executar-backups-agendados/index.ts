@@ -42,14 +42,12 @@ const MODULO_TABELAS: Record<string, string[]> = {
   // Governança: APENAS MOTHER. Tabelas globais, snapshot sem filtro de tenant.
   governanca: [
     "groups", "user_global_roles", "user_group_roles", "user_roles",
-    "profiles", "historico_planos",
   ],
 };
 
 const MODULOS_MOTHER_ONLY = new Set(["governanca"]);
 const GOVERNANCA_TABELAS = new Set([
   "groups", "user_global_roles", "user_group_roles", "user_roles",
-  "historico_planos",
 ]);
 
 // Tabelas que filtram por owner_group_id (multi-tenant) e que precisam filtrar via usuario_id na ausência.
