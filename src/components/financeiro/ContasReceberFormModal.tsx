@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
 import { addMonthsToDate, getFirstDayOfMonth, formatDateToISO } from '@/lib/dateUtils';
 import { Button } from '@/components/ui/button';
@@ -49,6 +50,7 @@ export default function ContasReceberFormModal({
   onSucesso,
   onCancelar,
 }: ContasReceberFormModalProps) {
+  const { activeGroupId } = useGroup();
   const { toast } = useToast();
 
 
@@ -284,6 +286,7 @@ export default function ContasReceberFormModal({
         .from('contas_receber')
         .insert({
           usuario_id: user.id,
+          owner_group_id: activeGroupId,
           cliente_id: clienteId,
           data_emissao: dataEmissao,
           tipo_documento_id: tipoDocumentoId,

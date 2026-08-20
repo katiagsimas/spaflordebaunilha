@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useGroup } from '@/contexts/GroupContext';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 import { useNavigate } from 'react-router-dom';
@@ -47,7 +48,7 @@ export default function ContasPagarFormView({
   onSucesso,
   onCancelar,
 }: ContasPagarFormViewProps) {
-
+  const { activeGroupId } = useGroup();
   const { toast } = useToast();
   const navigate = useNavigate();
   const isEdicao = !!contaId;
@@ -307,6 +308,7 @@ export default function ContasPagarFormView({
 
       const dadosConta = {
         usuario_id: user.id,
+        owner_group_id: activeGroupId,
         fornecedor_id: fornecedorId,
         data_emissao: dataEmissao,
         tipo_documento_id: tipoDocumentoId,
