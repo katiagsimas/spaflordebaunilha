@@ -186,7 +186,7 @@ export function AppSidebar() {
             <img 
               src={logoAssinatura.url} 
               alt="Spa Flor de Baunilha" 
-              className="h-12 w-auto object-contain drop-shadow-sm" 
+              className="h-16 w-auto object-contain drop-shadow-sm" 
             />
           </div>
         )}
