@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { parseISOToDate } from "@/lib/dateUtils";
-import clientesFornecedoresHero from "@/assets/clientes-fornecedores-hero-banner.png";
+
 import { HeroBanner } from "@/components/HeroBanner";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -137,12 +137,10 @@ export default function ClientesFornecedores() {
   return (
     <div className="min-h-screen bg-[#FFFDF9] pb-24">
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
-        {/* HERO BANNER padronizado */}
+        {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
         <HeroBanner
-          image={clientesFornecedoresHero}
           title="Parceiros"
           subtitle="Cuide das pessoas que sustentam a sua confeitaria."
-          imageAlt="Parceiros"
         />
 
         {aniversariantesDoMes.length > 0 && (
