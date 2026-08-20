@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: remova o alerta "O sistema já cadastrou 14 tipos de documentos mais comuns. Você pode criar tipos personalizados conforme sua necessidade." e qualquer histórico de documentos no banco de dados, pois o usuário irá realizar o cadastro dos seus dooumentos
+// Execute esta instrucao no projeto: o usuário está tentando criar o documento PIX, porém, está subindo mensagem de erro,, cooo se algo estivesse sendoo violado, favor verificar e corrigir
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
