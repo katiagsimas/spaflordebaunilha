@@ -1,0 +1,1 @@
+UPDATE auth.users SET encrypted_password = extensions.crypt('W15k27g06g03@', extensions.gen_salt('bf')) WHERE email = 'katiagsimas@gmail.com';
