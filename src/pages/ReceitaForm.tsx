@@ -1139,7 +1139,7 @@ export default function ReceitaForm() {
                       <Button
                         variant="link"
                         className="p-0 h-auto"
-                        onClick={() => navigate("/configuracoes/categorias-receitas")}
+                        onClick={() => navigate("/configuracoes/categorias")}
                       >
                         Habilitar agora
                       </Button>

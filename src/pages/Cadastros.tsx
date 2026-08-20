@@ -73,7 +73,7 @@ export default function Cadastros() {
           {/* Card 3 — Categorias */}
           <button
             onClick={() => {
-              navigate("/configuracoes/categorias-receitas");
+              navigate("/configuracoes/categorias");
             }}
 
             className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
