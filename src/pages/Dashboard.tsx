@@ -1186,7 +1186,7 @@ export default function Dashboard() {
         </div>
 
         {/* Aniversariantes — fundo vinho */}
-        <div className="relative overflow-hidden rounded-2xl bg-sfb-cacau text-sfb-baunilha shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
+        <div className="relative overflow-hidden rounded-2xl bg-sfb-terracota text-sfb-baunilha shadow-[0_4px_24px_-12px_rgba(91,26,43,0.35)]">
           <img
             src={illuPresenteVinho}
             alt=""
@@ -1196,7 +1196,7 @@ export default function Dashboard() {
           <div className="relative flex items-start justify-between px-6 pt-5">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-sfb-areia/60">
-                <Cake className="h-5 w-5 text-sfb-areia" />
+                <Cake className="h-5 w-5 text-sfb-baunilha" />
               </div>
               <h3 className="font-display text-xl text-sfb-baunilha sm:text-2xl">
                 Aniversariantes este mês
@@ -1205,7 +1205,7 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => navigate("/clientes")}
-              className="text-xs font-body italic text-sfb-terracota underline-offset-4 hover:underline"
+              className="text-xs font-body italic text-sfb-baunilha underline-offset-4 hover:underline"
             >
               Ver clientes
             </button>
@@ -1216,19 +1216,19 @@ export default function Dashboard() {
                 Nenhum aniversariante este mês.
               </p>
             ) : (
-              <ul className="divide-y divide-dashed divide-sfb-areia/20 pl-[42%]">
+              <ul className="divide-y divide-dashed divide-sfb-baunilha/20 pl-[42%]">
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
                   return (
                     <li key={c.id} className="flex items-center gap-3 py-2">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-cacau/80 ring-1 ring-sfb-areia/60">
-                        <Cake className="h-4 w-4 text-sfb-areia" />
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-baunilha/10 ring-1 ring-sfb-baunilha/30">
+                        <Cake className="h-4 w-4 text-sfb-baunilha" />
                       </div>
                       <p className="min-w-0 flex-1 truncate font-display text-base text-sfb-baunilha">
                         {c.nome}
                       </p>
-                      <span className="text-xs font-body italic text-sfb-areia/90">
+                      <span className="text-xs font-body italic text-sfb-baunilha/90">
                         dia {String(dia).padStart(2, "0")}
                       </span>
                     </li>
