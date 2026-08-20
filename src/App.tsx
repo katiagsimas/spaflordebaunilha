@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Aplique cor de fundo na listagem de produtos
+// Execute esta instrucao no projeto: A listagem de produtos tem cabeçalho identificando as ifnormações de cada coluna?
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
