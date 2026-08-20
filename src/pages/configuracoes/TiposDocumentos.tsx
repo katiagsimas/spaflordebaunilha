@@ -61,7 +61,7 @@ export default function TiposDocumentos() {
   
   // Filtros
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'padrao' | 'custom'>('todos');
-  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('todos');
+  const [filtroStatus, setFiltroStatus] = useState<'todos' | 'habilitado' | 'desabilitado'>('habilitado');
 
   // Modal
   const [modalAberto, setModalAberto] = useState(false);
