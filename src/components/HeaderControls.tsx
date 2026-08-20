@@ -36,13 +36,13 @@ export function ClearCacheButton() {
         <TooltipTrigger asChild>
           <button
             onClick={handleClear}
-            className="flex items-center gap-2 h-9 rounded-full px-2 bg-sfb-creme/10 hover:bg-sfb-creme/20 text-sfb-creme ring-1 ring-sfb-creme/20 transition-all font-body text-xs"
+            className="flex items-center gap-2 h-9 rounded-full px-2 bg-sfb-baunilha/10 hover:bg-sfb-baunilha/20 text-sfb-baunilha ring-1 ring-sfb-baunilha/20 transition-all font-body text-xs"
             aria-label="Limpar cache e recarregar"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="bg-sfb-preto text-sfb-creme border-sfb-dourado/40 max-w-[240px]">
+        <TooltipContent side="bottom" className="bg-sfb-cacau text-sfb-baunilha border-sfb-baunilha/40 max-w-[240px]">
           <span className="font-body text-xs">
             Faz logout, limpa o cache do navegador e recarrega o app.
           </span>
