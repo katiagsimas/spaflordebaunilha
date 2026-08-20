@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Loader2, Mail, Lock, Eye, EyeOff, ExternalLink } from 'lucide-react';
-import sfbLogoFull from '@/assets/sfb-logo-full.png';
+import sfbLogoAsset from '@/assets/sfb-logo-full.png.asset.json';
+const sfbLogoFull = sfbLogoAsset.url;
 
 import { z } from 'zod';
 import { toast } from 'sonner';
