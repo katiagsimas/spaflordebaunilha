@@ -148,17 +148,17 @@ export default function Negociacoes() {
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         {/* ===== HEADER PREMIUM ===== */}
         <div
-          className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+          className="relative overflow-hidden rounded-2xl border border-sfb-cacau/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
           style={{ background: "#FAEFEB" }}
         >
           <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
             <div className="flex-1 min-w-0">
-              <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
+              <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
                 Negociações
               </h1>
               <div className="mt-2 flex items-center gap-3">
                 <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
-                <p className="text-xs italic text-[#C98A75] sm:text-sm">
+                <p className="text-xs italic text-sfb-terracota sm:text-sm">
                   Acompanhe suas negociações do início ao fechamento.
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function Negociacoes() {
             return (
               <Card
                 key={kpi.label}
-                className="rounded-2xl border-2 border-[#C98A75]/60 bg-sfb-baunilha shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
+                className="rounded-2xl border-2 border-sfb-terracota/60 bg-sfb-baunilha shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)]"
               >
                 <CardContent className="p-4 flex items-start gap-3">
                   <div className="h-11 w-11 shrink-0 rounded-full flex items-center justify-center ring-1 ring-sfb-dourado/40 bg-sfb-areia/15 text-sfb-cacau">
@@ -201,7 +201,7 @@ export default function Negociacoes() {
         </div>
 
         {/* ===== TABS + FILTROS + TABELA ===== */}
-        <Card className="rounded-2xl border-2 border-[#C98A75]/60 bg-white shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
+        <Card className="rounded-2xl border-2 border-sfb-terracota/60 bg-white shadow-[0_4px_18px_-10px_rgba(91,26,43,0.15)] overflow-hidden">
           <Tabs
             value={tab}
             onValueChange={(v) => {
@@ -210,17 +210,17 @@ export default function Negociacoes() {
             }}
           >
             {/* Header com tabs + ação */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#3D2F28]/10 px-4 sm:px-6 pt-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-sfb-cacau/10 px-4 sm:px-6 pt-4">
               <TabsList className="bg-transparent p-0 h-auto gap-6 rounded-none justify-start">
                 <TabsTrigger
                   value="propostas"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#2A1F1A]/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   Propostas
                 </TabsTrigger>
                 <TabsTrigger
                   value="contratos"
-                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-[#2A1F1A]/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
+                  className="relative rounded-md border-0 px-3 pb-2 pt-2 font-display text-[15px] text-sfb-cacau/60 data-[state=active]:bg-sfb-terracota data-[state=active]:text-sfb-baunilha data-[state=active]:font-semibold data-[state=active]:shadow-none transition-all"
                 >
                   Contratos
                 </TabsTrigger>
@@ -245,20 +245,20 @@ export default function Negociacoes() {
             </div>
 
             {/* Filtros */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 px-4 sm:px-6 py-4 bg-[#FBF6EE]/40 border-b border-[#3D2F28]/10">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3 px-4 sm:px-6 py-4 bg-sfb-baunilha/40 border-b border-sfb-cacau/10">
               <div className="md:col-span-5 relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sfb-cacau/50" />
                 <Input
                   value={busca}
                   onChange={(e) => setBusca(e.target.value)}
                   placeholder="Buscar por cliente, modelo ou número…"
-                  className="pl-9 bg-white border-[#3D2F28]/15"
+                  className="pl-9 bg-white border-sfb-cacau/15"
                 />
               </div>
 
               <div className="md:col-span-2">
                 <Select value={statusFiltro} onValueChange={setStatusFiltro}>
-                  <SelectTrigger className="bg-white border-[#3D2F28]/15">
+                  <SelectTrigger className="bg-white border-sfb-cacau/15">
                     <SelectValue placeholder="Todos os status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -278,14 +278,14 @@ export default function Negociacoes() {
                   type="date"
                   value={dataInicio}
                   onChange={(e) => setDataInicio(e.target.value)}
-                  className="bg-white border-[#3D2F28]/15"
+                  className="bg-white border-sfb-cacau/15"
                 />
                 <span className="text-xs text-sfb-cacau/50">a</span>
                 <Input
                   type="date"
                   value={dataFim}
                   onChange={(e) => setDataFim(e.target.value)}
-                  className="bg-white border-[#3D2F28]/15"
+                  className="bg-white border-sfb-cacau/15"
                 />
               </div>
 
@@ -293,7 +293,7 @@ export default function Negociacoes() {
                 <Button
                   variant="outline"
                   onClick={limparFiltros}
-                  className="w-full border-[#3D2F28]/20 text-sfb-cacau hover:bg-sfb-areia hover:text-sfb-cacau hover:border-sfb-areia"
+                  className="w-full border-sfb-cacau/20 text-sfb-cacau hover:bg-sfb-areia hover:text-sfb-cacau hover:border-sfb-areia"
                 >
                   <X className="h-4 w-4 mr-1" /> Limpar
                 </Button>
@@ -315,7 +315,7 @@ export default function Negociacoes() {
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-[#FBF6EE]/60">
+                    <TableRow className="bg-sfb-baunilha/60">
                       <TableHead>Número</TableHead>
                       <TableHead>Cliente</TableHead>
                       <TableHead>Emissão</TableHead>
@@ -391,7 +391,7 @@ export default function Negociacoes() {
               ) : (
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-[#FBF6EE]/60">
+                    <TableRow className="bg-sfb-baunilha/60">
                       <TableHead>Número</TableHead>
                       <TableHead>Cliente</TableHead>
                       <TableHead>Modelo</TableHead>

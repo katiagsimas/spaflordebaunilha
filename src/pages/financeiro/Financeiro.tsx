@@ -368,17 +368,17 @@ export default function Financeiro() {
         <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 pb-24">
           {/* ===== HEADER PREMIUM ===== */}
           <div
-            className="relative overflow-hidden rounded-2xl border border-[#3D2F28]/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
+            className="relative overflow-hidden rounded-2xl border border-sfb-cacau/10 shadow-[0_4px_24px_-16px_rgba(91,26,43,0.18)]"
             style={{ background: "#FAEFEB" }}
           >
             <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
               <div className="flex-1 min-w-0">
-                <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
+                <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
                   Meu Dinheiro
                 </h1>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
-                  <p className="text-xs italic text-[#C98A75] sm:text-sm">
+                  <p className="text-xs italic text-sfb-terracota sm:text-sm">
                     Controle total do que entra, sai e vira lucro.
                   </p>
                 </div>
@@ -407,13 +407,13 @@ export default function Financeiro() {
                 <button
                   key={c.title}
                   onClick={() => navigate(c.to)}
-                  className="group flex items-center gap-4 bg-white border-2 border-[#C98A75]/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-[#C98A75] hover:shadow-md"
+                  className="group flex items-center gap-4 bg-white border-2 border-sfb-terracota/60 rounded-xl p-5 text-left transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
                 >
-                  <div className="w-11 h-11 rounded-full bg-[#FBF6EE] flex items-center justify-center shrink-0">
-                    <Icon className="h-5 w-5 text-[#3D2F28]" />
+                  <div className="w-11 h-11 rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                    <Icon className="h-5 w-5 text-sfb-cacau" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-display text-[15px] font-semibold text-[#2A1F1A] leading-tight">
+                    <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
                       {c.title}
                     </p>
                     <p className="text-[12px] text-muted-foreground mt-0.5">
@@ -426,11 +426,11 @@ export default function Financeiro() {
           </div>
 
           {/* RESUMO FINANCEIRO */}
-          <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-6 space-y-5">
+          <div className="bg-white border border-sfb-cacau/10 rounded-xl p-6 space-y-5">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-[#3D2F28]" />
-                <h2 className="font-display text-[18px] uppercase tracking-wide text-[#2A1F1A]">
+                <BookOpen className="h-5 w-5 text-sfb-cacau" />
+                <h2 className="font-display text-[18px] uppercase tracking-wide text-sfb-cacau">
                   Resumo Financeiro
                 </h2>
               </div>
@@ -448,7 +448,7 @@ export default function Financeiro() {
               <div>
                 <Label className="text-[11px] text-muted-foreground mb-1">Mês</Label>
                 <Select value={mesSelecionado.toString()} onValueChange={(v) => setMesSelecionado(parseInt(v))}>
-                  <SelectTrigger className="w-full border-[#3D2F28]/20 rounded-lg bg-white">
+                  <SelectTrigger className="w-full border-sfb-cacau/20 rounded-lg bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -461,7 +461,7 @@ export default function Financeiro() {
               <div>
                 <Label className="text-[11px] text-muted-foreground mb-1">Ano</Label>
                 <Select value={anoSelecionado.toString()} onValueChange={(v) => setAnoSelecionado(parseInt(v))}>
-                  <SelectTrigger className="w-full border-[#3D2F28]/20 rounded-lg bg-white">
+                  <SelectTrigger className="w-full border-sfb-cacau/20 rounded-lg bg-white">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -475,33 +475,33 @@ export default function Financeiro() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-sfb-cacau/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saldo Anterior</p>
-                  <p className="text-2xl font-bold text-[#2A1F1A] mt-1">{formatarValor(saldoAnterior)}</p>
+                  <p className="text-2xl font-bold text-sfb-cacau mt-1">{formatarValor(saldoAnterior)}</p>
                 </div>
                 <CalendarDays className="h-7 w-7 text-muted-foreground" />
               </div>
-              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-sfb-cacau/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Entradas</p>
                   <p className="text-2xl font-bold mt-1" style={{ color: '#2e7d32' }}>{formatarValor(entradas)}</p>
                 </div>
                 <ArrowUp className="h-7 w-7" style={{ color: '#2e7d32' }} />
               </div>
-              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-sfb-cacau/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saídas</p>
-                  <p className="text-2xl font-bold text-[#C98A75] mt-1">{formatarValor(saidas)}</p>
+                  <p className="text-2xl font-bold text-sfb-terracota mt-1">{formatarValor(saidas)}</p>
                 </div>
-                <ArrowDown className="h-7 w-7 text-[#C98A75]" />
+                <ArrowDown className="h-7 w-7 text-sfb-terracota" />
               </div>
-              <div className="bg-white border border-[#3D2F28]/10 rounded-xl p-5 flex items-center justify-between">
+              <div className="bg-white border border-sfb-cacau/10 rounded-xl p-5 flex items-center justify-between">
                 <div>
                   <p className="text-[12px] text-muted-foreground">Saldo Atual</p>
-                  <p className="text-2xl font-bold text-[#2A1F1A] mt-1">{formatarValor(saldoAtual)}</p>
+                  <p className="text-2xl font-bold text-sfb-cacau mt-1">{formatarValor(saldoAtual)}</p>
                 </div>
-                <DollarSign className="h-7 w-7 text-[#C98A75]" />
+                <DollarSign className="h-7 w-7 text-sfb-terracota" />
               </div>
             </div>
 
@@ -510,23 +510,23 @@ export default function Financeiro() {
               <>
                 <Separator />
                 <div>
-                  <h3 className="font-display text-[15px] uppercase tracking-wide text-[#2A1F1A] mb-4 flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-[#3D2F28]" />
+                  <h3 className="font-display text-[15px] uppercase tracking-wide text-sfb-cacau mb-4 flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-sfb-cacau" />
                     Distribuição por Banco
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {bancosSaldos.filter(b => b.saldo_atual !== 0).map((banco) => (
-                      <div key={banco.banco_id} className="bg-white border border-[#3D2F28]/10 rounded-xl p-4 flex items-center justify-between">
+                      <div key={banco.banco_id} className="bg-white border border-sfb-cacau/10 rounded-xl p-4 flex items-center justify-between">
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-muted-foreground truncate font-semibold">
                             {banco.banco_codigo} - {banco.banco_nome}
                           </p>
-                          <p className="text-lg font-bold mt-1 text-[#2A1F1A]">
+                          <p className="text-lg font-bold mt-1 text-sfb-cacau">
                             {formatarValor(banco.saldo_atual)}
                           </p>
                         </div>
-                        <div className="w-10 h-10 rounded-lg bg-[#FBF6EE] flex items-center justify-center">
-                          <Wallet className="h-5 w-5 text-[#C98A75]" />
+                        <div className="w-10 h-10 rounded-lg bg-sfb-baunilha flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-sfb-terracota" />
                         </div>
                       </div>
                     ))}

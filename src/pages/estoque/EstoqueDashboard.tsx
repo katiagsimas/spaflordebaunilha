@@ -42,30 +42,30 @@ export default function EstoqueDashboard() {
       value: valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
       Icon: Coins,
       image: valorEstoqueImg,
-      tone: 'text-[#2A1F1A]',
+      tone: 'text-sfb-cacau',
       iconWrap: 'bg-sfb-terracota/15 ring-[#C98A75]/40',
-      iconColor: 'text-[#C98A75]',
+      iconColor: 'text-sfb-terracota',
     },
     {
       label: 'Itens Cadastrados',
       value: itens.length.toString(),
       Icon: PackageOpen,
       image: itensCadastradosImg,
-      tone: 'text-[#2A1F1A]',
+      tone: 'text-sfb-cacau',
       iconWrap: 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
-      iconColor: 'text-[#3D2F28]',
+      iconColor: 'text-sfb-cacau',
     },
     {
       label: 'Abaixo do Mínimo',
       value: itensAbaixoMinimo.length.toString(),
       Icon: AlertTriangle,
       image: abaixoMinimoImg,
-      tone: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#2A1F1A]',
+      tone: itensAbaixoMinimo.length > 0 ? 'text-sfb-terracota' : 'text-sfb-cacau',
       iconWrap:
         itensAbaixoMinimo.length > 0
           ? 'bg-sfb-terracota/20 ring-[#C98A75]/40'
           : 'bg-[#3D2F28]/10 ring-[#3D2F28]/25',
-      iconColor: itensAbaixoMinimo.length > 0 ? 'text-[#C98A75]' : 'text-[#3D2F28]',
+      iconColor: itensAbaixoMinimo.length > 0 ? 'text-sfb-terracota' : 'text-sfb-cacau',
     },
   ];
 
@@ -89,14 +89,14 @@ export default function EstoqueDashboard() {
         <Button
           variant="outline"
           onClick={() => navigate('/estoque/ajuste')}
-          className="gap-2 rounded-lg border-[#3D2F28]/30 bg-white text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
+          className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
           <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
         </Button>
         <Button
           variant="outline"
           onClick={() => navigate('/estoque/movimentacoes')}
-          className="gap-2 rounded-lg border-[#3D2F28]/30 bg-white text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
+          className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
           <Search className="h-4 w-4" /> Movimentações
         </Button>
@@ -107,7 +107,7 @@ export default function EstoqueDashboard() {
         {kpis.map(({ label, value, Icon, image, tone, iconWrap, iconColor }) => (
           <div
             key={label}
-            className="flex items-center gap-4 rounded-xl border border-[#3D2F28]/10 bg-white p-5"
+            className="flex items-center gap-4 rounded-xl border border-sfb-cacau/10 bg-white p-5"
           >
             {image ? (
               <img
@@ -121,7 +121,7 @@ export default function EstoqueDashboard() {
               </div>
             )}
             <div className="min-w-0">
-              <p className="font-body text-xs uppercase tracking-wide text-[#3D2F28]/60">{label}</p>
+              <p className="font-body text-xs uppercase tracking-wide text-sfb-cacau/60">{label}</p>
               <p className={`mt-1 font-display text-[28px] font-semibold leading-none ${tone}`}>{value}</p>
             </div>
           </div>
@@ -131,16 +131,16 @@ export default function EstoqueDashboard() {
       {/* FILTROS */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="relative flex-1 md:max-w-[45%]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#3D2F28]/40" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sfb-cacau/40" />
           <Input
             placeholder="Buscar insumo..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="rounded-lg border-[#3D2F28]/20 bg-white pl-9 focus-visible:border-[#C98A75]"
+            className="rounded-lg border-sfb-cacau/20 bg-white pl-9 focus-visible:border-sfb-terracota"
           />
         </div>
         <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-          <SelectTrigger className="w-full rounded-lg border-[#3D2F28]/20 bg-white md:w-48">
+          <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os tipos" />
           </SelectTrigger>
           <SelectContent>
@@ -150,7 +150,7 @@ export default function EstoqueDashboard() {
           </SelectContent>
         </Select>
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
-          <SelectTrigger className="w-full rounded-lg border-[#3D2F28]/20 bg-white md:w-48">
+          <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os status" />
           </SelectTrigger>
           <SelectContent>
@@ -165,15 +165,15 @@ export default function EstoqueDashboard() {
       {/* LAYOUT PRINCIPAL */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_minmax(260px,35%)]">
         {/* COLUNA ESQUERDA */}
-        <div className="rounded-xl border border-[#3D2F28]/10 bg-white">
-          <div className="flex items-center gap-2 border-b border-[#3D2F28]/10 px-5 py-4">
-            <CalendarDays className="h-5 w-5 text-[#3D2F28]" />
-            <h2 className="font-display text-lg text-[#2A1F1A]">Histórico de Movimentações</h2>
+        <div className="rounded-xl border border-sfb-cacau/10 bg-white">
+          <div className="flex items-center gap-2 border-b border-sfb-cacau/10 px-5 py-4">
+            <CalendarDays className="h-5 w-5 text-sfb-cacau" />
+            <h2 className="font-display text-lg text-sfb-cacau">Histórico de Movimentações</h2>
           </div>
 
           {itensFiltrados.length === 0 ? (
             <div className="px-5 py-12 text-center">
-              <p className="font-body text-sm text-[#3D2F28]/60">
+              <p className="font-body text-sm text-sfb-cacau/60">
                 Nenhuma movimentação encontrada com os filtros atuais.
               </p>
             </div>
@@ -181,14 +181,14 @@ export default function EstoqueDashboard() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[#FBF6EE] text-left">
-                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
+                  <tr className="bg-sfb-baunilha text-left">
+                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Insumo
                     </th>
-                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Valor no Estoque
                     </th>
-                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-[#3D2F28]/70">
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Ajuste do Mínimo
                     </th>
                   </tr>
@@ -201,18 +201,18 @@ export default function EstoqueDashboard() {
                     return (
                       <tr
                         key={item.id}
-                        className={`border-b border-[#3D2F28]/5 transition hover:bg-[#FBF6EE]/60 ${
-                          idx % 2 === 1 ? 'bg-[#FBF6EE]/30' : 'bg-white'
+                        className={`border-b border-sfb-cacau/5 transition hover:bg-sfb-baunilha/60 ${
+                          idx % 2 === 1 ? 'bg-sfb-baunilha/30' : 'bg-white'
                         }`}
                       >
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-2">
-                            <Package className="h-4 w-4 text-[#3D2F28]/50" />
+                            <Package className="h-4 w-4 text-sfb-cacau/50" />
                             <div className="min-w-0">
-                              <p className="truncate font-body text-sm font-medium text-[#2A1F1A]">
+                              <p className="truncate font-body text-sm font-medium text-sfb-cacau">
                                 {item.nome_insumo}
                               </p>
-                              <p className="font-body text-[11px] text-[#3D2F28]/50">
+                              <p className="font-body text-[11px] text-sfb-cacau/50">
                                 {Number(item.quantidade_atual).toLocaleString('pt-BR', {
                                   maximumFractionDigits: 2,
                                 })}{' '}
@@ -222,7 +222,7 @@ export default function EstoqueDashboard() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-right font-body text-sm text-[#2A1F1A]">
+                        <td className="px-5 py-3 text-right font-body text-sm text-sfb-cacau">
                           {valorItem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </td>
                         <td className="px-5 py-3 text-right">
@@ -231,7 +231,7 @@ export default function EstoqueDashboard() {
                               <AlertTriangle className="h-3 w-3" /> Abaixo
                             </Badge>
                           ) : (
-                            <span className="font-body text-sm text-[#3D2F28]/70">— Ajustado</span>
+                            <span className="font-body text-sm text-sfb-cacau/70">— Ajustado</span>
                           )}
                         </td>
                       </tr>
@@ -244,7 +244,7 @@ export default function EstoqueDashboard() {
         </div>
 
         {/* COLUNA DIREITA */}
-        <aside className="rounded-xl border border-[#3D2F28]/10 bg-white p-6">
+        <aside className="rounded-xl border border-sfb-cacau/10 bg-white p-6">
           {itens.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <img
@@ -255,7 +255,7 @@ export default function EstoqueDashboard() {
                 height={640}
                 loading="lazy"
               />
-              <p className="mt-4 font-display text-lg leading-snug text-[#2A1F1A]">
+              <p className="mt-4 font-display text-lg leading-snug text-sfb-cacau">
                 Nenhum insumo
                 <br />
                 cadastrado ainda
@@ -270,20 +270,20 @@ export default function EstoqueDashboard() {
           ) : itensAbaixoMinimo.length > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-[#C98A75]" />
-                <h3 className="font-display text-base text-[#2A1F1A]">Abaixo do mínimo</h3>
+                <AlertTriangle className="h-5 w-5 text-sfb-terracota" />
+                <h3 className="font-display text-base text-sfb-cacau">Abaixo do mínimo</h3>
               </div>
               <ul className="space-y-2">
                 {itensAbaixoMinimo.slice(0, 6).map((item) => (
                   <li
                     key={item.id}
-                    className="flex items-center justify-between rounded-lg border border-[#C98A75]/25 bg-sfb-terracota/10 px-3 py-2"
+                    className="flex items-center justify-between rounded-lg border border-sfb-terracota/25 bg-sfb-terracota/10 px-3 py-2"
                   >
                     <div className="min-w-0">
-                      <p className="truncate font-body text-sm font-medium text-[#2A1F1A]">
+                      <p className="truncate font-body text-sm font-medium text-sfb-cacau">
                         {item.nome_insumo}
                       </p>
-                      <p className="font-body text-[11px] text-[#3D2F28]/60">
+                      <p className="font-body text-[11px] text-sfb-cacau/60">
                         {Number(item.quantidade_atual).toLocaleString('pt-BR', {
                           maximumFractionDigits: 2,
                         })}{' '}
@@ -299,7 +299,7 @@ export default function EstoqueDashboard() {
               <Button
                 variant="outline"
                 onClick={() => navigate('/estoque/entrada')}
-                className="w-full gap-2 rounded-lg border-[#3D2F28]/30 text-[#2A1F1A] hover:border-[#3D2F28] hover:bg-[#FBF6EE]"
+                className="w-full gap-2 rounded-lg border-sfb-cacau/30 text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
               >
                 <Plus className="h-4 w-4" /> Repor estoque
               </Button>
@@ -314,10 +314,10 @@ export default function EstoqueDashboard() {
                 height={640}
                 loading="lazy"
               />
-              <p className="mt-4 font-display text-base leading-snug text-[#2A1F1A]">
+              <p className="mt-4 font-display text-base leading-snug text-sfb-cacau">
                 Estoque equilibrado
               </p>
-              <p className="mt-1 font-body text-xs text-[#3D2F28]/60">
+              <p className="mt-1 font-body text-xs text-sfb-cacau/60">
                 Nenhum insumo abaixo do mínimo.
               </p>
             </div>

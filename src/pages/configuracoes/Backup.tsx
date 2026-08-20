@@ -502,12 +502,12 @@ export default function Backup() {
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5 lg:px-8 lg:py-6 pr-[150px] sm:pr-[200px] lg:pr-[260px] min-h-[130px] sm:min-h-[150px] lg:min-h-[170px]">
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
+            <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
               Backup
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
-              <p className="text-xs italic text-[#C98A75] sm:text-sm">
+              <p className="text-xs italic text-sfb-terracota sm:text-sm">
                 Gerencie backups do seu projeto por módulo
               </p>
             </div>
@@ -525,13 +525,13 @@ export default function Backup() {
 
       <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-2">
-          <Info className="h-4 w-4 text-[#3D2F28]" />
-          <span className="text-sm font-medium text-[#2A1F1A]">Sobre os backups</span>
+          <Info className="h-4 w-4 text-sfb-cacau" />
+          <span className="text-sm font-medium text-sfb-cacau">Sobre os backups</span>
         </div>
-        <p className="text-[13px] text-[#2A1F1A]/70 leading-relaxed">
+        <p className="text-[13px] text-sfb-cacau/70 leading-relaxed">
           Cada backup é salvo na nuvem do Spa Flor de Baunilha e baixado para o seu computador. Você pode escolher quais{" "}
-          <span className="font-bold text-[#2A1F1A]">módulos</span> incluir e por quantos dias manter os backups antigos. Nome do arquivo:{" "}
-          <code className="font-mono text-[12px] bg-[#FBF6EE] px-2 py-0.5 rounded">{nomeBackupAtual}</code>
+          <span className="font-bold text-sfb-cacau">módulos</span> incluir e por quantos dias manter os backups antigos. Nome do arquivo:{" "}
+          <code className="font-mono text-[12px] bg-sfb-baunilha px-2 py-0.5 rounded">{nomeBackupAtual}</code>
         </p>
       </div>
 
@@ -540,16 +540,16 @@ export default function Backup() {
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div className="flex items-start gap-3 min-w-0">
             {pastaSalvamento ? (
-              <FolderCheck className="h-[18px] w-[18px] text-[#C98A75] mt-0.5 shrink-0" />
+              <FolderCheck className="h-[18px] w-[18px] text-sfb-terracota mt-0.5 shrink-0" />
             ) : (
-              <FolderOpen className="h-[18px] w-[18px] text-[#C98A75] mt-0.5 shrink-0" />
+              <FolderOpen className="h-[18px] w-[18px] text-sfb-terracota mt-0.5 shrink-0" />
             )}
             <div className="min-w-0">
-              <h3 className="text-[15px] font-bold text-[#2A1F1A]">Local de salvamento</h3>
-              <p className="text-xs text-[#2A1F1A]/60 mt-0.5">
+              <h3 className="text-[15px] font-bold text-sfb-cacau">Local de salvamento</h3>
+              <p className="text-xs text-sfb-cacau/60 mt-0.5">
                 {pastaSalvamento ? (
                   <>Os arquivos de backup serão salvos em{" "}
-                    <code className="font-mono text-[12px] bg-[#FBF6EE] px-2 py-0.5 rounded text-[#2A1F1A]">
+                    <code className="font-mono text-[12px] bg-sfb-baunilha px-2 py-0.5 rounded text-sfb-cacau">
                       {pastaSalvamento}
                     </code>
                   </>
@@ -566,7 +566,7 @@ export default function Backup() {
               <button
                 type="button"
                 onClick={limparPasta}
-                className="text-xs text-[#3D2F28] hover:underline underline-offset-2 px-2 py-1"
+                className="text-xs text-sfb-cacau hover:underline underline-offset-2 px-2 py-1"
               >
                 Usar padrão
               </button>
@@ -592,25 +592,25 @@ export default function Backup() {
       <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
-            <Download className="h-[18px] w-[18px] text-[#C98A75] mt-0.5" />
+            <Download className="h-[18px] w-[18px] text-sfb-terracota mt-0.5" />
             <div>
-              <h3 className="text-[15px] font-bold text-[#2A1F1A]">Backup manual</h3>
-              <p className="text-xs text-[#2A1F1A]/60">Selecione os módulos e gere um backup agora</p>
+              <h3 className="text-[15px] font-bold text-sfb-cacau">Backup manual</h3>
+              <p className="text-xs text-sfb-cacau/60">Selecione os módulos e gere um backup agora</p>
             </div>
           </div>
           <div className="flex items-center gap-2 text-[13px]">
             <button
               type="button"
               onClick={() => setModulosManual(modulosVisiveis.map((m) => m.id))}
-              className="text-[#3D2F28] hover:underline underline-offset-2"
+              className="text-sfb-cacau hover:underline underline-offset-2"
             >
               Marcar todos
             </button>
-            <span className="text-[#3D2F28]/40">|</span>
+            <span className="text-sfb-cacau/40">|</span>
             <button
               type="button"
               onClick={() => setModulosManual([])}
-              className="text-[#3D2F28] hover:underline underline-offset-2"
+              className="text-sfb-cacau hover:underline underline-offset-2"
             >
               Limpar
             </button>
@@ -626,26 +626,26 @@ export default function Backup() {
                 key={mod.id}
                 className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   checked
-                    ? "border-[#3D2F28] bg-[#FBF6EE]"
-                    : "border-[#3D2F28]/12 bg-white opacity-90 hover:opacity-100"
+                    ? "border-sfb-cacau bg-sfb-baunilha"
+                    : "border-sfb-cacau/12 bg-white opacity-90 hover:opacity-100"
                 }`}
               >
                 <Checkbox
                   checked={checked}
                   onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
-                  className="border-[#3D2F28]/40 data-[state=checked]:bg-[#3D2F28] data-[state=checked]:border-[#3D2F28]"
+                  className="border-sfb-cacau/40 data-[state=checked]:bg-[#3D2F28] data-[state=checked]:border-sfb-cacau"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-[#2A1F1A]">{mod.titulo}</span>
-                    <span className="bg-[#3D2F28]/10 text-[#3D2F28] text-[10px] px-2 py-0.5 rounded-full font-medium">
+                    <span className="text-sm font-bold text-sfb-cacau">{mod.titulo}</span>
+                    <span className="bg-[#3D2F28]/10 text-sfb-cacau text-[10px] px-2 py-0.5 rounded-full font-medium">
                       {mod.tabelas.length} tabelas
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#2A1F1A]/60 mt-0.5 line-clamp-2">{mod.descricao}</p>
+                  <p className="text-[11px] text-sfb-cacau/60 mt-0.5 line-clamp-2">{mod.descricao}</p>
                 </div>
-                <div className="w-11 h-11 rounded-full bg-[#FBF6EE] border border-[#3D2F28]/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-5 w-5 text-[#3D2F28]" />
+                <div className="w-11 h-11 rounded-full bg-sfb-baunilha border border-sfb-cacau/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5 text-sfb-cacau" />
                 </div>
               </label>
             );
@@ -670,12 +670,12 @@ export default function Backup() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Histórico Recentes */}
         <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-          <h3 className="text-[15px] text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
+          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
             Histórico de Backups Recentes
           </h3>
           <div className="flex flex-wrap gap-1.5 mb-3">
             {historicoChips.length === 0 ? (
-              <span className="text-xs text-[#2A1F1A]/50">Sem backups ainda</span>
+              <span className="text-xs text-sfb-cacau/50">Sem backups ainda</span>
             ) : (
               historicoChips.map((c) => (
                 <button
@@ -684,8 +684,8 @@ export default function Backup() {
                   onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
                   className={`rounded-full px-3 py-1 text-xs transition-colors border ${
                     backupSelecionado === c.id
-                      ? "bg-[#3D2F28] text-sfb-baunilha border-[#3D2F28]"
-                      : "bg-[#FBF6EE] border-[#3D2F28]/15 text-[#2A1F1A] hover:border-[#3D2F28]/40"
+                      ? "bg-[#3D2F28] text-sfb-baunilha border-sfb-cacau"
+                      : "bg-sfb-baunilha border-sfb-cacau/15 text-sfb-cacau hover:border-sfb-cacau/40"
                   }`}
                 >
                   {c.label}
@@ -740,11 +740,11 @@ export default function Backup() {
                       </Pie>
                     </PieChart>
                   </ResponsiveContainer>
-                  <div className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-[#2A1F1A]">
+                  <div className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-sfb-cacau">
                     {m.pct}%
                   </div>
                 </div>
-                <span className="text-[11px] text-[#2A1F1A]/60 mt-1 text-center leading-tight">{m.label}</span>
+                <span className="text-[11px] text-sfb-cacau/60 mt-1 text-center leading-tight">{m.label}</span>
               </div>
             ))}
           </div>
@@ -752,31 +752,31 @@ export default function Backup() {
 
         {/* Espaço */}
         <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-          <h3 className="text-[15px] text-[#2A1F1A] mb-3" style={{ fontFamily: PLAYFAIR }}>
+          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
             Espaço
           </h3>
-          <div className="flex items-center justify-between text-[11px] text-[#2A1F1A]/60 mb-1">
+          <div className="flex items-center justify-between text-[11px] text-sfb-cacau/60 mb-1">
             <span>Usado / Total</span>
             <span>{(totalKB / 1024).toFixed(1)} / 500 MB</span>
           </div>
-          <div className="h-2.5 rounded-full bg-[#FBF6EE] overflow-hidden">
+          <div className="h-2.5 rounded-full bg-sfb-baunilha overflow-hidden">
             <div
               className="h-full bg-sfb-terracota rounded-full transition-all"
               style={{ width: `${pctEspaco}%` }}
             />
           </div>
-          <div className="mt-4 space-y-1.5 text-[12px] text-[#2A1F1A]/80">
+          <div className="mt-4 space-y-1.5 text-[12px] text-sfb-cacau/80">
             <div className="flex justify-between">
-              <span className="text-[#2A1F1A]/60">Backups</span>
-              <span className="font-medium text-[#2A1F1A]">{backups.length}</span>
+              <span className="text-sfb-cacau/60">Backups</span>
+              <span className="font-medium text-sfb-cacau">{backups.length}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#2A1F1A]/60">Tamanho total</span>
-              <span className="font-medium text-[#2A1F1A]">{(totalKB / 1024).toFixed(2)} MB</span>
+              <span className="text-sfb-cacau/60">Tamanho total</span>
+              <span className="font-medium text-sfb-cacau">{(totalKB / 1024).toFixed(2)} MB</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#2A1F1A]/60">Último backup</span>
-              <span className="font-medium text-[#2A1F1A]">{ultimoBackup}</span>
+              <span className="text-sfb-cacau/60">Último backup</span>
+              <span className="font-medium text-sfb-cacau">{ultimoBackup}</span>
             </div>
           </div>
         </div>
