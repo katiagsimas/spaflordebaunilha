@@ -25,13 +25,13 @@ export function PageHeader({ title, description, actions, backButton }: PageHead
       )}
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex flex-col items-start">
-          <h1 className="font-display text-3xl tracking-tight text-sfb-vinho-escuro sm:text-4xl">
+          <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
             {title}
           </h1>
           {description && (
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-12 bg-sfb-dourado" />
-              <p className="text-sm font-body italic text-sfb-vinho/70">
+              <span className="h-px w-12 bg-sfb-terracota" />
+              <p className="text-sm font-body italic text-sfb-cacau/70">
                 {description}
               </p>
             </div>

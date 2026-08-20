@@ -108,12 +108,12 @@ export default function Receitas() {
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
-            <h1 className="font-display text-3xl tracking-tight text-sfb-vinho-escuro sm:text-4xl">
+            <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
               Fichas Técnicas
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-12 bg-sfb-dourado" />
-              <p className="text-sm font-body italic text-sfb-vinho/70">
+              <span className="h-px w-12 bg-sfb-terracota" />
+              <p className="text-sm font-body italic text-sfb-cacau/70">
                 Gerencie suas receitas e fichas técnicas
               </p>
             </div>
@@ -130,7 +130,7 @@ export default function Receitas() {
             }
             navigate("/precificacao/ficha-tecnica/nova");
           }}
-          className="bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro"
+          className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
         >
 
           <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
@@ -142,26 +142,26 @@ export default function Receitas() {
           variant={filtroAtivo === "todos" ? "default" : "outline"}
           size="sm"
           onClick={() => setFiltroAtivo("todos")}
-          className={filtroAtivo === "todos" ? "bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro" : "border-sfb-dourado/40 text-sfb-vinho hover:border-sfb-dourado hover:bg-sfb-creme"}
+          className={filtroAtivo === "todos" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
         >Todos ({resumos.length})</Button>
         <Button
           variant={filtroAtivo === "ativos" ? "default" : "outline"}
           size="sm"
           onClick={() => setFiltroAtivo("ativos")}
-          className={filtroAtivo === "ativos" ? "bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro" : "border-sfb-dourado/40 text-sfb-vinho hover:border-sfb-dourado hover:bg-sfb-creme"}
+          className={filtroAtivo === "ativos" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
         >Ativos ({resumos.filter(r => r.cardapio === "ativo").length})</Button>
         <Button
           variant={filtroAtivo === "fora" ? "default" : "outline"}
           size="sm"
           onClick={() => setFiltroAtivo("fora")}
-          className={filtroAtivo === "fora" ? "bg-sfb-vinho text-sfb-creme hover:bg-sfb-vinho-escuro" : "border-sfb-dourado/40 text-sfb-vinho hover:border-sfb-dourado hover:bg-sfb-creme"}
+          className={filtroAtivo === "fora" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
         >Fora do Cardápio ({resumos.filter(r => r.cardapio === "fora").length})</Button>
       </div>
 
       {resumosOrdenados.length === 0 ? (
         <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" actionLabel="Nova Ficha Técnica" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-sfb-dourado/20 bg-sfb-branco shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)]">
+        <div className="overflow-hidden rounded-2xl border border-sfb-areia/40 bg-sfb-baunilha/10 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)]">
           <div className="overflow-x-auto">
 
             <Table>
