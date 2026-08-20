@@ -326,7 +326,7 @@ export function AppSidebar() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {comingSoonModal?.title} <Lock className="h-5 w-5 text-sfb-dourado" />
+              {comingSoonModal?.title} <Lock className="h-5 w-5 text-sfb-terracota" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
               {comingSoonModal?.message}
@@ -340,7 +340,7 @@ export function AppSidebar() {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-dourado" />
+              {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-terracota" />
             </DialogTitle>
             <DialogDescription className="text-base font-body text-muted-foreground pt-2">
               Este módulo é exclusivo do <strong>Plano Flor de Baunilha Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.

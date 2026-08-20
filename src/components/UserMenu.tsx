@@ -228,7 +228,7 @@ export function UserMenu() {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-body flex items-center gap-1">
-                <Crown className="h-3 w-3 text-sfb-dourado" /> Plano
+                <Crown className="h-3 w-3 text-sfb-terracota" /> Plano
               </p>
               {isMother ? (
                 <p className="text-sm font-semibold text-sfb-vinho-escuro">
@@ -266,7 +266,7 @@ export function UserMenu() {
                 className="w-full justify-start font-body text-sm"
                 onClick={() => navigate("/upgrade")}
               >
-                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-dourado" />
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-sfb-terracota" />
                 Atualizar plano
               </Button>
             )}
