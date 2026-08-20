@@ -1,5 +1,5 @@
 import React from "react";
-/** Execute esta instrucao no projeto: sim */
+// Execute esta instrucao no projeto: sim
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
