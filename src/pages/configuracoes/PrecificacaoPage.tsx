@@ -12,7 +12,7 @@ export default function PrecificacaoPage() {
     <div className="min-h-screen bg-background">
       <PageHeader
         title="Precificação"
-        description="Configure mão de obra, unidades de medida e categorias de receitas"
+        description="Configure mão de obra, unidades de medida e categorias"
         backButton={<BackButton to="/cadastros" />}
       />
       
@@ -37,7 +37,7 @@ export default function PrecificacaoPage() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Configure valor/hora e tempo de preparo das receitas
+              Configure valor/hora e tempo de preparo dos itens
             </CardDescription>
           </CardHeader>
         </Card>
@@ -59,15 +59,15 @@ export default function PrecificacaoPage() {
               </div>
             </div>
             <CardDescription className="text-xs line-clamp-2">
-              Kg, litros, unidades e outras medidas usadas nas receitas
+              Kg, litros, unidades e outras medidas usadas nos itens
             </CardDescription>
           </CardHeader>
         </Card>
 
-        {/* Card: Categorias de Receitas */}
+        {/* Card: Categorias */}
         <Card 
           className="group cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all duration-200 border-l-2 border-sfb-terracota/60"
-          onClick={() => navigate("/configuracoes/categorias-receitas")}
+          onClick={() => navigate("/configuracoes/categorias")}
         >
           <CardHeader className="p-4 space-y-2">
             <div className="flex items-center gap-3">
@@ -76,7 +76,7 @@ export default function PrecificacaoPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <CardTitle className="text-base font-semibold leading-tight line-clamp-2">
-                  Categorias de Receitas
+                  Categorias
                 </CardTitle>
               </div>
             </div>

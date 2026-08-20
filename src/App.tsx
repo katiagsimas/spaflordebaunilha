@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Categorias, implemente as seguintes Categorias: Perfumaria, Maquiagem, Rosto, Cuidados para o Corpo, Cabelos, Infantil, Presentes, Casa & Estilo
+// Execute esta instrucao no projeto: Refine "Categorias de Receitas" para "Categorias", persista este refinamento no banco de dados e e qualquer página do projeto que tenha este texto
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -252,7 +252,7 @@ const App = () => (
           <Route path="/configuracoes/tags-encomendas" element={<Navigate to="/encomendas/tags" replace />} />
           <Route path="/configuracoes/backup" element={<ProtectedRoute><Layout><BackupPage /></Layout></ProtectedRoute>} />
           <Route path="/configuracoes/dados-confeitaria" element={<ProtectedRoute><Layout><SeusDados /></Layout></ProtectedRoute>} />
-          <Route path="/configuracoes/categorias-receitas" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
+          <Route path="/configuracoes/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
           

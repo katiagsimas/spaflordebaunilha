@@ -41,7 +41,7 @@ export default function Cadastros() {
                   Valores de Mão de Obra
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
-                  Configure valor/hora e tempo de preparo das receitas
+                  Configure valor/hora e tempo de preparo dos itens
                 </p>
               </div>
             </div>
@@ -64,7 +64,7 @@ export default function Cadastros() {
                   Unidades de Medidas
                 </p>
                 <p className="text-[12px] text-muted-foreground mt-1">
-                  Kg, litros, unidades e outras medidas usadas nas receitas
+                  Kg, litros, unidades e outras medidas usadas nos itens
                 </p>
               </div>
             </div>
@@ -73,7 +73,7 @@ export default function Cadastros() {
           {/* Card 3 — Categorias */}
           <button
             onClick={() => {
-              navigate("/configuracoes/categorias-receitas");
+              navigate("/configuracoes/categorias");
             }}
 
             className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
