@@ -3,7 +3,7 @@
 # check-umbrella-refs.sh
 # Verifica que não existem referências ao "app Spa Flor de Baunilha"
 # no código-fonte. Apenas "by Spa Flor de Baunilha" (marca da empresa),
-# emails @umbrelladoce.com.br e domínio spa.spaflordebaunilha.com.br
+# emails @spaflordebaunilha.com.br e domínio spa.spaflordebaunilha.com.br
 # são permitidos.
 # ============================================================
 set -euo pipefail
@@ -39,8 +39,8 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
-# 3. Link gestao.umbrelladoce.com.br (app antigo)
-echo -n "  [3/6] Link gestao.umbrelladoce.com.br ... "
+# 3. Link gestao.spaflordebaunilha.com.br (app antigo)
+echo -n "  [3/6] Link gestao.spaflordebaunilha.com.br ... "
 HITS=$(rg -rn 'gestao\.umbrelladoce' src/ supabase/ index.html 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo -e "${RED}FALHOU${NC}"
@@ -50,8 +50,8 @@ else
   echo -e "${GREEN}OK${NC}"
 fi
 
-# 4. Iframe app.umbrelladoce.com.br
-echo -n "  [4/6] Iframe app.umbrelladoce.com.br ... "
+# 4. Iframe app.spaflordebaunilha.com.br
+echo -n "  [4/6] Iframe app.spaflordebaunilha.com.br ... "
 HITS=$(rg -rn 'app\.umbrelladoce' src/ supabase/ index.html 2>/dev/null || true)
 if [ -n "$HITS" ]; then
   echo -e "${RED}FALHOU${NC}"
@@ -99,7 +99,7 @@ echo ""
 # Verificação informativa (não bloqueia)
 echo -e "${YELLOW}ℹ️  Referências legítimas mantidas (empresa):${NC}"
 echo "  - 'by Spa Flor de Baunilha' (branding)"
-echo "  - Emails @umbrelladoce.com.br"  
+echo "  - Emails @spaflordebaunilha.com.br"  
 echo "  - Domínio spa.spaflordebaunilha.com.br"
 echo ""
 
