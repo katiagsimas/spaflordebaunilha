@@ -976,7 +976,7 @@ const Encomendas = () => {
   const clientesComEncomendas = Array.from(new Set(encomendas.map(e => e.cliente).filter(c => c && c.trim() !== ""))).sort();
 
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   return (
     <div className="flex h-full overflow-hidden">
