@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Cake, BookOpen, Settings, FileText, Building2, Lock, Package, Wallet, ClipboardList, CalendarCheck, Sparkles, MessageCircle, ListChecks, HardDrive, FileSignature, ScrollText } from "lucide-react";
-import { usePlano } from "@/hooks/usePlano";
+
 import { useMotherView } from "@/hooks/useMotherView";
 
 
@@ -101,13 +101,8 @@ export function AppSidebar() {
   const effectiveIsAdmin = isAdmin && !simulating;
   
 
-  const { rotaBloqueada, isLoading: isPlanoLoading, plano } = usePlano();
-
-
-  
   const { quantidade: encomendasHojeQtd, temEncomendasHoje } = useEncomendasHoje();
   const [comingSoonModal, setComingSoonModal] = useState<{ title: string; message: string } | null>(null);
-  const [upgradeModal, setUpgradeModal] = useState<{ title: string } | null>(null);
 
 
   const { data: profile } = useQuery({
@@ -124,19 +119,6 @@ export function AppSidebar() {
     enabled: !!user,
   });
 
-  const { data: planoNome } = useQuery({
-    queryKey: ['plano-nome', profile?.plano_id],
-    queryFn: async () => {
-      if (!profile?.plano_id) return null;
-      const { data } = await supabase
-        .from('planos')
-        .select('nome')
-        .eq('id', profile.plano_id)
-        .single();
-      return data?.nome || null;
-    },
-    enabled: !!profile?.plano_id,
-  });
 
   const { data: aniversariantesFornecedores = [] } = useQuery({
     queryKey: ['fornecedores-contatos-aniversariantes', user?.id],
@@ -213,7 +195,7 @@ export function AppSidebar() {
                       const Icon = item.icon;
                       
 
-                      const bloqueado = !isPlanoLoading && !effectiveIsAdmin && item.active && rotaBloqueada(item.url);
+                      const bloqueado = false;
 
                       const isComingSoon = !item.active && !effectiveIsAdmin;
 
@@ -252,13 +234,9 @@ export function AppSidebar() {
                         <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton asChild isActive={false}>
                             <NavLink
-                              to={bloqueado ? "/upgrade" : item.url}
+                              to={item.url}
                               end
-                              onClick={(e) => {
-                                if (bloqueado) {
-                                  e.preventDefault();
-                                  setUpgradeModal({ title: item.title });
-                                }
+                              onClick={() => {
                                 if (isMobile) setOpenMobile(false);
                               }}
                               className={({ isActive }) =>
@@ -326,30 +304,6 @@ export function AppSidebar() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal "Upgrade necessário" para usuárias Lite */}
-      <Dialog open={!!upgradeModal} onOpenChange={() => setUpgradeModal(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 font-display text-xl">
-              {upgradeModal?.title} <Lock className="h-5 w-5 text-sfb-terracota" />
-            </DialogTitle>
-            <DialogDescription className="text-base font-body text-muted-foreground pt-2">
-              Este módulo é exclusivo do <strong>Plano Flor de Baunilha Business</strong>. Faça o upgrade do seu plano para liberar <strong>{upgradeModal?.title}</strong> e todas as ferramentas avançadas do Spa Flor de Baunilha.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end pt-2">
-            <a
-              href="https://spa.spaflordebaunilha.com.br"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setUpgradeModal(null)}
-              className="inline-flex items-center justify-center rounded-md bg-sfb-coral px-5 py-2.5 text-sm font-semibold font-body text-sfb-preto shadow hover:opacity-90 transition"
-            >
-              Quero fazer o upgrade
-            </a>
-          </div>
-        </DialogContent>
-      </Dialog>
     </Sidebar>
   );
 }
