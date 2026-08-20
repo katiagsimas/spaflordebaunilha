@@ -518,14 +518,6 @@ export default function Ingredientes() {
   };
 
   const handleExcluirIngrediente = async (ingrediente: any) => {
-    if (onboardingPendente) {
-      toast({
-        title: 'Ação bloqueada',
-        description: 'Conclua o onboarding para realizar esta ação!',
-        variant: 'destructive',
-      });
-      return;
-    }
     setIngredienteParaExcluir(ingrediente);
     setDialogExcluirAberto(true);
   };

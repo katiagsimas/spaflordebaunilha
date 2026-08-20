@@ -538,14 +538,6 @@ export default function PrePreparoForm() {
   };
 
   const handleSalvar = async () => {
-    if (onboardingPendente) {
-      toast({
-        title: "Ação bloqueada",
-        description: "Conclua o onboarding para realizar esta ação!",
-        variant: "destructive",
-      });
-      return;
-    }
 
     try {
 
