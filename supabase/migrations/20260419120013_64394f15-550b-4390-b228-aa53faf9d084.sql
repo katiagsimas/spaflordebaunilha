@@ -1,1 +1,0 @@
-ALTER TABLE public.profiles DROP COLUMN IF EXISTS valor_hora;

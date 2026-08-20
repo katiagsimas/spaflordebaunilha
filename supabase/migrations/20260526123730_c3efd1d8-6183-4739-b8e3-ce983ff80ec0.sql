@@ -1,4 +1,0 @@
-ALTER PUBLICATION supabase_realtime DROP TABLE public.contas_receber_parcelas;
-ALTER PUBLICATION supabase_realtime DROP TABLE public.contas_receber_pagamentos;
-ALTER PUBLICATION supabase_realtime DROP TABLE public.contas_pagar_parcelas;
-ALTER PUBLICATION supabase_realtime DROP TABLE public.contas_pagar_pagamentos;

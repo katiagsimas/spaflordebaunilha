@@ -1,1 +1,0 @@
-ALTER TABLE public.profiles ADD COLUMN plano_tipo text;
