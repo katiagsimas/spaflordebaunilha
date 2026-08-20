@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: o alerta continnua e eu continuo sem visualizar os 14 tipos de documentos informados
+// Execute esta instrucao no projeto: remova o alerta "O sistema já cadastrou 14 tipos de documentos mais comuns. Você pode criar tipos personalizados conforme sua necessidade." e qualquer histórico de documentos no banco de dados, pois o usuário irá realizar o cadastro dos seus dooumentos
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";

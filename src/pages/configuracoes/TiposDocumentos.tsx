@@ -79,26 +79,6 @@ export default function TiposDocumentos() {
     try {
       if (!user) return;
 
-      // Verificar se já tem tipos
-      const { data: tiposExistentes, error: errorVerif } = await supabase
-        .from('tipos_documento')
-        .select('id')
-        .eq('usuario_id', user.id)
-        .limit(1);
-
-      if (errorVerif) throw errorVerif;
-
-      // Se não tem, criar padrão
-      if (!tiposExistentes || tiposExistentes.length === 0) {
-        
-        const { error: errorCriar } = await supabase.rpc('criar_tipos_documento_padrao_para_usuario', {
-          p_usuario_id: user.id
-        });
-
-        if (errorCriar) {
-          console.error('Erro ao criar tipos padrão:', errorCriar);
-        }
-      }
 
       // Buscar tipos ordenados: habilitados primeiro, depois padrão, depois alfabético
       const { data, error } = await supabase
@@ -359,14 +339,6 @@ export default function TiposDocumentos() {
         description="Tipos de documentos para lançamentos financeiros"
       />
 
-      {/* Alert */}
-      <Alert className="bg-sfb-creme border-2 border-sfb-areia">
-        <Info className="h-4 w-4 text-sfb-cacau" />
-        <AlertDescription className="text-sfb-cacau">
-          O sistema já cadastrou 14 tipos de documentos mais comuns.
-          Você pode criar tipos personalizados conforme sua necessidade.
-        </AlertDescription>
-      </Alert>
 
       {/* Botão Novo Tipo */}
       <div className="flex justify-start">
