@@ -9,8 +9,8 @@ export default function Configuracoes() {
 
   const sections = [
     {
-      title: "Dados da Confeitaria",
-      description: "Razão social, CNPJ, endereço e contatos comerciais",
+      title: "Seus Dados",
+      description: "Suas informações pessoais e contatos",
       icon: Building2,
       to: "/configuracoes/dados-confeitaria",
     },
