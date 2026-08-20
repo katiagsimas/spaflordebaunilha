@@ -1302,17 +1302,17 @@ export default function Dashboard() {
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={visaoEconomica.anual}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#D8CBB9" vertical={false} />
-                <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--sfb-areia))" vertical={false} />
+                <XAxis dataKey="mes" stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                  contentStyle={{ backgroundColor: "hsl(var(--sfb-baunilha))", border: "1px solid hsl(var(--sfb-areia))", borderRadius: "8px" }}
                   formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`} 
                 />
                 <Legend iconType="circle" />
-                <Line type="monotone" dataKey="receitas" stroke="#C98A75" name="Receitas" strokeWidth={3} dot={{ r: 4, fill: "#C98A75" }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="custos" stroke="#8E9E8C" name="Custos" strokeWidth={3} dot={{ r: 4, fill: "#8E9E8C" }} activeDot={{ r: 6 }} />
-                <Line type="monotone" dataKey="lucro" stroke="#3D2F28" name="Lucro" strokeWidth={3} dot={{ r: 4, fill: "#3D2F28" }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="receitas" stroke="hsl(var(--sfb-terracota))" name="Receitas" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--sfb-terracota))" }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="custos" stroke="hsl(var(--sfb-salvia))" name="Custos" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--sfb-salvia))" }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="lucro" stroke="hsl(var(--sfb-cacau))" name="Lucro" strokeWidth={3} dot={{ r: 4, fill: "hsl(var(--sfb-cacau))" }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -1331,17 +1331,17 @@ export default function Dashboard() {
               <div className="h-[220px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={vendasPorMes}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CBB9" />
-                    <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
-                    <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--sfb-areia))" />
+                    <XAxis dataKey="mes" stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
                     <Tooltip 
-                      cursor={{ fill: '#D8CBB9', opacity: 0.2 }}
-                      contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                      cursor={{ fill: 'hsl(var(--sfb-areia))', opacity: 0.2 }}
+                      contentStyle={{ backgroundColor: "hsl(var(--sfb-baunilha))", border: "1px solid hsl(var(--sfb-areia))", borderRadius: "8px" }}
                       formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Vendas"]} 
                     />
-                    <Bar dataKey="total" fill="#C98A75" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="total" fill="hsl(var(--sfb-terracota))" radius={[6, 6, 0, 0]}>
                       {vendasPorMes.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={index === vendasPorMes.length - 1 ? '#C98A75' : '#D8CBB9'} />
+                        <Cell key={`cell-${index}`} fill={index === vendasPorMes.length - 1 ? 'hsl(var(--sfb-terracota))' : 'hsl(var(--sfb-areia))'} />
                       ))}
                     </Bar>
                   </BarChart>
@@ -1360,19 +1360,19 @@ export default function Dashboard() {
                 <div className="h-[160px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={fluxoCaixa}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#D8CBB9" />
-                      <XAxis dataKey="mes" stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#3D2F28" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--sfb-areia))" />
+                      <XAxis dataKey="mes" stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="hsl(var(--sfb-cacau))" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
                       <Tooltip 
-                        contentStyle={{ backgroundColor: "#FBF6EE", border: "1px solid #D8CBB9", borderRadius: "8px" }}
+                        contentStyle={{ backgroundColor: "hsl(var(--sfb-baunilha))", border: "1px solid hsl(var(--sfb-areia))", borderRadius: "8px" }}
                         formatter={(v: number) => [`R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, "Saldo"]} 
                       />
                       <Line
                         type="monotone"
                         dataKey="saldo"
-                        stroke="#C98A75"
+                        stroke="hsl(var(--sfb-terracota))"
                         strokeWidth={2.5}
-                        dot={{ fill: "#3D2F28", r: 4 }}
+                        dot={{ fill: "hsl(var(--sfb-cacau))", r: 4 }}
                         activeDot={{ r: 6 }}
                       />
                     </LineChart>
@@ -1387,7 +1387,7 @@ export default function Dashboard() {
                 title="Top 5 produtos"
                 subtitle={modoVisualizacao === 'mensal' ? `${meses[mesSelecionado]} de ${anoSelecionado}` : `Ano ${anoSelecionado}`}
                 headerRight={
-                  <div className="inline-flex rounded-full bg-sfb-vinho-escuro/40 p-1 ring-1 ring-sfb-dourado/40">
+                  <div className="inline-flex rounded-full bg-sfb-cacau/40 p-1 ring-1 ring-sfb-areia/40">
                     {(["mensal", "anual"] as const).map((tab) => (
                       <button
                         key={tab}
@@ -1395,8 +1395,8 @@ export default function Dashboard() {
                         onClick={() => setModoVisualizacao(tab)}
                         className={`rounded-full px-3 py-1 text-[10px] font-body uppercase tracking-widest transition ${
                           modoVisualizacao === tab
-                            ? "bg-sfb-dourado text-sfb-vinho-escuro shadow"
-                            : "text-sfb-creme/80 hover:text-sfb-creme"
+                            ? "bg-sfb-terracota text-sfb-baunilha shadow"
+                            : "text-sfb-baunilha/80 hover:text-sfb-baunilha"
                         }`}
                       >
                         {tab}
@@ -1405,7 +1405,7 @@ export default function Dashboard() {
                   </div>
                 }
               >
-                <ul className="divide-y divide-dashed divide-sfb-dourado/30">
+                <ul className="divide-y divide-dashed divide-sfb-areia/30">
                   {produtos.map((produto, index) => (
                     <li key={produto.id} className="flex items-center gap-3 py-2.5">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sfb-vinho font-display text-sm text-sfb-dourado ring-1 ring-sfb-dourado/60">
