@@ -1,18 +1,42 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag, Leaf, Sparkles, Home } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag, Leaf, Sparkles, Home, Plus, Edit2 } from "lucide-react";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
+import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 
 export default function Cadastros() {
   const { profile: userProfile } = useUserProfile();
   const [showRevendaOptions, setShowRevendaOptions] = useState(false);
+  const { produtos, loading: loadingProdutos } = useProdutosRevenda();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedMarca, setSelectedMarca] = useState<'natura' | 'avon' | 'casa_estilo' | null>(null);
+  const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
   
 
   const navigate = useNavigate();
+
+  const handleOpenForm = (marca: 'natura' | 'avon' | 'casa_estilo', produto?: ProdutoRevenda) => {
+    setSelectedMarca(marca);
+    setEditingProduto(produto);
+    setIsFormOpen(true);
+  };
+
+  const getMarcaLabel = (marca: string) => {
+    switch(marca) {
+      case 'natura': return 'Natura';
+      case 'avon': return 'Avon';
+      case 'casa_estilo': return 'Casa & Estilo';
+      default: return marca;
+    }
+  };
 
 
   return (
@@ -120,78 +144,152 @@ export default function Cadastros() {
 
         {/* SUB-CARDS DE REVENDA (Condicionais) */}
         {showRevendaOptions && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
-            {/* Card Natura */}
-            <button
-              onClick={() => {
-                console.log("Natura clicado");
-                toast.info("Módulo Natura em desenvolvimento");
-              }}
-              className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
-                  <Leaf className="h-6 w-6 text-sfb-cacau" />
+          <div className="space-y-8 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Card Natura */}
+              <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                    <Leaf className="h-6 w-6 text-sfb-cacau" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
+                      Natura
+                    </p>
+                    <p className="text-[12px] text-muted-foreground mt-1">
+                      Gestão de produtos e pedidos Natura
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
-                    Natura
-                  </p>
-                  <p className="text-[12px] text-muted-foreground mt-1">
-                    Gestão de produtos e pedidos Natura
-                  </p>
-                </div>
+                <Button 
+                  onClick={() => handleOpenForm('natura')}
+                  className="w-full bg-sfb-salvia hover:bg-sfb-salvia/90 text-white gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Novo Produto Natura
+                </Button>
               </div>
-            </button>
 
-            {/* Card Avon */}
-            <button
-              onClick={() => {
-                console.log("Avon clicado");
-                toast.info("Módulo Avon em desenvolvimento");
-              }}
-              className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
-                  <Sparkles className="h-6 w-6 text-sfb-cacau" />
+              {/* Card Avon */}
+              <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                    <Sparkles className="h-6 w-6 text-sfb-cacau" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
+                      Avon
+                    </p>
+                    <p className="text-[12px] text-muted-foreground mt-1">
+                      Gestão de produtos e pedidos Avon
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
-                    Avon
-                  </p>
-                  <p className="text-[12px] text-muted-foreground mt-1">
-                    Gestão de produtos e pedidos Avon
-                  </p>
-                </div>
+                <Button 
+                  onClick={() => handleOpenForm('avon')}
+                  className="w-full bg-sfb-salvia hover:bg-sfb-salvia/90 text-white gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Novo Produto Avon
+                </Button>
               </div>
-            </button>
 
-            {/* Card Casa & Estilo */}
-            <button
-              onClick={() => {
-                console.log("Casa & Estilo clicado");
-                toast.info("Módulo Casa & Estilo em desenvolvimento");
-              }}
-              className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
-            >
-              <div className="flex items-start gap-3">
-                <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
-                  <Home className="h-6 w-6 text-sfb-cacau" />
+              {/* Card Casa & Estilo */}
+              <div className="bg-white border-2 border-sfb-areia/60 rounded-xl p-5 flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-[52px] h-[52px] rounded-full bg-sfb-baunilha flex items-center justify-center shrink-0">
+                    <Home className="h-6 w-6 text-sfb-cacau" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
+                      Casa & Estilo
+                    </p>
+                    <p className="text-[12px] text-muted-foreground mt-1">
+                      Itens de decoração e utilidades domésticas
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-[15px] font-semibold text-sfb-cacau leading-tight">
-                    Casa & Estilo
-                  </p>
-                  <p className="text-[12px] text-muted-foreground mt-1">
-                    Itens de decoração e utilidades domésticas
-                  </p>
+                <Button 
+                  onClick={() => handleOpenForm('casa_estilo')}
+                  className="w-full bg-sfb-salvia hover:bg-sfb-salvia/90 text-white gap-2"
+                >
+                  <Plus className="h-4 w-4" /> Novo Produto Casa & Estilo
+                </Button>
+              </div>
+            </div>
+
+            {/* Listagem Simplificada de Produtos */}
+            {produtos.length > 0 && (
+              <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden">
+                <div className="p-4 border-b bg-sfb-baunilha/10">
+                  <h3 className="font-display font-semibold text-sfb-cacau">Produtos Cadastrados</h3>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Marca</TableHead>
+                        <TableHead>Código</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Linha</TableHead>
+                        <TableHead>Qtd/ml</TableHead>
+                        <TableHead>Pontos</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {produtos.map((produto) => (
+                        <TableRow key={produto.id}>
+                          <TableCell className="capitalize">{getMarcaLabel(produto.marca)}</TableCell>
+                          <TableCell>{produto.codigo || '-'}</TableCell>
+                          <TableCell className="font-medium">{produto.descricao}</TableCell>
+                          <TableCell>{produto.linha || '-'}</TableCell>
+                          <TableCell>{produto.quantidade_ml || '-'}</TableCell>
+                          <TableCell>{produto.quantidade_pontos}</TableCell>
+                          <TableCell>
+                            <Badge variant={produto.status === 'Ativo' ? 'default' : 'secondary'}>
+                              {produto.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => handleOpenForm(produto.marca, produto)}
+                            >
+                              <Edit2 className="h-4 w-4 text-sfb-terracota" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
-            </button>
+            )}
           </div>
         )}
       </div>
+
+      {/* Modal de Formulário */}
+      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingProduto ? 'Editar Produto' : 'Novo Produto'} - {selectedMarca ? getMarcaLabel(selectedMarca) : ''}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedMarca && (
+            <ProdutoRevendaForm 
+              marca={selectedMarca}
+              produto={editingProduto}
+              onSuccess={() => {
+                setIsFormOpen(false);
+                setEditingProduto(undefined);
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Botão flutuante voltar */}
       <button
