@@ -112,7 +112,7 @@ export default function Financeiro() {
 
   // Estados do dashboard
   const { inadimplenciaClientes, inadimplenciaFornecedores } = useResumoDashboard();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   useEffect(() => {
     fetchResumo();

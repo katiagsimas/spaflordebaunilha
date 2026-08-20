@@ -110,7 +110,7 @@ export default function Dashboard() {
   const [diaSelecionado, setDiaSelecionado] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const { isAdmin } = useIsAdmin();
-  const { isHelpOpen, toggleHelp, closeHelp } = useModuleHelp();
+  
 
   const [alertas, setAlertas] = useState({
     receberAtrasado: { quantidade: 0, valor: 0 },
