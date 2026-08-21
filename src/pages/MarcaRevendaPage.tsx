@@ -1,6 +1,10 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle, Search, Filter } from "lucide-react";
+import { 
+  Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, 
+  Trash2, PauseCircle, PlayCircle, Search, Filter, Download, 
+  FileJson, FileText, ChevronRight, ChevronsLeft, ChevronsRight
+} from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +16,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import Papa from 'papaparse';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 
 export default function MarcaRevendaPage() {
@@ -27,6 +34,8 @@ export default function MarcaRevendaPage() {
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"todos" | "Ativo" | "Pausado">("todos");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   const filteredProdutos = useMemo(() => {
     const term = searchQuery.trim().toLowerCase();
@@ -40,6 +49,65 @@ export default function MarcaRevendaPage() {
       return matchesStatus && matchesSearch;
     });
   }, [produtos, searchQuery, statusFilter]);
+
+  const totalPages = Math.ceil(filteredProdutos.length / itemsPerPage);
+  const paginatedProdutos = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredProdutos.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredProdutos, currentPage]);
+
+  const totalNatura = useMemo(() => {
+    return produtos.filter(p => p.marca === 'natura').length;
+  }, [produtos]);
+
+  const exportToCSV = () => {
+    const data = filteredProdutos.map(p => ({
+      Codigo: p.codigo || '',
+      Descricao: p.descricao,
+      Linha: p.linha || '',
+      'Qtd/ml': p.quantidade_ml || '',
+      Pontos: p.quantidade_pontos || 0,
+      Status: p.status
+    }));
+
+    const csv = Papa.unparse(data);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `produtos_${marca}_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Pontos", "Status"];
+    const tableRows = filteredProdutos.map(p => [
+      p.codigo || '',
+      p.descricao,
+      p.linha || '',
+      p.quantidade_ml || '',
+      p.quantidade_pontos || 0,
+      p.status
+    ]);
+
+    doc.setFontSize(18);
+    doc.text(`Produtos ${config.label}`, 14, 22);
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      headStyles: { fillColor: [201, 138, 117] }, // Terracota
+    });
+
+    doc.save(`produtos_${marca}_${new Date().toISOString().split('T')[0]}.pdf`);
+  };
 
 
   const getMarcaConfig = (m: string | undefined) => {
@@ -78,7 +146,7 @@ export default function MarcaRevendaPage() {
 
     <div className="min-h-screen bg-sfb-baunilha pb-24">
       <PageHeader
-        title={`Produtos ${config.label}`}
+        title={marca === 'natura' ? `Produtos ${config.label} (${totalNatura})` : `Produtos ${config.label}`}
         description={config.desc}
       />
 
@@ -121,6 +189,26 @@ export default function MarcaRevendaPage() {
               <SelectItem value="Pausado">Pausado</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="border-sfb-areia/60 text-sfb-cacau bg-white hover:bg-sfb-baunilha gap-2">
+                  <Download className="h-4 w-4 text-sfb-terracota" />
+                  Exportar
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white border-2 border-sfb-areia/60">
+                <DropdownMenuItem onClick={exportToCSV} className="gap-2 cursor-pointer hover:bg-sfb-baunilha text-sfb-cacau">
+                  <FileJson className="h-4 w-4 text-sfb-terracota" />
+                  CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToPDF} className="gap-2 cursor-pointer hover:bg-sfb-baunilha text-sfb-cacau">
+                  <FileText className="h-4 w-4 text-sfb-terracota" />
+                  PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
@@ -153,7 +241,7 @@ export default function MarcaRevendaPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredProdutos.map((produto) => (
+                  paginatedProdutos.map((produto) => (
                     <TableRow key={produto.id}>
                       <TableCell className="font-mono text-sm">{produto.codigo || '-'}</TableCell>
                       <TableCell className="font-medium">{produto.descricao}</TableCell>
@@ -219,6 +307,85 @@ export default function MarcaRevendaPage() {
               </TableBody>
             </Table>
           </div>
+          </div>
+          
+          {totalPages > 1 && (
+            <div className="bg-sfb-baunilha/30 border-t border-sfb-areia/60 px-4 py-3 flex items-center justify-between">
+              <div className="text-sm text-sfb-cacau/70">
+                Mostrando <span className="font-semibold text-sfb-cacau">{(currentPage - 1) * itemsPerPage + 1}</span> a <span className="font-semibold text-sfb-cacau">{Math.min(currentPage * itemsPerPage, filteredProdutos.length)}</span> de <span className="font-semibold text-sfb-cacau">{filteredProdutos.length}</span> produtos
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="h-8 w-8 p-0 border-sfb-areia/60 bg-white"
+                >
+                  <ChevronsLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="h-8 w-8 p-0 border-sfb-areia/60 bg-white"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`h-8 w-8 p-0 ${
+                          currentPage === pageNum 
+                            ? "bg-sfb-terracota text-white hover:bg-sfb-terracota/90" 
+                            : "border-sfb-areia/60 bg-white text-sfb-cacau hover:bg-sfb-baunilha"
+                        }`}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="h-8 w-8 p-0 border-sfb-areia/60 bg-white"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="h-8 w-8 p-0 border-sfb-areia/60 bg-white"
+                >
+                  <ChevronsRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
