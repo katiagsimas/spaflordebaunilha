@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings, HardDrive, Building2 } from "lucide-react";
+import { HardDrive, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Configuracoes() {
