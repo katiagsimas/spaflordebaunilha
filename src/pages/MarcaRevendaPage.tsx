@@ -67,14 +67,21 @@ export default function MarcaRevendaPage() {
 
       <div className="container mx-auto px-6 pt-4 space-y-8">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-display font-semibold text-sfb-cacau">Catálogo de Produtos</h2>
-          <Button 
+          <Button
+            variant="outline"
+            onClick={() => navigate("/cadastros/produtos-revenda")}
+            className="border-sfb-areia/60 text-sfb-cacau hover:bg-sfb-baunilha gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" /> Voltar
+          </Button>
+          <Button
             onClick={() => handleOpenForm()}
             className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-white gap-2"
           >
             <Plus className="h-4 w-4" /> Novo Produto
           </Button>
         </div>
+        <h2 className="text-xl font-display font-semibold text-sfb-cacau">Catálogo de Produtos</h2>
 
         <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
@@ -210,15 +217,6 @@ export default function MarcaRevendaPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <button
-
-        onClick={() => navigate("/cadastros/produtos-revenda")}
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
-        aria-label="Voltar"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
     </div>
   );
 }
