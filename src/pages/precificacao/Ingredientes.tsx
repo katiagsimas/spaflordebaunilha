@@ -580,7 +580,7 @@ export default function Ingredientes() {
 
   // Contar ingredientes desatualizados
   const qtdDesatualizados = ingredientes.filter((i: any) => verificarDesatualizado(i.data_atualizacao)).length;
-  if (loading) return <LoadingState message="Carregando Ingredientes" submessage="Buscando ingredientes cadastrados..." />;
+  if (loading) return <LoadingState message="Carregando Insumos" submessage="Buscando insumos cadastrados..." />;
   return <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
@@ -597,12 +597,12 @@ export default function Ingredientes() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
             <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
-              Ingredientes
+              Insumos
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-12 bg-sfb-terracota" />
               <p className="text-sm font-body italic text-sfb-cacau/70">
-                Cadastre ingredientes com marca e preço para usar em receitas
+                Cadastre insumos com marca e preço para usar em receitas
               </p>
             </div>
           </div>

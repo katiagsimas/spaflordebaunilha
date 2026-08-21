@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler, Tag, Settings } from "lucide-react";
+import { BookOpen, Utensils, Ruler } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
@@ -14,8 +14,8 @@ export default function Precificacao() {
       to: "/precificacao/ficha-tecnica",
     },
     {
-      title: "Ingredientes",
-      description: "Gerencie seu banco de ingredientes e insumos",
+      title: "Insumos",
+      description: "Gerencie seu banco de insumos e ingredientes",
       icon: Utensils,
       to: "/precificacao/ingredientes",
     },
@@ -25,20 +25,14 @@ export default function Precificacao() {
       icon: Ruler,
       to: "/precificacao/embalagens",
     },
-    {
-      title: "Configurações",
-      description: "Mão de obra, unidades de medida e categorias",
-      icon: Settings,
-      to: "/configuracoes/precificacao",
-    }
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         <PageHeader
-          title="Cardápio & Precificação"
-          description="Gestão de custos e formação de preços dos seus produtos"
+          title="Serviços"
+          description="Gestão dos seus serviços, custos e formação de preços"
         />
         
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

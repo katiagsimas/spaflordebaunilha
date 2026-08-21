@@ -589,7 +589,7 @@ export default function Embalagens() {
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
               <ArrowLeft className="h-4 w-4" />
-              Ingredientes
+              Insumos
             </Button>
             <Button
               variant="ghost"
