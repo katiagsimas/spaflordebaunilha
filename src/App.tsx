@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: A listagem de produtos tem cabeçalho identificando as ifnormações de cada coluna?
+// Execute esta instrucao no projeto: Na listagem de produtos, implemente a coluna "Ações", com 3 pontinhos na vertical com as opões Editar, Excluir, Pausar
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
