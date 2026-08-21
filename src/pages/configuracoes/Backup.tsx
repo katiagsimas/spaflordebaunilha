@@ -472,7 +472,6 @@ export default function Backup() {
     try { await salvarAgendamento({ modulos: novo }); } catch {}
   }
 
-  const nomeBackupAtual = profile?.nome_completo ? gerarNomeBackup(profile.nome_completo) : "BACKUPKGSS00000000";
 
   // Métricas derivadas dos backups reais
   const historicoChips = useMemo(
