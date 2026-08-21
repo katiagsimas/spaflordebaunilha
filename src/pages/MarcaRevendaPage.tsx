@@ -217,6 +217,6 @@ export default function MarcaRevendaPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
+    </div>
   );
 }
