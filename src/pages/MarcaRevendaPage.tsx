@@ -188,7 +188,28 @@ export default function MarcaRevendaPage() {
         </DialogContent>
       </Dialog>
 
+      <AlertDialog open={!!produtoToDelete} onOpenChange={(open) => !open && setProdutoToDelete(null)}>
+        <AlertDialogContent className="bg-white border-2 border-sfb-areia/60">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-sfb-cacau font-display">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-sfb-areia/60 text-sfb-cacau hover:bg-sfb-baunilha">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <button
+
         onClick={() => navigate("/cadastros/produtos-revenda")}
         className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
         aria-label="Voltar"
