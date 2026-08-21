@@ -1,0 +1,1 @@
+ALTER TABLE public.backup_agendamentos ADD COLUMN IF NOT EXISTS modulos_manual jsonb;

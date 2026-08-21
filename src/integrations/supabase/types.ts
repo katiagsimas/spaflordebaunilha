@@ -89,6 +89,7 @@ export type Database = {
           horario: string
           id: string
           modulos: string[]
+          modulos_manual: Json | null
           proximo_execucao_em: string | null
           retencao_dias: number
           ultimo_executado_em: string | null
@@ -103,6 +104,7 @@ export type Database = {
           horario?: string
           id?: string
           modulos?: string[]
+          modulos_manual?: Json | null
           proximo_execucao_em?: string | null
           retencao_dias?: number
           ultimo_executado_em?: string | null
@@ -117,6 +119,7 @@ export type Database = {
           horario?: string
           id?: string
           modulos?: string[]
+          modulos_manual?: Json | null
           proximo_execucao_em?: string | null
           retencao_dias?: number
           ultimo_executado_em?: string | null
