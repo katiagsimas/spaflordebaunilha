@@ -1,0 +1,1 @@
+ALTER TABLE public.embalagens ADD COLUMN IF NOT EXISTS codigo text, ADD COLUMN IF NOT EXISTS medida text;

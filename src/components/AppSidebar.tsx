@@ -57,10 +57,10 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     ],
   },
   {
-    label: "MINHA PRODUÇÃO",
+    label: "MINHA OPERAÇÃO",
     items: [
       { title: "Cadastros", url: "/cadastros", icon: FileText, active: true },
-      { title: "Cardápio", url: "/precificacao", icon: BookOpen, active: true },
+      { title: "Serviços", url: "/precificacao", icon: BookOpen, active: true },
       { title: "Estoque", url: "/estoque", icon: Package, active: true },
     ],
   },

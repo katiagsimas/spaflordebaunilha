@@ -86,6 +86,8 @@ export default function Embalagens() {
   const [editando, setEditando] = useState<any>(null);
   const [tipoSelecionado, setTipoSelecionado] = useState('');
   const [marca, setMarca] = useState('');
+  const [codigo, setCodigo] = useState('');
+  const [medida, setMedida] = useState('');
   const [preco, setPreco] = useState('');
   const [popoverAberto, setPopoverAberto] = useState(false);
   const [termoBuscaTipo, setTermoBuscaTipo] = useState('');
@@ -200,7 +202,9 @@ export default function Embalagens() {
     return embalagens.filter((embalagem: any) => {
       const nomeEmbalagem = embalagem.tipo_insumo?.descricao?.toLowerCase() || '';
       const marcaEmbalagem = embalagem.marca?.toLowerCase() || '';
-      return nomeEmbalagem.includes(termo) || marcaEmbalagem.includes(termo);
+      const codigoEmbalagem = embalagem.codigo?.toLowerCase() || '';
+      const medidaEmbalagem = embalagem.medida?.toLowerCase() || '';
+      return nomeEmbalagem.includes(termo) || marcaEmbalagem.includes(termo) || codigoEmbalagem.includes(termo) || medidaEmbalagem.includes(termo);
     });
   }, [embalagens, termoBusca]);
 
@@ -216,7 +220,9 @@ export default function Embalagens() {
   const handleExportarExcel = () => {
     try {
       const dadosExport = embalagensFiltradas.map((embalagem: any) => ({
+        'Código': embalagem.codigo || '',
         'Embalagem': embalagem.tipo_insumo?.descricao || 'N/A',
+        'Medida': embalagem.medida || '',
         'Marca': embalagem.marca || 'Sem marca',
         'Quantidade': embalagem.tipo_insumo?.quantidade_embalagem || 0,
         'Unidade': embalagem.tipo_insumo?.unidade_medida?.sigla || 'N/A',
@@ -229,7 +235,9 @@ export default function Embalagens() {
       
       // Ajustar largura das colunas
       const colWidths = [
+        { wch: 14 }, // Código
         { wch: 25 }, // Embalagem
+        { wch: 14 }, // Medida
         { wch: 20 }, // Marca
         { wch: 12 }, // Quantidade
         { wch: 10 }, // Unidade
@@ -276,11 +284,15 @@ export default function Embalagens() {
       setEditando(embalagem);
       setTipoSelecionado(embalagem.tipo_insumo_id);
       setMarca(embalagem.marca || '');
+      setCodigo(embalagem.codigo || '');
+      setMedida(embalagem.medida || '');
       setPreco(embalagem.preco.toString().replace('.', ','));
     } else {
       setEditando(null);
       setTipoSelecionado('');
       setMarca('');
+      setCodigo('');
+      setMedida('');
       setPreco('');
     }
     setModalAberto(true);
@@ -315,6 +327,8 @@ export default function Embalagens() {
           .from('embalagens')
           .update({
             marca: marca.trim() || null,
+            codigo: codigo.trim() || null,
+            medida: medida.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0]
           })
@@ -333,6 +347,8 @@ export default function Embalagens() {
             usuario_id: user.id,
             tipo_insumo_id: tipoSelecionado,
             marca: marca.trim() || null,
+            codigo: codigo.trim() || null,
+            medida: medida.trim() || null,
             preco: precoNum,
             data_atualizacao: new Date().toISOString().split('T')[0]
           });
@@ -589,7 +605,7 @@ export default function Embalagens() {
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
               <ArrowLeft className="h-4 w-4" />
-              Ingredientes
+              Insumos
             </Button>
             <Button
               variant="ghost"
@@ -668,7 +684,9 @@ export default function Embalagens() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Código</TableHead>
               <TableHead>Embalagem</TableHead>
+              <TableHead>Medida</TableHead>
               <TableHead>Marca</TableHead>
               <TableHead>Qtde Embalagem</TableHead>
               <TableHead>Unidade</TableHead>
@@ -680,7 +698,7 @@ export default function Embalagens() {
           <TableBody>
             {embalagensFiltradas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
                   {termoBusca ? 'Nenhuma embalagem encontrada com esse termo.' : 'Nenhuma embalagem cadastrada. Clique em "Nova Embalagem".'}
                 </TableCell>
               </TableRow>
@@ -691,6 +709,9 @@ export default function Embalagens() {
                 
                 return (
                   <TableRow key={embalagem.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
+                    <TableCell className="text-muted-foreground">
+                      {embalagem.codigo || '—'}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {embalagem.tipo_insumo?.descricao || 'N/A'}
@@ -701,6 +722,9 @@ export default function Embalagens() {
                           </Badge>
                         )}
                       </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {embalagem.medida || '—'}
                     </TableCell>
       <TableCell>
         {ePrePreparo ? (
@@ -765,6 +789,17 @@ export default function Embalagens() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
+            {/* Código (opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="codigo">Código (opcional)</Label>
+              <Input
+                id="codigo"
+                placeholder="Ex: EMB-001"
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+              />
+            </div>
+
             {/* Picklist Tipo */}
             {!editando && (
               <div className="space-y-2">
@@ -842,6 +877,17 @@ export default function Embalagens() {
                 </Popover>
               </div>
             )}
+
+            {/* Medida (opcional) */}
+            <div className="space-y-2">
+              <Label htmlFor="medida">Medida (opcional)</Label>
+              <Input
+                id="medida"
+                placeholder="Ex: 250 ml"
+                value={medida}
+                onChange={(e) => setMedida(e.target.value)}
+              />
+            </div>
 
             {/* Dados auto-preenchidos (edição) */}
             {editando && tipoSelecionadoObj && (

@@ -1323,10 +1323,12 @@ export type Database = {
       }
       embalagens: {
         Row: {
+          codigo: string | null
           created_at: string | null
           data_atualizacao: string
           id: string
           marca: string | null
+          medida: string | null
           owner_group_id: string | null
           preco: number
           tipo_insumo_id: string
@@ -1334,10 +1336,12 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          codigo?: string | null
           created_at?: string | null
           data_atualizacao?: string
           id?: string
           marca?: string | null
+          medida?: string | null
           owner_group_id?: string | null
           preco: number
           tipo_insumo_id: string
@@ -1345,10 +1349,12 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          codigo?: string | null
           created_at?: string | null
           data_atualizacao?: string
           id?: string
           marca?: string | null
+          medida?: string | null
           owner_group_id?: string | null
           preco?: number
           tipo_insumo_id?: string

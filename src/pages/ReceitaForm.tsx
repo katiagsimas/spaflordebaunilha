@@ -1155,13 +1155,13 @@ export default function ReceitaForm() {
             </div>
 
             <div>
-              <Label htmlFor="cardapio">Cardápio</Label>
+              <Label htmlFor="cardapio">Serviço</Label>
               <Select
                 value={formData.cardapio}
                 onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
               >
                 <SelectTrigger id="cardapio">
-                  <SelectValue placeholder="Status do cardápio" />
+                  <SelectValue placeholder="Status do serviço" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ativo">Ativo</SelectItem>
@@ -1170,21 +1170,6 @@ export default function ReceitaForm() {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="tipo">Tipo</Label>
-              <Select
-                value={formData.tipo}
-                onValueChange={(value: "produto_avulso" | "produto_combo") => setFormData({ ...formData, tipo: value })}
-              >
-                <SelectTrigger id="tipo">
-                  <SelectValue placeholder="Selecione o tipo" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="produto_avulso">Produto Avulso</SelectItem>
-                  <SelectItem value="produto_combo">Produto para Combo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
 
 
             <div className="grid grid-cols-2 gap-2">

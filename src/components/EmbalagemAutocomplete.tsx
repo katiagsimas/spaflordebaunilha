@@ -120,7 +120,11 @@ export function EmbalagemAutocomplete({ value, onSelect, placeholder = "Selecion
                   )}
                 />
                 <div className="flex flex-col">
-                  <span>{embalagem.tipo_insumo?.descricao}</span>
+                  <span>
+                    {embalagem.codigo ? `${embalagem.codigo} - ` : ""}
+                    {embalagem.tipo_insumo?.descricao}
+                    {embalagem.medida ? ` (${embalagem.medida})` : ""}
+                  </span>
                   <span className="text-xs text-muted-foreground">
                     {embalagem.marca} - {embalagem.tipo_insumo?.quantidade_embalagem} {embalagem.tipo_insumo?.unidade_medida?.sigla} - R$ {embalagem.preco?.toFixed(2)}
                   </span>
