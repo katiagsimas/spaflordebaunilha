@@ -79,15 +79,15 @@ export default function MarcaRevendaPage() {
         <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <Table>
-              <TableHeader className="bg-sfb-baunilha/10">
-                <TableRow>
-                  <TableHead className="w-[100px]">Código</TableHead>
-                  <TableHead>Descrição</TableHead>
-                  <TableHead>Linha</TableHead>
-                  <TableHead>Qtd/ml</TableHead>
-                  <TableHead>Pontos</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+              <TableHeader className="bg-sfb-terracota">
+                <TableRow className="hover:bg-sfb-terracota border-sfb-terracota">
+                  <TableHead className="w-[100px] text-sfb-baunilha">Código</TableHead>
+                  <TableHead className="text-sfb-baunilha">Descrição</TableHead>
+                  <TableHead className="text-sfb-baunilha">Linha</TableHead>
+                  <TableHead className="text-sfb-baunilha">Qtd/ml</TableHead>
+                  <TableHead className="text-sfb-baunilha">Pontos</TableHead>
+                  <TableHead className="text-sfb-baunilha">Status</TableHead>
+                  <TableHead className="text-right text-sfb-baunilha">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
