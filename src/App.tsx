@@ -1,5 +1,4 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Produtos para Revenda / Refine a cor de fundo dos  cabeçalho da Listagem de Produtos  para a cor Terra Cota Suave #C98A75, altere também a tipografia para a cor Baunilha Suave #FBF6EE. Persista a implementação das cores no banco de dados e principalmente na visualização do projeto
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
