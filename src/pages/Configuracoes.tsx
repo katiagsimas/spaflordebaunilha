@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/PageHeader";
 import { BackButton } from "@/components/BackButton";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Settings, HardDrive, Building2 } from "lucide-react";
+import { HardDrive, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Configuracoes() {
@@ -20,13 +20,8 @@ export default function Configuracoes() {
       icon: HardDrive,
       to: "/configuracoes/backup",
     },
-    {
-      title: "Preferências do Sistema",
-      description: "Tags, categorias e configurações gerais",
-      icon: Settings,
-      to: "/cadastros",
-    }
   ];
+
 
   return (
     <div className="min-h-screen bg-background">
