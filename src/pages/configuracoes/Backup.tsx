@@ -637,7 +637,11 @@ export default function Backup() {
           <div className="flex items-center gap-2 text-[13px]">
             <button
               type="button"
-              onClick={() => setModulosManual(modulosVisiveis.map((m) => m.id))}
+              onClick={() => {
+                const todos = modulosVisiveis.map((m) => m.id);
+                setModulosManual(todos);
+                persistirModulosManual(todos);
+              }}
               className="text-sfb-cacau hover:underline underline-offset-2"
             >
               Marcar todos
@@ -645,7 +649,10 @@ export default function Backup() {
             <span className="text-sfb-cacau/40">|</span>
             <button
               type="button"
-              onClick={() => setModulosManual([])}
+              onClick={() => {
+                setModulosManual([]);
+                persistirModulosManual([]);
+              }}
               className="text-sfb-cacau hover:underline underline-offset-2"
             >
               Limpar
@@ -653,40 +660,35 @@ export default function Backup() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          {modulosVisiveis.map((mod) => {
-            const checked = modulosManual.includes(mod.id);
-            const Icon = MODULO_ICONS[mod.id] ?? Package;
-            return (
-              <label
-                key={mod.id}
-                className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
-                  checked
-                    ? "border-sfb-cacau bg-sfb-baunilha"
-                    : "border-sfb-cacau/12 bg-white opacity-90 hover:opacity-100"
-                }`}
-              >
-                <Checkbox
-                  checked={checked}
-                  onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
-                  className="border-sfb-cacau/40 data-[state=checked]:bg-sfb-terracota data-[state=checked]:border-sfb-cacau"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-bold text-sfb-cacau">{mod.titulo}</span>
-                    <span className="bg-sfb-terracota/10 text-sfb-terracota text-[10px] px-2 py-0.5 rounded-full font-medium">
-                      {mod.tabelas.length} tabelas
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-sfb-cacau/60 mt-0.5 line-clamp-2">{mod.descricao}</p>
-                </div>
-                <div className="w-11 h-11 rounded-full bg-sfb-baunilha border border-sfb-cacau/10 flex items-center justify-center shrink-0">
-                  <Icon className="h-5 w-5 text-sfb-cacau" />
-                </div>
-              </label>
-            );
-          })}
+        <div className="space-y-2 mb-4 pt-2 border-t border-sfb-areia/40">
+          <Label className="text-xs text-muted-foreground">Módulos incluídos no backup manual</Label>
+          <div className="flex flex-wrap gap-1.5">
+            {modulosVisiveis.map((mod) => {
+              const checked = modulosManual.includes(mod.id);
+              return (
+                <button
+                  key={mod.id}
+                  type="button"
+                  onClick={() => {
+                    const lista = checked
+                      ? modulosManual.filter((id) => id !== mod.id)
+                      : [...modulosManual, mod.id];
+                    setModulosManual(lista);
+                    persistirModulosManual(lista);
+                  }}
+                  className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
+                    checked
+                      ? "bg-sfb-terracota text-sfb-baunilha border-sfb-terracota"
+                      : "bg-white text-sfb-cacau border-sfb-areia hover:bg-sfb-baunilha"
+                  }`}
+                >
+                  {mod.titulo}
+                </button>
+              );
+            })}
+          </div>
         </div>
+
 
         <button
           type="button"
