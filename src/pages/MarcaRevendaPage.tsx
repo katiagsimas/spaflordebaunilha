@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle } from "lucide-react";
+import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle, Search, Filter } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
@@ -23,6 +25,21 @@ export default function MarcaRevendaPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"todos" | "Ativo" | "Pausado">("todos");
+
+  const filteredProdutos = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    return produtos.filter((produto) => {
+      const matchesStatus = statusFilter === "todos" || produto.status === statusFilter;
+      if (!term) return matchesStatus;
+      const matchesSearch =
+        (produto.descricao?.toLowerCase().includes(term)) ||
+        (produto.codigo?.toLowerCase().includes(term)) ||
+        (produto.linha?.toLowerCase().includes(term));
+      return matchesStatus && matchesSearch;
+    });
+  }, [produtos, searchQuery, statusFilter]);
 
 
   const getMarcaConfig = (m: string | undefined) => {
@@ -83,6 +100,29 @@ export default function MarcaRevendaPage() {
         </div>
         <h2 className="text-xl font-display font-semibold text-sfb-cacau">Catálogo de Produtos</h2>
 
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sfb-cacau/50" />
+            <Input
+              placeholder="Buscar por nome, código ou linha..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-white border-sfb-areia/60 text-sfb-cacau placeholder:text-sfb-cacau/50"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "todos" | "Ativo" | "Pausado")}>
+            <SelectTrigger className="w-full md:w-[160px] bg-white border-sfb-areia/60 text-sfb-cacau gap-2">
+              <Filter className="h-4 w-4 text-sfb-terracota" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-sfb-areia/60">
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="Ativo">Ativo</SelectItem>
+              <SelectItem value="Pausado">Pausado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <Table>
@@ -104,14 +144,16 @@ export default function MarcaRevendaPage() {
                       Carregando produtos...
                     </TableCell>
                   </TableRow>
-                ) : produtos.length === 0 ? (
+                ) : filteredProdutos.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Nenhum produto cadastrado para esta marca.
+                      {searchQuery || statusFilter !== "todos"
+                        ? "Nenhum produto encontrado para os filtros aplicados."
+                        : "Nenhum produto cadastrado para esta marca."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  produtos.map((produto) => (
+                  filteredProdutos.map((produto) => (
                     <TableRow key={produto.id}>
                       <TableCell className="font-mono text-sm">{produto.codigo || '-'}</TableCell>
                       <TableCell className="font-medium">{produto.descricao}</TableCell>
