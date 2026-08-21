@@ -88,10 +88,26 @@ export function useProdutosRevenda(marca?: 'natura' | 'avon' | 'casa_estilo') {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('produtos_revenda')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+      toast.success('Produto removido!');
+    },
+  });
+
   return {
     produtos,
     loading,
     createProduto: createMutation.mutateAsync,
     updateProduto: (id: string, updates: Partial<ProdutoRevenda>) => updateMutation.mutateAsync({ id, updates }),
+    deleteProduto: deleteMutation.mutateAsync,
   };
 }
