@@ -100,7 +100,28 @@ export default function MarcaRevendaPage() {
         </div>
         <h2 className="text-xl font-display font-semibold text-sfb-cacau">Catálogo de Produtos</h2>
 
-        <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sfb-cacau/50" />
+            <Input
+              placeholder="Buscar por nome, código ou linha..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-white border-sfb-areia/60 text-sfb-cacau placeholder:text-sfb-cacau/50"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "todos" | "Ativo" | "Pausado")}>
+            <SelectTrigger className="w-full md:w-[160px] bg-white border-sfb-areia/60 text-sfb-cacau gap-2">
+              <Filter className="h-4 w-4 text-sfb-terracota" />
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-sfb-areia/60">
+              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="Ativo">Ativo</SelectItem>
+              <SelectItem value="Pausado">Pausado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-sfb-terracota">
