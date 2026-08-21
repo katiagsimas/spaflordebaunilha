@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Em Cadastros / Produtos para Revenda / Natura, realize o cadastro dos produtos conforme planilha anexa
+// Execute esta instrucao no projeto: Importar e cadastrar os produtos de "Natura" na seção Cadastros / Produtos para Revenda com base na planilha anexa.
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
