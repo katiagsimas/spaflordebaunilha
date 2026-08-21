@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
@@ -7,6 +8,17 @@ export default function Cadastros() {
 
   return (
     <div className="min-h-screen bg-sfb-baunilha pb-24">
+      <div className="px-6 pt-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate("/configuracoes")}
+          className="flex items-center gap-2 text-sfb-cacau/60 hover:text-sfb-cacau"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Voltar para Configurações
+        </Button>
+      </div>
       <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
         <HeroBanner
           title="Cadastros"
