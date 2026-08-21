@@ -15,6 +15,7 @@ import { MaoObraSection, type MaoObraLinha } from "@/components/MaoObraSection";
 import { CardAnalise } from "@/components/CardAnalise";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
+import { getActiveGroupId } from "@/lib/activeGroup";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
