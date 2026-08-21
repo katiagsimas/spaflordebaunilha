@@ -1,4 +1,7 @@
 import React from "react";
+/**
+ * Execute esta instrucao no projeto: Garantir que todos os cadastros de produtos de revenda sejam salvos e carregados corretamente no banco de dados, garanta a persistência dos mesmos no banco de dados
+ */
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
