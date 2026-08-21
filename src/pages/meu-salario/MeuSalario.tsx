@@ -75,7 +75,7 @@ export default function MeuSalario() {
         type="button"
         onClick={() => window.history.back()}
         aria-label="Voltar"
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau hover:bg-sfb-cacau/90 text-sfb-baunilha shadow-lg flex items-center justify-center transition"
+        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha shadow-lg flex items-center justify-center transition"
       >
         <ChevronLeft className="h-5 w-5" />
       </button>

@@ -307,8 +307,7 @@ export function VisaoGeral() {
           <div className="flex justify-end">
             <Button
               onClick={() => exportarMeuSalarioPDF(resumo)}
-              variant="outline"
-              className="border-sfb-terracota text-sfb-cacau hover:bg-sfb-baunilha"
+              className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha"
             >
               <Download className="h-4 w-4 mr-2" />
               Salvar meu resumo

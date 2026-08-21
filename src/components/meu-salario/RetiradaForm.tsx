@@ -29,7 +29,7 @@ export function RetiradaForm() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-[hsl(var(--rd-vinho))] hover:bg-[hsl(var(--rd-vinho)/0.9)] text-white">
+        <Button className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha">
           <Plus className="h-4 w-4 mr-2" />
           Registrar retirada
         </Button>
@@ -63,7 +63,7 @@ export function RetiradaForm() {
               placeholder="Ex: pró-labore mensal"
             />
           </div>
-          <Button type="submit" className="w-full bg-[hsl(var(--rd-vinho))] hover:bg-[hsl(var(--rd-vinho)/0.9)] text-white" disabled={criar.isPending}>
+          <Button type="submit" className="w-full bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha" disabled={criar.isPending}>
             {criar.isPending ? "Salvando..." : "Salvar retirada"}
           </Button>
         </form>
