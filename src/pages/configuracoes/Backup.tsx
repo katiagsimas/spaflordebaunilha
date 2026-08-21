@@ -59,6 +59,16 @@ function gerarNomeBackup(nomeCompleto: string): string {
   return `CAIXA${gerarIniciais(nomeCompleto)}${format(new Date(), "ddMMyyyy")}`;
 }
 
+const DIAS_SEMANA = [
+  { value: 0, label: "Domingo" },
+  { value: 1, label: "Segunda-feira" },
+  { value: 2, label: "Terça-feira" },
+  { value: 3, label: "Quarta-feira" },
+  { value: 4, label: "Quinta-feira" },
+  { value: 5, label: "Sexta-feira" },
+  { value: 6, label: "Sábado" },
+];
+
 const RETENCAO_OPCOES = [7, 15, 30, 60, 90, 180, 365];
 
 import { useIsGroupMaster } from "@/hooks/useIsGroupMaster";
@@ -101,6 +111,7 @@ export default function Backup() {
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(false);
   const [frequencia, setFrequencia] = useState("semanal");
   const [horario, setHorario] = useState("08:00");
+  const [diaSemana, setDiaSemana] = useState<number | null>(null);
   const [retencaoDias, setRetencaoDias] = useState(30);
   const [modulosAgendamento, setModulosAgendamento] = useState<BackupModuloId[]>(DEFAULT_MODULOS);
   const [salvandoAgendamento, setSalvandoAgendamento] = useState(false);
@@ -141,13 +152,14 @@ export default function Backup() {
     if (!user) return;
     const { data } = await (supabase
       .from("backup_agendamentos" as any)
-      .select("ativo, frequencia, horario, retencao_dias, modulos")
+      .select("ativo, frequencia, horario, retencao_dias, modulos, dia_semana")
       .eq("usuario_id", user.id)
       .maybeSingle() as any);
     if (data) {
       setAgendamentoAtivo(!!data.ativo);
       setFrequencia(data.frequencia ?? "semanal");
       setHorario((data.horario ?? "08:00:00").slice(0, 5));
+      setDiaSemana(data.dia_semana ?? null);
       setRetencaoDias(data.retencao_dias ?? 30);
       if (Array.isArray(data.modulos) && data.modulos.length > 0) {
         setModulosAgendamento(data.modulos as BackupModuloId[]);
@@ -156,7 +168,7 @@ export default function Backup() {
   }
 
   async function salvarAgendamento(patch: Partial<{
-    ativo: boolean; frequencia: string; horario: string; retencao_dias: number; modulos: BackupModuloId[];
+    ativo: boolean; frequencia: string; horario: string; retencao_dias: number; modulos: BackupModuloId[]; dia_semana: number | null;
   }>) {
     if (!user) return;
     setSalvandoAgendamento(true);
@@ -167,11 +179,13 @@ export default function Backup() {
         horario: patch.horario ?? horario,
         retencao_dias: patch.retencao_dias ?? retencaoDias,
         modulos: patch.modulos ?? modulosAgendamento,
+        dia_semana: patch.hasOwnProperty('dia_semana') ? patch.dia_semana : diaSemana,
       };
       const { data: prox } = await (supabase.rpc("calcular_proxima_execucao_backup" as any, {
         p_frequencia: novo.frequencia,
         p_horario: novo.horario,
         p_referencia: new Date().toISOString(),
+        p_dia_semana: novo.dia_semana,
       }) as any);
 
       const { error } = await (supabase.from("backup_agendamentos" as any).upsert({
@@ -181,6 +195,7 @@ export default function Backup() {
         horario: novo.horario,
         retencao_dias: novo.retencao_dias,
         modulos: novo.modulos,
+        dia_semana: novo.dia_semana,
         proximo_execucao_em: novo.ativo ? prox : null,
       }, { onConflict: "usuario_id" }) as any);
 
@@ -831,6 +846,31 @@ export default function Backup() {
                 />
               </div>
             </div>
+
+            {frequencia !== "diario" && (
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Dia da semana</Label>
+                <Select
+                  value={diaSemana !== null ? String(diaSemana) : "1"}
+                  onValueChange={async (v) => {
+                    const n = parseInt(v, 10);
+                    setDiaSemana(n);
+                    try { await salvarAgendamento({ dia_semana: n }); } catch {}
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o dia" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DIAS_SEMANA.map((d) => (
+                      <SelectItem key={d.value} value={String(d.value)}>
+                        {d.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-1">
               <Label className="text-xs text-muted-foreground">

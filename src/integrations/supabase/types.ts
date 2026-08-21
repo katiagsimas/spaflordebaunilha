@@ -84,6 +84,7 @@ export type Database = {
         Row: {
           ativo: boolean
           created_at: string
+          dia_semana: number | null
           frequencia: string
           horario: string
           id: string
@@ -97,6 +98,7 @@ export type Database = {
         Insert: {
           ativo?: boolean
           created_at?: string
+          dia_semana?: number | null
           frequencia?: string
           horario?: string
           id?: string
@@ -110,6 +112,7 @@ export type Database = {
         Update: {
           ativo?: boolean
           created_at?: string
+          dia_semana?: number | null
           frequencia?: string
           horario?: string
           id?: string
@@ -3813,10 +3816,24 @@ export type Database = {
           total: number
         }[]
       }
-      calcular_proxima_execucao_backup: {
-        Args: { p_frequencia: string; p_horario: string; p_referencia?: string }
-        Returns: string
-      }
+      calcular_proxima_execucao_backup:
+        | {
+            Args: {
+              p_frequencia: string
+              p_horario: string
+              p_referencia?: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              p_dia_semana?: number
+              p_frequencia: string
+              p_horario: string
+              p_referencia?: string
+            }
+            Returns: string
+          }
       check_and_increment_ai_quota: {
         Args: { p_plano_id: string; p_user_id: string }
         Returns: Json
