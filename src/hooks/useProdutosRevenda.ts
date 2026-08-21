@@ -8,10 +8,11 @@ export interface ProdutoRevenda {
   id: string;
   codigo: string | null;
   descricao: string;
-  marca: 'natura' | 'avon' | 'casa_estilo';
+  marca: 'natura' | 'avon';
   linha: string | null;
   quantidade_ml: string | null;
   quantidade_pontos: number;
+  preco: number;
   categoria_id: string | null;
   status: 'Ativo' | 'Pausado';
   owner_group_id: string | null;
@@ -20,7 +21,7 @@ export interface ProdutoRevenda {
   updated_at?: string;
 }
 
-export function useProdutosRevenda(marca?: 'natura' | 'avon' | 'casa_estilo') {
+export function useProdutosRevenda(marca?: 'natura' | 'avon') {
   const userId = useUserId();
   const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();

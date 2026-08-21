@@ -11,7 +11,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 
 interface ProdutoRevendaFormProps {
   produto?: ProdutoRevenda;
-  marca: 'natura' | 'avon' | 'casa_estilo';
+  marca: 'natura' | 'avon';
   onSuccess: () => void;
 }
 
@@ -24,7 +24,8 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
     defaultValues: produto || {
       marca,
       status: 'Ativo',
-      quantidade_pontos: 0
+      quantidade_pontos: 0,
+      preco: 0
     }
   });
 
@@ -89,6 +90,20 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
           <Input id="linha" {...register('linha')} placeholder="Ex: Ekos" />
         </div>
         
+        <div className="space-y-2">
+          <Label htmlFor="preco">Preço (R$)</Label>
+          <Input
+            id="preco"
+            type="number"
+            step="0.01"
+            min="0"
+            {...register('preco', { valueAsNumber: true })}
+            placeholder="0,00"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="quantidade_ml">Quantidade (ml ou outra)</Label>
           <Input id="quantidade_ml" {...register('quantidade_ml')} placeholder="Ex: 100ml" />

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ShoppingBag, Leaf, Sparkles, Home, ChevronLeft } from "lucide-react";
+import { Leaf, Sparkles, ChevronLeft } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 
 export default function ProdutosRevenda() {
@@ -7,8 +7,7 @@ export default function ProdutosRevenda() {
 
   const marcas = [
     { id: 'natura', label: 'Natura', icon: Leaf, desc: 'Gestão de produtos e pedidos Natura' },
-    { id: 'avon', label: 'Avon', icon: Sparkles, desc: 'Gestão de produtos e pedidos Avon' },
-    { id: 'casa-estilo', label: 'Casa & Estilo', icon: Home, desc: 'Itens de decoração e utilidades domésticas' }
+    { id: 'avon', label: 'Avon', icon: Sparkles, desc: 'Gestão de produtos e pedidos Avon' }
   ];
 
   return (
@@ -19,11 +18,11 @@ export default function ProdutosRevenda() {
       />
 
       <div className="container mx-auto px-6 pt-4 space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {marcas.map((m) => (
             <button
               key={m.id}
-              onClick={() => navigate(`/cadastros/produtos-revenda/${m.id}`)}
+              onClick={() => navigate(`/precificacao/produtos-revenda/${m.id}`)}
               className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
             >
               <div className="flex items-start gap-3">
@@ -45,7 +44,7 @@ export default function ProdutosRevenda() {
       </div>
 
       <button
-        onClick={() => navigate("/cadastros")}
+        onClick={() => navigate("/precificacao")}
         className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
         aria-label="Voltar"
       >
