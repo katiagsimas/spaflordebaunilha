@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home } from "lucide-react";
+import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +8,9 @@ import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+
 
 export default function MarcaRevendaPage() {
   const navigate = useNavigate();
@@ -16,9 +19,11 @@ export default function MarcaRevendaPage() {
   // Normalize marca for DB queries
   const dbMarca = marca === 'casa-estilo' ? 'casa_estilo' : (marca as 'natura' | 'avon');
   
-  const { produtos, loading: loadingProdutos } = useProdutosRevenda(dbMarca);
+  const { produtos, loading: loadingProdutos, deleteProduto, updateProduto } = useProdutosRevenda(dbMarca);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
+  const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
+
 
   const getMarcaConfig = (m: string | undefined) => {
     switch(m) {
@@ -40,7 +45,20 @@ export default function MarcaRevendaPage() {
     setIsFormOpen(true);
   };
 
+  const handleToggleStatus = async (produto: ProdutoRevenda) => {
+    const newStatus = produto.status === 'Ativo' ? 'Pausado' : 'Ativo';
+    await updateProduto(produto.id, { status: newStatus });
+  };
+
+  const handleDelete = async () => {
+    if (produtoToDelete) {
+      await deleteProduto(produtoToDelete);
+      setProdutoToDelete(null);
+    }
+  };
+
   return (
+
     <div className="min-h-screen bg-sfb-baunilha pb-24">
       <PageHeader
         title={`Produtos ${config.label}`}
@@ -102,15 +120,47 @@ export default function MarcaRevendaPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => handleOpenForm(produto)}
-                          className="hover:bg-sfb-baunilha"
-                        >
-                          <Edit2 className="h-4 w-4 text-sfb-terracota" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40 bg-white border-2 border-sfb-areia/60">
+                            <DropdownMenuItem 
+                              onClick={() => handleOpenForm(produto)}
+                              className="gap-2 cursor-pointer hover:bg-sfb-baunilha text-sfb-cacau"
+                            >
+                              <Edit2 className="h-4 w-4 text-sfb-terracota" />
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleToggleStatus(produto)}
+                              className="gap-2 cursor-pointer hover:bg-sfb-baunilha text-sfb-cacau"
+                            >
+                              {produto.status === 'Ativo' ? (
+                                <>
+                                  <PauseCircle className="h-4 w-4 text-orange-500" />
+                                  Pausar
+                                </>
+                              ) : (
+                                <>
+                                  <PlayCircle className="h-4 w-4 text-sfb-salvia" />
+                                  Ativar
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setProdutoToDelete(produto.id)}
+                              className="gap-2 cursor-pointer hover:bg-red-50 text-red-600 focus:text-red-600 focus:bg-red-50"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
+
                     </TableRow>
                   ))
                 )}
