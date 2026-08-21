@@ -642,38 +642,32 @@ export default function Backup() {
             const checked = modulosManual.includes(mod.id);
             const Icon = MODULO_ICONS[mod.id] ?? Package;
             return (
-              <button
+              <label
                 key={mod.id}
-                type="button"
-                onClick={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
-                className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${
+                className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${
                   checked
                     ? "border-sfb-cacau bg-sfb-baunilha"
                     : "border-sfb-cacau/12 bg-white opacity-90 hover:opacity-100"
                 }`}
               >
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 border border-sfb-cacau/10 ${
-                  checked ? "bg-sfb-terracota text-sfb-baunilha" : "bg-sfb-baunilha text-sfb-cacau"
-                }`}>
-                  <Icon className="h-5 w-5" />
-                </div>
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={() => toggleModulo(modulosManual, setModulosManual, mod.id)}
+                  className="border-sfb-cacau/40 data-[state=checked]:bg-sfb-terracota data-[state=checked]:border-sfb-cacau"
+                />
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-sfb-cacau">{mod.titulo}</span>
-                      <span className="bg-sfb-terracota/10 text-sfb-terracota text-[10px] px-2 py-0.5 rounded-full font-medium">
-                        {mod.tabelas.length}
-                      </span>
-                    </div>
-                    {checked && (
-                      <div className="w-5 h-5 rounded-full bg-sfb-terracota flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-sfb-baunilha" />
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-sfb-cacau">{mod.titulo}</span>
+                    <span className="bg-sfb-terracota/10 text-sfb-terracota text-[10px] px-2 py-0.5 rounded-full font-medium">
+                      {mod.tabelas.length} tabelas
+                    </span>
                   </div>
                   <p className="text-[11px] text-sfb-cacau/60 mt-0.5 line-clamp-2">{mod.descricao}</p>
                 </div>
-              </button>
+                <div className="w-11 h-11 rounded-full bg-sfb-baunilha border border-sfb-cacau/10 flex items-center justify-center shrink-0">
+                  <Icon className="h-5 w-5 text-sfb-cacau" />
+                </div>
+              </label>
             );
           })}
         </div>
@@ -906,34 +900,20 @@ export default function Backup() {
 
             <div className="space-y-2 pt-2 border-t">
               <Label className="text-xs text-muted-foreground">Módulos incluídos automaticamente</Label>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {modulosVisiveis.map((m) => {
                   const ativo = modulosAgendamento.includes(m.id);
-                  const Icon = MODULO_ICONS[m.id] ?? Package;
                   return (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => toggleModuloAgendamento(m.id)}
                       disabled={salvandoAgendamento}
-                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
-                        ativo
-                          ? "border-sfb-cacau bg-sfb-baunilha"
-                          : "border-sfb-cacau/12 bg-white opacity-90 hover:opacity-100"
+                      className={`text-xs px-2 py-1 rounded-full border transition-colors ${
+                        ativo ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-accent"
                       }`}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        ativo ? "bg-sfb-terracota text-sfb-baunilha" : "bg-sfb-baunilha text-sfb-cacau/60"
-                      }`}>
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-bold text-sfb-cacau">{m.titulo}</span>
-                          {ativo && <div className="w-2 h-2 rounded-full bg-sfb-terracota" />}
-                        </div>
-                        <p className="text-[10px] text-sfb-cacau/60 mt-0.5 line-clamp-1">{m.descricao}</p>
-                      </div>
+                      {m.titulo}
                     </button>
                   );
                 })}
