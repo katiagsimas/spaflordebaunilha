@@ -168,7 +168,7 @@ export default function Backup() {
   }
 
   async function salvarAgendamento(patch: Partial<{
-    ativo: boolean; frequencia: string; horario: string; retencao_dias: number; modulos: BackupModuloId[];
+    ativo: boolean; frequencia: string; horario: string; retencao_dias: number; modulos: BackupModuloId[]; dia_semana: number | null;
   }>) {
     if (!user) return;
     setSalvandoAgendamento(true);
@@ -179,11 +179,13 @@ export default function Backup() {
         horario: patch.horario ?? horario,
         retencao_dias: patch.retencao_dias ?? retencaoDias,
         modulos: patch.modulos ?? modulosAgendamento,
+        dia_semana: patch.hasOwnProperty('dia_semana') ? patch.dia_semana : diaSemana,
       };
       const { data: prox } = await (supabase.rpc("calcular_proxima_execucao_backup" as any, {
         p_frequencia: novo.frequencia,
         p_horario: novo.horario,
         p_referencia: new Date().toISOString(),
+        p_dia_semana: novo.dia_semana,
       }) as any);
 
       const { error } = await (supabase.from("backup_agendamentos" as any).upsert({
@@ -193,6 +195,7 @@ export default function Backup() {
         horario: novo.horario,
         retencao_dias: novo.retencao_dias,
         modulos: novo.modulos,
+        dia_semana: novo.dia_semana,
         proximo_execucao_em: novo.ativo ? prox : null,
       }, { onConflict: "usuario_id" }) as any);
 
