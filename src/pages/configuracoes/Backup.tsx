@@ -152,7 +152,7 @@ export default function Backup() {
     if (!user) return;
     const { data } = await (supabase
       .from("backup_agendamentos" as any)
-      .select("ativo, frequencia, horario, retencao_dias, modulos, dia_semana")
+      .select("ativo, frequencia, horario, retencao_dias, modulos, dia_semana, modulos_manual")
       .eq("usuario_id", user.id)
       .maybeSingle() as any);
     if (data) {
@@ -164,8 +164,24 @@ export default function Backup() {
       if (Array.isArray(data.modulos) && data.modulos.length > 0) {
         setModulosAgendamento(data.modulos as BackupModuloId[]);
       }
+      if (Array.isArray(data.modulos_manual)) {
+        setModulosManual(data.modulos_manual as BackupModuloId[]);
+      }
     }
   }
+
+  async function persistirModulosManual(lista: BackupModuloId[]) {
+    if (!user) return;
+    try {
+      await (supabase.from("backup_agendamentos" as any).upsert({
+        usuario_id: user.id,
+        modulos_manual: lista,
+      }, { onConflict: "usuario_id" }) as any);
+    } catch {
+      // silencioso: preferência de seleção
+    }
+  }
+
 
   async function salvarAgendamento(patch: Partial<{
     ativo: boolean; frequencia: string; horario: string; retencao_dias: number; modulos: BackupModuloId[]; dia_semana: number | null;
