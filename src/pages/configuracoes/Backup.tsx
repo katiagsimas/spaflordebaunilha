@@ -56,7 +56,7 @@ function gerarIniciais(nomeCompleto: string): string {
 }
 
 function gerarNomeBackup(nomeCompleto: string): string {
-  return `CAIXA${gerarIniciais(nomeCompleto)}${format(new Date(), "ddMMyyyy")}`;
+  return `SFB${gerarIniciais(nomeCompleto)}${format(new Date(), "ddMMyyyy")}`;
 }
 
 const DIAS_SEMANA = [
