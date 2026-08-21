@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle } from "lucide-react";
+import { Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, Trash2, PauseCircle, PlayCircle, Search, Filter } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
