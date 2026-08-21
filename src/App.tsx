@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Importar e cadastrar os produtos de "Natura" na seção Cadastros / Produtos para Revenda com base na planilha anexa.
+// Execute esta instrucao no projeto: Refine a cor de fundo dos  campos "Ativo" e ou "Pausado" para a cor Terra Cota Suave #C98A75
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
