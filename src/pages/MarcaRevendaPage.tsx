@@ -122,6 +122,8 @@ export default function MarcaRevendaPage() {
             </SelectContent>
           </Select>
         </div>
+
+        <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-sfb-terracota">
