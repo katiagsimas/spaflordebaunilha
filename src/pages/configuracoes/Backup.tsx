@@ -56,7 +56,7 @@ function gerarIniciais(nomeCompleto: string): string {
 }
 
 function gerarNomeBackup(nomeCompleto: string): string {
-  return `SFB${gerarIniciais(nomeCompleto)}${format(new Date(), "ddMMyyyy")}`;
+  return `BACKUP${gerarIniciais(nomeCompleto)}${format(new Date(), "ddMMyyyy")}`;
 }
 
 const DIAS_SEMANA = [
@@ -456,7 +456,7 @@ export default function Backup() {
     try { await salvarAgendamento({ modulos: novo }); } catch {}
   }
 
-  const nomeBackupAtual = profile?.nome_completo ? gerarNomeBackup(profile.nome_completo) : "CAIXAKGSS00000000";
+  const nomeBackupAtual = profile?.nome_completo ? gerarNomeBackup(profile.nome_completo) : "BACKUPKGSS00000000";
 
   // Métricas derivadas dos backups reais
   const historicoChips = useMemo(

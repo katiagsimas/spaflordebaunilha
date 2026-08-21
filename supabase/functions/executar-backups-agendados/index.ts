@@ -68,7 +68,7 @@ function nomeBackup(nomeCompleto: string): string {
   const dd = String(d.getDate()).padStart(2, "0");
   const mm = String(d.getMonth() + 1).padStart(2, "0");
   const yyyy = d.getFullYear();
-  return `CAIXA${gerarIniciais(nomeCompleto)}${dd}${mm}${yyyy}`;
+  return `BACKUP${gerarIniciais(nomeCompleto)}${dd}${mm}${yyyy}`;
 }
 
 Deno.serve(async (req) => {
