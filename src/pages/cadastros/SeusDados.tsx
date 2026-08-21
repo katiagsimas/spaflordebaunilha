@@ -380,6 +380,17 @@ export default function SeusDados() {
 
   return (
     <div className="space-y-6 relative">
+      <div className="px-6 pt-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate("/configuracoes")}
+          className="flex items-center gap-2 text-sfb-cacau/60 hover:text-sfb-cacau"
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Voltar para Configurações
+        </Button>
+      </div>
       {/* ===== HERO BANNER padronizado - Imagem removida conforme solicitação ===== */}
       <HeroBanner
         title={profile?.primeiro_acesso ? "Bem-vinda! Complete seus dados" : "Meus Dados"}
