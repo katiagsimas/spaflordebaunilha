@@ -218,14 +218,5 @@ export default function MarcaRevendaPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <button
-
-        onClick={() => navigate("/cadastros/produtos-revenda")}
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
-        aria-label="Voltar"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
-    </div>
   );
 }
