@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Scale, FlaskConical, Cake, ChevronLeft, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
