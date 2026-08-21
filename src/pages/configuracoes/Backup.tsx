@@ -900,20 +900,34 @@ export default function Backup() {
 
             <div className="space-y-2 pt-2 border-t">
               <Label className="text-xs text-muted-foreground">Módulos incluídos automaticamente</Label>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="grid grid-cols-1 gap-2">
                 {modulosVisiveis.map((m) => {
                   const ativo = modulosAgendamento.includes(m.id);
+                  const Icon = MODULO_ICONS[m.id] ?? Package;
                   return (
                     <button
                       key={m.id}
                       type="button"
                       onClick={() => toggleModuloAgendamento(m.id)}
                       disabled={salvandoAgendamento}
-                      className={`text-xs px-2 py-1 rounded-full border transition-colors ${
-                        ativo ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-accent"
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all text-left ${
+                        ativo
+                          ? "border-sfb-cacau bg-sfb-baunilha"
+                          : "border-sfb-cacau/12 bg-white opacity-90 hover:opacity-100"
                       }`}
                     >
-                      {m.titulo}
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        ativo ? "bg-sfb-terracota text-sfb-baunilha" : "bg-sfb-baunilha text-sfb-cacau/60"
+                      }`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-sfb-cacau">{m.titulo}</span>
+                          {ativo && <div className="w-2 h-2 rounded-full bg-sfb-terracota" />}
+                        </div>
+                        <p className="text-[10px] text-sfb-cacau/60 mt-0.5 line-clamp-1">{m.descricao}</p>
+                      </div>
                     </button>
                   );
                 })}
