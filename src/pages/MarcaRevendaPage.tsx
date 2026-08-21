@@ -144,14 +144,16 @@ export default function MarcaRevendaPage() {
                       Carregando produtos...
                     </TableCell>
                   </TableRow>
-                ) : produtos.length === 0 ? (
+                ) : filteredProdutos.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      Nenhum produto cadastrado para esta marca.
+                      {searchQuery || statusFilter !== "todos"
+                        ? "Nenhum produto encontrado para os filtros aplicados."
+                        : "Nenhum produto cadastrado para esta marca."}
                     </TableCell>
                   </TableRow>
                 ) : (
-                  produtos.map((produto) => (
+                  filteredProdutos.map((produto) => (
                     <TableRow key={produto.id}>
                       <TableCell className="font-mono text-sm">{produto.codigo || '-'}</TableCell>
                       <TableCell className="font-medium">{produto.descricao}</TableCell>
