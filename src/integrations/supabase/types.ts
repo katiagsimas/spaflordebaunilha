@@ -2589,6 +2589,7 @@ export type Database = {
           linha: string | null
           marca: string
           owner_group_id: string | null
+          preco: number
           quantidade_ml: string | null
           quantidade_pontos: number | null
           status: string | null
@@ -2604,6 +2605,7 @@ export type Database = {
           linha?: string | null
           marca: string
           owner_group_id?: string | null
+          preco?: number
           quantidade_ml?: string | null
           quantidade_pontos?: number | null
           status?: string | null
@@ -2619,6 +2621,7 @@ export type Database = {
           linha?: string | null
           marca?: string
           owner_group_id?: string | null
+          preco?: number
           quantidade_ml?: string | null
           quantidade_pontos?: number | null
           status?: string | null

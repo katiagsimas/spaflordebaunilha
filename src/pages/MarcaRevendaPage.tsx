@@ -23,10 +23,9 @@ import autoTable from 'jspdf-autotable';
 
 export default function MarcaRevendaPage() {
   const navigate = useNavigate();
-  const { marca } = useParams<{ marca: 'natura' | 'avon' | 'casa-estilo' }>();
-  
-  // Normalize marca for DB queries
-  const dbMarca = marca === 'casa-estilo' ? 'casa_estilo' : (marca as 'natura' | 'avon');
+  const { marca } = useParams<{ marca: 'natura' | 'avon' }>();
+
+  const dbMarca = marca as 'natura' | 'avon';
   
   const { produtos, loading: loadingProdutos, deleteProduto, updateProduto } = useProdutosRevenda(dbMarca);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -66,6 +65,7 @@ export default function MarcaRevendaPage() {
       Descricao: p.descricao,
       Linha: p.linha || '',
       'Qtd/ml': p.quantidade_ml || '',
+      Preco: Number(p.preco ?? 0).toFixed(2),
       Pontos: p.quantidade_pontos || 0,
       Status: p.status
     }));
@@ -84,12 +84,13 @@ export default function MarcaRevendaPage() {
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Pontos", "Status"];
+    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Preço", "Pontos", "Status"];
     const tableRows = filteredProdutos.map(p => [
       p.codigo || '',
       p.descricao,
       p.linha || '',
       p.quantidade_ml || '',
+      `R$ ${Number(p.preco ?? 0).toFixed(2)}`,
       p.quantidade_pontos || 0,
       p.status
     ]);
@@ -116,8 +117,6 @@ export default function MarcaRevendaPage() {
         return { label: 'Natura', icon: Leaf, desc: 'Gestão de produtos e pedidos Natura' };
       case 'avon': 
         return { label: 'Avon', icon: Sparkles, desc: 'Gestão de produtos e pedidos Avon' };
-      case 'casa-estilo': 
-        return { label: 'Casa & Estilo', icon: Home, desc: 'Itens de decoração e utilidades domésticas' };
       default: 
         return { label: 'Marca', icon: Home, desc: '' };
     }
@@ -153,7 +152,7 @@ export default function MarcaRevendaPage() {
         <div className="flex justify-between items-center">
           <Button
             variant="outline"
-            onClick={() => navigate("/cadastros/produtos-revenda")}
+            onClick={() => navigate("/precificacao/produtos-revenda")}
             className="border-sfb-areia/60 text-sfb-cacau hover:bg-sfb-baunilha gap-2"
           >
             <ChevronLeft className="h-4 w-4" /> Voltar
@@ -219,6 +218,7 @@ export default function MarcaRevendaPage() {
                   <TableHead className="text-sfb-baunilha">Descrição</TableHead>
                   <TableHead className="text-sfb-baunilha">Linha</TableHead>
                   <TableHead className="text-sfb-baunilha">Qtd/ml</TableHead>
+                  <TableHead className="text-sfb-baunilha">Preço</TableHead>
                   <TableHead className="text-sfb-baunilha">Pontos</TableHead>
                   <TableHead className="text-sfb-baunilha">Status</TableHead>
                   <TableHead className="text-right text-sfb-baunilha">Ações</TableHead>
@@ -227,13 +227,13 @@ export default function MarcaRevendaPage() {
               <TableBody className="bg-white">
                 {loadingProdutos ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       Carregando produtos...
                     </TableCell>
                   </TableRow>
                 ) : filteredProdutos.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                       {searchQuery || statusFilter !== "todos"
                         ? "Nenhum produto encontrado para os filtros aplicados."
                         : "Nenhum produto cadastrado para esta marca."}
@@ -246,6 +246,7 @@ export default function MarcaRevendaPage() {
                       <TableCell className="font-medium">{produto.descricao}</TableCell>
                       <TableCell>{produto.linha || '-'}</TableCell>
                       <TableCell>{produto.quantidade_ml || '-'}</TableCell>
+                      <TableCell>{Number(produto.preco ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                       <TableCell>{produto.quantidade_pontos || 0}</TableCell>
                       <TableCell>
                         <Badge

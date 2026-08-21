@@ -1,0 +1,2 @@
+ALTER TABLE public.produtos_revenda ADD COLUMN IF NOT EXISTS preco numeric NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_produtos_revenda_codigo ON public.produtos_revenda (owner_group_id, codigo);
