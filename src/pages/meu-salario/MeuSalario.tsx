@@ -43,7 +43,7 @@ export default function MeuSalario() {
 
 
       <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList className="bg-transparent p-0 h-auto gap-1 border-0">
+        <TabsList className="bg-sfb-terracota p-1 h-auto gap-1 border-0 rounded-xl">
           {[
             { v: "visao", l: "Visão geral" },
             { v: "retiradas", l: "Retiradas" },
@@ -52,7 +52,7 @@ export default function MeuSalario() {
             <TabsTrigger
               key={t.v}
               value={t.v}
-              className="rounded-lg px-5 py-2 text-sm font-medium text-sfb-cacau/60 hover:text-sfb-cacau data-[state=active]:bg-sfb-cacau data-[state=active]:text-sfb-baunilha data-[state=active]:shadow-none"
+              className="rounded-lg px-5 py-2 text-sm font-medium text-sfb-baunilha/80 hover:text-sfb-baunilha data-[state=active]:bg-sfb-baunilha data-[state=active]:text-sfb-terracota data-[state=active]:shadow-none"
             >
               {t.l}
             </TabsTrigger>
