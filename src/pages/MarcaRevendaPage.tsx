@@ -112,9 +112,12 @@ export default function MarcaRevendaPage() {
                       <TableCell>{produto.quantidade_ml || '-'}</TableCell>
                       <TableCell>{produto.quantidade_pontos || 0}</TableCell>
                       <TableCell>
-                        <Badge 
-                          variant={produto.status === 'Ativo' ? 'default' : 'secondary'}
-                          className={produto.status === 'Ativo' ? 'bg-sfb-salvia hover:bg-sfb-salvia/90' : ''}
+                        <Badge
+                          className={
+                            produto.status === 'Ativo'
+                              ? 'bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha'
+                              : 'bg-sfb-terracota/60 hover:bg-sfb-terracota/70 text-sfb-baunilha'
+                          }
                         >
                           {produto.status}
                         </Badge>
