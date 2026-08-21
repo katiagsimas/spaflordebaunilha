@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveGroupId } from '@/lib/activeGroup';
 import { useUserProfile } from "@/hooks/useUserProfile";
 
 import { Button } from '@/components/ui/button';
@@ -345,6 +346,7 @@ export default function Embalagens() {
           .from('embalagens')
           .insert({
             usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
             tipo_insumo_id: tipoSelecionado,
             marca: marca.trim() || null,
             codigo: codigo.trim() || null,
@@ -415,6 +417,7 @@ export default function Embalagens() {
         .from('tipos_insumos')
         .insert({
           usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
           tipo: 'embalagem',
           descricao: novoTipoDescricao.trim(),
           quantidade_embalagem: qtd,
