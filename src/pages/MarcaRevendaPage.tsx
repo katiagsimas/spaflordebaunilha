@@ -143,7 +143,6 @@ export default function MarcaRevendaPage() {
   };
 
   return (
-
     <div className="min-h-screen bg-sfb-baunilha pb-24">
       <PageHeader
         title={marca === 'natura' ? `Produtos ${config.label} (${totalNatura})` : `Produtos ${config.label}`}
@@ -307,9 +306,8 @@ export default function MarcaRevendaPage() {
               </TableBody>
             </Table>
           </div>
-        </div>
           
-        {totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="bg-sfb-baunilha/30 border-t border-sfb-areia/60 px-4 py-3 flex items-center justify-between">
               <div className="text-sm text-sfb-cacau/70">
                 Mostrando <span className="font-semibold text-sfb-cacau">{(currentPage - 1) * itemsPerPage + 1}</span> a <span className="font-semibold text-sfb-cacau">{Math.min(currentPage * itemsPerPage, filteredProdutos.length)}</span> de <span className="font-semibold text-sfb-cacau">{filteredProdutos.length}</span> produtos
