@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveGroupId } from '@/lib/activeGroup';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -180,6 +181,7 @@ export default function TiposInsumosEmbalagens() {
           .insert({
             ...dadosEmbalagem,
             usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
             tipo: 'embalagem',
           });
 

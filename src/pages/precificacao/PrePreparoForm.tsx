@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getActiveGroupId } from '@/lib/activeGroup';
 import { useGlobalLoading } from '@/contexts/GlobalLoadingContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -479,6 +480,7 @@ export default function PrePreparoForm() {
           .from('tipos_insumos')
           .insert({
             usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
             tipo: 'ingrediente',
             descricao: nomeTipo,
             quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
@@ -521,6 +523,7 @@ export default function PrePreparoForm() {
           .from('ingredientes')
           .insert({
             usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
             tipo_insumo_id: tipoId,
             marca: 'Pré-Preparo',
             preco: custoTotal,
@@ -612,6 +615,7 @@ export default function PrePreparoForm() {
       // Salvar pré-preparo
       const dadosPrePreparo = {
         usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
         nome: nome.trim(),
         categoria_id: categoriaId || null,
         tempo_preparo: Math.round(totalHorasMaoObra * 60),
@@ -1229,6 +1233,7 @@ export default function PrePreparoForm() {
                   .from('tipos_insumos')
                   .insert({
                     usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
                     tipo: 'ingrediente',
                     descricao: novoTipoDescricao.trim(),
                     quantidade_embalagem: qtd,
@@ -1344,6 +1349,7 @@ export default function PrePreparoForm() {
                   .from('ingredientes')
                   .insert({
                     usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
                     tipo_insumo_id: tipoRecemCriado.id,
                     marca: novoIngredienteMarca.trim() || null,
                     preco: precoNum,
