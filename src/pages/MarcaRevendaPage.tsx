@@ -307,7 +307,7 @@ export default function MarcaRevendaPage() {
               </TableBody>
             </Table>
           </div>
-          </div>
+        </div>
           
           {totalPages > 1 && (
             <div className="bg-sfb-baunilha/30 border-t border-sfb-areia/60 px-4 py-3 flex items-center justify-between">
