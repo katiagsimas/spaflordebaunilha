@@ -556,20 +556,125 @@ export default function Backup() {
             className="pointer-events-none absolute right-0 top-1/2 h-[140px] w-auto -translate-y-1/2 object-contain sm:h-[180px] lg:h-[220px]"
           />
       </div>
-
-
-
-      <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <Info className="h-4 w-4 text-sfb-cacau" />
-          <span className="text-sm font-medium text-sfb-cacau">Sobre os backups</span>
+      {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Histórico Recentes */}
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
+          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
+            Histórico de Backups Recentes
+          </h3>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {historicoChips.length === 0 ? (
+              <span className="text-xs text-sfb-cacau/50">Sem backups ainda</span>
+            ) : (
+              historicoChips.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
+                  className={`rounded-full px-3 py-1 text-xs transition-colors border ${
+                    backupSelecionado === c.id
+                      ? "bg-sfb-terracota text-sfb-baunilha border-sfb-terracota"
+                      : "bg-sfb-baunilha border-sfb-cacau/15 text-sfb-cacau hover:border-sfb-cacau/40"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              ))
+            )}
+          </div>
+          <div className="h-[80px]">
+            {historicoSerie.length > 1 && (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={historicoSerie} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="grBkp" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#C98A75" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#C98A75" stopOpacity={0.05} />
+                    </linearGradient>
+                  </defs>
+                  <Tooltip
+                    contentStyle={{ background: "#fff", border: "1px solid rgba(91,26,43,0.2)", borderRadius: 8, fontSize: 11 }}
+                    formatter={(v: number) => `${v.toFixed(1)} KB`}
+                  />
+                  <Area type="monotone" dataKey="v" stroke="#C98A75" strokeWidth={2} fill="url(#grBkp)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
+          </div>
         </div>
-        <p className="text-[13px] text-sfb-cacau/70 leading-relaxed">
-          Cada backup é salvo na nuvem do Spa Flor de Baunilha e baixado para o seu computador. Você pode escolher quais{" "}
-          <span className="font-bold text-sfb-cacau">módulos</span> incluir e por quantos dias manter os backups antigos. Nome do arquivo:{" "}
-          <code className="font-mono text-[12px] bg-sfb-baunilha px-2 py-0.5 rounded">{nomeBackupAtual}</code>
-        </p>
+
+        {/* KPIs */}
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { pct: pctSalvos, label: "Dados salvos" },
+              { pct: pctEspaco, label: "Espaço usado" },
+              { pct: pctComprimido, label: "Comprimido" },
+            ].map((m, i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="relative h-[80px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={donutData(m.pct)}
+                        innerRadius={28}
+                        outerRadius={38}
+                        startAngle={90}
+                        endAngle={-270}
+                        dataKey="value"
+                        stroke="none"
+                      >
+                        <Cell fill="#C98A75" />
+                        <Cell fill="#FBF6EE" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-sfb-cacau">
+                    {m.pct}%
+                  </div>
+                </div>
+                <span className="text-[11px] text-sfb-cacau/60 mt-1 text-center leading-tight">{m.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Espaço */}
+        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
+          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
+            Espaço
+          </h3>
+          <div className="flex items-center justify-between text-[11px] text-sfb-cacau/60 mb-1">
+            <span>Usado / Total</span>
+            <span>{(totalKB / 1024).toFixed(1)} / 500 MB</span>
+          </div>
+          <div className="h-2.5 rounded-full bg-sfb-baunilha overflow-hidden">
+            <div
+              className="h-full bg-sfb-terracota rounded-full transition-all"
+              style={{ width: `${pctEspaco}%` }}
+            />
+          </div>
+          <div className="mt-4 space-y-1.5 text-[12px] text-sfb-cacau/80">
+            <div className="flex justify-between">
+              <span className="text-sfb-cacau/60">Backups</span>
+              <span className="font-medium text-sfb-cacau">{backups.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sfb-cacau/60">Tamanho total</span>
+              <span className="font-medium text-sfb-cacau">{(totalKB / 1024).toFixed(2)} MB</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sfb-cacau/60">Último backup</span>
+              <span className="font-medium text-sfb-cacau">{ultimoBackup}</span>
+            </div>
+          </div>
+        </div>
       </div>
+
+
+
+
 
       {/* LOCAL DE SALVAMENTO */}
       <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
@@ -704,121 +809,6 @@ export default function Backup() {
         </button>
       </div>
 
-      {/* PAINEIS INFERIORES — Histórico recentes / KPIs / Espaço */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Histórico Recentes */}
-        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
-            Histórico de Backups Recentes
-          </h3>
-          <div className="flex flex-wrap gap-1.5 mb-3">
-            {historicoChips.length === 0 ? (
-              <span className="text-xs text-sfb-cacau/50">Sem backups ainda</span>
-            ) : (
-              historicoChips.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => downloadBackup(c.id, backups.find((b) => b.id === c.id)?.nome || c.label)}
-                  className={`rounded-full px-3 py-1 text-xs transition-colors border ${
-                    backupSelecionado === c.id
-                      ? "bg-sfb-terracota text-sfb-baunilha border-sfb-terracota"
-                      : "bg-sfb-baunilha border-sfb-cacau/15 text-sfb-cacau hover:border-sfb-cacau/40"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              ))
-            )}
-          </div>
-          <div className="h-[80px]">
-            {historicoSerie.length > 1 && (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={historicoSerie} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="grBkp" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#C98A75" stopOpacity={0.35} />
-                      <stop offset="100%" stopColor="#C98A75" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-                  <Tooltip
-                    contentStyle={{ background: "#fff", border: "1px solid rgba(91,26,43,0.2)", borderRadius: 8, fontSize: 11 }}
-                    formatter={(v: number) => `${v.toFixed(1)} KB`}
-                  />
-                  <Area type="monotone" dataKey="v" stroke="#C98A75" strokeWidth={2} fill="url(#grBkp)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </div>
-
-        {/* KPIs */}
-        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { pct: pctSalvos, label: "Dados salvos" },
-              { pct: pctEspaco, label: "Espaço usado" },
-              { pct: pctComprimido, label: "Comprimido" },
-            ].map((m, i) => (
-              <div key={i} className="flex flex-col items-center">
-                <div className="relative h-[80px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={donutData(m.pct)}
-                        innerRadius={28}
-                        outerRadius={38}
-                        startAngle={90}
-                        endAngle={-270}
-                        dataKey="value"
-                        stroke="none"
-                      >
-                        <Cell fill="#C98A75" />
-                        <Cell fill="#FBF6EE" />
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                  <div className="absolute inset-0 flex items-center justify-center text-[13px] font-bold text-sfb-cacau">
-                    {m.pct}%
-                  </div>
-                </div>
-                <span className="text-[11px] text-sfb-cacau/60 mt-1 text-center leading-tight">{m.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Espaço */}
-        <div className="bg-white border border-sfb-areia/30 rounded-xl p-5">
-          <h3 className="text-[15px] text-sfb-cacau mb-3" style={{ fontFamily: PLAYFAIR }}>
-            Espaço
-          </h3>
-          <div className="flex items-center justify-between text-[11px] text-sfb-cacau/60 mb-1">
-            <span>Usado / Total</span>
-            <span>{(totalKB / 1024).toFixed(1)} / 500 MB</span>
-          </div>
-          <div className="h-2.5 rounded-full bg-sfb-baunilha overflow-hidden">
-            <div
-              className="h-full bg-sfb-terracota rounded-full transition-all"
-              style={{ width: `${pctEspaco}%` }}
-            />
-          </div>
-          <div className="mt-4 space-y-1.5 text-[12px] text-sfb-cacau/80">
-            <div className="flex justify-between">
-              <span className="text-sfb-cacau/60">Backups</span>
-              <span className="font-medium text-sfb-cacau">{backups.length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sfb-cacau/60">Tamanho total</span>
-              <span className="font-medium text-sfb-cacau">{(totalKB / 1024).toFixed(2)} MB</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sfb-cacau/60">Último backup</span>
-              <span className="font-medium text-sfb-cacau">{ultimoBackup}</span>
-            </div>
-          </div>
-        </div>
-      </div>
 
 
       {/* Agendamento + Retenção + Restaurar */}
