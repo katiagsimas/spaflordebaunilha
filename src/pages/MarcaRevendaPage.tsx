@@ -25,6 +25,21 @@ export default function MarcaRevendaPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"todos" | "Ativo" | "Pausado">("todos");
+
+  const filteredProdutos = useMemo(() => {
+    const term = searchQuery.trim().toLowerCase();
+    return produtos.filter((produto) => {
+      const matchesStatus = statusFilter === "todos" || produto.status === statusFilter;
+      if (!term) return matchesStatus;
+      const matchesSearch =
+        (produto.descricao?.toLowerCase().includes(term)) ||
+        (produto.codigo?.toLowerCase().includes(term)) ||
+        (produto.linha?.toLowerCase().includes(term));
+      return matchesStatus && matchesSearch;
+    });
+  }, [produtos, searchQuery, statusFilter]);
 
 
   const getMarcaConfig = (m: string | undefined) => {
