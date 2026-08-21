@@ -51,6 +51,8 @@ export function CriarEmbalagemModal({
   const [novoTipoUnidadeId, setNovoTipoUnidadeId] = useState("");
   const [novoMarca, setNovoMarca] = useState("");
   const [novoPreco, setNovoPreco] = useState("");
+  const [novoCodigo, setNovoCodigo] = useState("");
+  const [novaMedida, setNovaMedida] = useState("");
   const [tipoRecemCriado, setTipoRecemCriado] = useState<any>(null);
 
   useEffect(() => {
@@ -61,6 +63,8 @@ export function CriarEmbalagemModal({
       setNovoTipoUnidadeId("");
       setNovoMarca("");
       setNovoPreco("");
+      setNovoCodigo("");
+      setNovaMedida("");
       setTipoRecemCriado(null);
     }
   }, [open, descricaoInicial]);
@@ -143,6 +147,8 @@ export function CriarEmbalagemModal({
           owner_group_id: activeGroupId,
           tipo_insumo_id: tipoRecemCriado.id,
           marca: novoMarca.trim() || null,
+          codigo: novoCodigo.trim() || null,
+          medida: novaMedida.trim() || null,
           preco: precoNum,
           data_atualizacao: new Date().toISOString().split("T")[0],
         })
@@ -191,6 +197,16 @@ export function CriarEmbalagemModal({
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
+              <Label htmlFor="codigo-emb">Código (opcional)</Label>
+              <Input
+                id="codigo-emb"
+                placeholder="Ex: EMB-001"
+                value={novoCodigo}
+                onChange={(e) => setNovoCodigo(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="descricao-emb">Nome da Embalagem *</Label>
               <Input
                 id="descricao-emb"
@@ -198,6 +214,16 @@ export function CriarEmbalagemModal({
                 value={novoTipoDescricao}
                 onChange={(e) => setNovoTipoDescricao(e.target.value)}
                 autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="medida-emb">Medida (opcional)</Label>
+              <Input
+                id="medida-emb"
+                placeholder="Ex: 250 ml"
+                value={novaMedida}
+                onChange={(e) => setNovaMedida(e.target.value)}
               />
             </div>
 
