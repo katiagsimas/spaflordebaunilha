@@ -1,5 +1,5 @@
 import React from "react";
-// Execute esta instrucao no projeto: Na listagem de produtos, implemente a coluna "Ações", com 3 pontinhos na vertical com as opões Editar, Excluir, Pausar
+// Execute esta instrucao no projeto: Em Cadastros / Produtos para Revenda / Natura, realize o cadastro dos produtos conforme planilha anexa
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
