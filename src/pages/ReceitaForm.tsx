@@ -41,6 +41,7 @@ import {
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
+import { BuscarProdutoRevenda } from "@/components/BuscarProdutoRevenda";
 import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
 
 interface CustoFixo {
@@ -1213,7 +1214,11 @@ export default function ReceitaForm() {
           <MaoObraSection maosObra={maosObra} onChange={setMaosObra} />
 
           <div className="space-y-4">
+            <div className="rounded-lg border border-sfb-areia/60 bg-white p-4">
+              <BuscarProdutoRevenda onImportado={handleIngredienteCriado} />
+            </div>
             <div className="flex justify-start items-center gap-2">
+
               <Popover open={mostrarPopoverIngrediente} onOpenChange={setMostrarPopoverIngrediente}>
                 <PopoverTrigger asChild>
                   <Button type="button" variant="default" size="sm">

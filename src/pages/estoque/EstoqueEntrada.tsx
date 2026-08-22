@@ -14,12 +14,16 @@ import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
+import { useQueryClient } from '@tanstack/react-query';
+import type { InsumoImportado } from '@/lib/produtoRevenda';
 
 export default function EstoqueEntrada() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { activeGroup } = useGroup();
   const { registrarEntrada } = useEstoque();
+  const queryClient = useQueryClient();
   const [tipo, setTipo] = useState<'ingrediente' | 'embalagem'>('ingrediente');
   const [insumoId, setInsumoId] = useState('');
   const [quantidade, setQuantidade] = useState('');
@@ -80,6 +84,14 @@ export default function EstoqueEntrada() {
     }
   };
 
+  const handleProdutoRevendaImportado = async (insumo: InsumoImportado) => {
+    setTipo('ingrediente');
+    await queryClient.invalidateQueries({ queryKey: ['ingredientes-estoque'] });
+    setInsumoId(insumo.id);
+    setQuantidade(String(insumo.tipo_insumo.quantidade_embalagem || 1));
+    if (insumo.preco > 0) setCustoTotal(String(insumo.preco));
+  };
+
   const custoUnitario = Number(quantidade) > 0 ? Number(custoTotal) / Number(quantidade) : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,6 +133,13 @@ export default function EstoqueEntrada() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
+            <div className="rounded-lg border p-4">
+              <BuscarProdutoRevenda
+                onImportado={handleProdutoRevendaImportado}
+                hint="Informe o código do produto Natura/Avon para trazer descrição e valor automaticamente para a entrada."
+              />
+            </div>
+
             <div className="space-y-2">
               <Label>Tipo de Insumo *</Label>
               <Select value={tipo} onValueChange={(v) => { setTipo(v as any); setInsumoId(''); }}>

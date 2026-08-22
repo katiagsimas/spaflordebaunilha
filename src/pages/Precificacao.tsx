@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler } from "lucide-react";
+import { BookOpen, Utensils, Ruler, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
@@ -24,6 +24,12 @@ export default function Precificacao() {
       description: "Controle de embalagens e materiais secundários",
       icon: Ruler,
       to: "/precificacao/embalagens",
+    },
+    {
+      title: "Produtos para Revenda",
+      description: "Gerencie itens adquiridos para revenda direta (Natura, Avon)",
+      icon: ShoppingBag,
+      to: "/precificacao/produtos-revenda",
     },
   ];
 
