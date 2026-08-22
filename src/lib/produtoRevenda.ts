@@ -20,6 +20,26 @@ const LABEL_MARCA: Record<string, string> = {
   avon: 'Avon',
 };
 
+/** Erro específico para produto de revenda sem preço cadastrado. */
+export class ProdutoSemPrecoError extends Error {
+  marca: string;
+  codigo: string;
+  descricao: string;
+
+  constructor(descricao: string, marca: string, codigo: string) {
+    super(
+      `O produto "${descricao}" está sem preço. Cadastre o valor em Serviços › Produtos para Revenda › ${
+        LABEL_MARCA[marca] || marca
+      } antes de usá-lo.`,
+    );
+    this.name = 'ProdutoSemPrecoError';
+    this.marca = marca;
+    this.codigo = codigo;
+    this.descricao = descricao;
+  }
+}
+
+
 /**
  * Busca um produto de revenda (Natura/Avon) pelo código dentro do grupo ativo.
  */
@@ -82,10 +102,9 @@ export async function importarProdutoRevendaComoInsumo(
   const preco = Number(produto.preco) || 0;
 
   if (preco <= 0) {
-    throw new Error(
-      `O produto "${descricao}" está sem preço. Informe o preço em Serviços › Produtos para Revenda › ${marcaLabel} antes de usá-lo.`,
-    );
+    throw new ProdutoSemPrecoError(descricao, String(produto.marca), String(produto.codigo ?? codigo).trim());
   }
+
 
 
   // tipo_insumo (produto de revenda entra como "ingrediente" para uso nas fichas)
