@@ -41,6 +41,7 @@ import {
 import { toast } from "sonner";
 import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
+import { BuscarProdutoRevenda } from "@/components/BuscarProdutoRevenda";
 import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
 
 interface CustoFixo {
