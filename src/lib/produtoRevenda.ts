@@ -81,6 +81,13 @@ export async function importarProdutoRevendaComoInsumo(
   const descricao = String(produto.descricao).slice(0, 255);
   const preco = Number(produto.preco) || 0;
 
+  if (preco <= 0) {
+    throw new Error(
+      `O produto "${descricao}" está sem preço. Informe o preço em Serviços › Produtos para Revenda › ${marcaLabel} antes de usá-lo.`,
+    );
+  }
+
+
   // tipo_insumo (produto de revenda entra como "ingrediente" para uso nas fichas)
   const { data: tipoExistente } = await supabase
     .from('tipos_insumos')
