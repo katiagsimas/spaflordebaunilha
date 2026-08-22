@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler, ShoppingBag } from "lucide-react";
+import { BookOpen, Utensils, Ruler, ShoppingBag, FlaskConical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
@@ -12,6 +12,12 @@ export default function Precificacao() {
       description: "Crie e gerencie as fichas técnicas de seus produtos",
       icon: BookOpen,
       to: "/precificacao/ficha-tecnica",
+    },
+    {
+      title: "Pré-Preparos",
+      description: "Bases e preparos usados em várias fichas técnicas",
+      icon: FlaskConical,
+      to: "/precificacao/pre-preparos",
     },
     {
       title: "Insumos",
@@ -32,6 +38,7 @@ export default function Precificacao() {
       to: "/precificacao/produtos-revenda",
     },
   ];
+
 
   return (
     <div className="min-h-screen bg-background">

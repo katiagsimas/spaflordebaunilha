@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useState, useMemo, useEffect, useRef } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { 
   Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, 
   Trash2, PauseCircle, PlayCircle, Search, Filter, Download, 
@@ -24,6 +24,8 @@ import autoTable from 'jspdf-autotable';
 export default function MarcaRevendaPage() {
   const navigate = useNavigate();
   const { marca } = useParams<{ marca: 'natura' | 'avon' }>();
+  const [searchParams] = useSearchParams();
+  const codigoParam = searchParams.get('codigo');
 
   const dbMarca = marca as 'natura' | 'avon';
   
@@ -31,10 +33,23 @@ export default function MarcaRevendaPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(codigoParam ?? "");
   const [statusFilter, setStatusFilter] = useState<"todos" | "Ativo" | "Pausado">("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+
+  // Abre automaticamente o produto quando chega com ?codigo= (fluxo "Cadastrar preço")
+  const autoAbertoRef = useRef(false);
+  useEffect(() => {
+    if (autoAbertoRef.current || !codigoParam || loadingProdutos) return;
+    const alvo = produtos.find((p) => (p.codigo || '').trim() === codigoParam.trim());
+    if (alvo) {
+      autoAbertoRef.current = true;
+      setEditingProduto(alvo);
+      setIsFormOpen(true);
+    }
+  }, [codigoParam, produtos, loadingProdutos]);
+
 
   const filteredProdutos = useMemo(() => {
     const term = searchQuery.trim().toLowerCase();
