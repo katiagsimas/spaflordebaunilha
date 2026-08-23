@@ -1354,7 +1354,7 @@ export default function ReceitaForm() {
                               className="gap-2"
                             >
                               <Plus className="h-4 w-4" />
-                              Cadastrar novo ingrediente
+                              Cadastrar novo insumo
                             </Button>
                           </div>
                         </CommandEmpty>
@@ -1370,7 +1370,7 @@ export default function ReceitaForm() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Ingrediente</TableHead>
+                      <TableHead>Insumo</TableHead>
                       <TableHead>Marca</TableHead>
                       <TableHead>Qtde Embalagem</TableHead>
                       <TableHead>Unidade</TableHead>
@@ -1389,7 +1389,7 @@ export default function ReceitaForm() {
                             onValueChange={(value) => handleSelectIngrediente(index, value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Selecione um ingrediente" />
+                              <SelectValue placeholder="Selecione um insumo" />
                             </SelectTrigger>
                             <SelectContent>
                               {ingredientesCadastrados.map((ing) => (
