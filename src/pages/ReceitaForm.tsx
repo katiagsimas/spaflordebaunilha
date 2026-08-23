@@ -435,7 +435,7 @@ export default function ReceitaForm() {
         ingredienteId: ingredienteSelecionado.id,
         ingrediente: ingredienteSelecionado.tipo_insumo?.descricao || "",
         marca: ingredienteSelecionado.marca || "",
-        qtdeEmbalagem: ingredienteSelecionado.tipo_insumo?.quantidade_embalagem || 0,
+        qtdeEmbalagem: Number(ingredienteSelecionado.tipo_insumo?.quantidade_embalagem || 1),
         unidadeMedida: ingredienteSelecionado.tipo_insumo?.unidade_medida?.sigla || "",
         precoEmbalagem: ingredienteSelecionado.preco || 0,
       });
@@ -1124,7 +1124,7 @@ export default function ReceitaForm() {
       ingredienteId: data.id,
       ingrediente: data.tipo_insumo.descricao,
       marca: data.marca || '',
-      qtdeEmbalagem: data.tipo_insumo.quantidade_embalagem,
+      qtdeEmbalagem: Number(data.tipo_insumo.quantidade_embalagem || 1),
       unidadeMedida: data.tipo_insumo.unidade_medida.sigla,
       precoEmbalagem: data.preco,
       quantidadeUtilizada: 0,

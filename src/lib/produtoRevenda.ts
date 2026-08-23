@@ -60,14 +60,14 @@ export async function buscarProdutoRevendaPorCodigo(codigo: string, userId: stri
 }
 
 /**
- * Garante que exista uma unidade de medida "un" para o usuário e retorna seu id.
+ * Garante que exista uma unidade de medida específica para o usuário e retorna seu id.
  */
-async function garantirUnidadeUn(userId: string, groupId: string) {
+async function garantirUnidade(sigla: string, nome: string, userId: string, groupId: string) {
   const { data: existente } = await supabase
     .from('unidades_medida')
     .select('id, nome, sigla')
     .eq('usuario_id', userId)
-    .eq('sigla', 'un')
+    .eq('sigla', sigla.toLowerCase())
     .limit(1)
     .maybeSingle();
 
@@ -75,7 +75,7 @@ async function garantirUnidadeUn(userId: string, groupId: string) {
 
   const { data, error } = await supabase
     .from('unidades_medida')
-    .insert({ usuario_id: userId, owner_group_id: groupId, nome: 'Unidades', sigla: 'un', ativo: true })
+    .insert({ usuario_id: userId, owner_group_id: groupId, nome, sigla: sigla.toLowerCase(), ativo: true })
     .select('id, nome, sigla')
     .single();
 
@@ -98,7 +98,17 @@ export async function importarProdutoRevendaComoInsumo(
   }
 
 
-  const unidade = await garantirUnidadeUn(userId, groupId);
+  // Tentar extrair valor numérico e unidade da string quantidade_ml (ex: "100ml", "500g", "1kg", "100")
+  const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)/);
+  const unitMatch = produto.quantidade_ml?.match(/([a-zA-Záàâãéèêíïóôõöúç]+)/);
+  
+  const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[0].replace(',', '.')) : 1;
+  const siglaUnidade = unitMatch ? unitMatch[0].toLowerCase() : 'un';
+  const nomeUnidade = siglaUnidade === 'ml' ? 'Mililitros' : 
+                      siglaUnidade === 'g' ? 'Gramas' : 
+                      siglaUnidade === 'kg' ? 'Quilos' : 'Unidades';
+
+  const unidade = await garantirUnidade(siglaUnidade, nomeUnidade, userId, groupId);
   const marcaLabel = LABEL_MARCA[produto.marca] || produto.marca;
   const descricao = String(produto.descricao).slice(0, 255);
   const preco = Number(produto.preco) || 0;
@@ -131,7 +141,7 @@ export async function importarProdutoRevendaComoInsumo(
         owner_group_id: groupId,
         tipo: 'ingrediente',
         descricao,
-        quantidade_embalagem: 1,
+        quantidade_embalagem: quantidadeCalculo,
         unidade_medida_id: unidade.id,
       })
       .select('id, descricao, quantidade_embalagem, pre_preparo_id, unidade_medida:unidades_medida(nome, sigla)')

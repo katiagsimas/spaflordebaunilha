@@ -312,7 +312,7 @@ export default function ReceitaForm() {
       id: ingrediente.id,
       nome: ingrediente.tipo_insumo?.descricao,
       marca: ingrediente.marca,
-      qtdEmbalagem: ingrediente.tipo_insumo?.quantidade_embalagem,
+      qtdEmbalagem: ingrediente.tipo_insumo?.quantidade_embalagem || 1,
       unidade: ingrediente.tipo_insumo?.unidade_medida?.sigla,
       preco: ingrediente.preco,
       qtdUtilizada: 0,
