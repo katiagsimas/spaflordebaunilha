@@ -92,7 +92,6 @@ export default function PlanoContas() {
       const { data: planosExistentes, error: errorVerif } = await supabase
         .from('plano_contas')
         .select('id')
-        .eq('user_id', user.id)
         .limit(1);
 
       if (errorVerif) throw errorVerif;
