@@ -756,20 +756,6 @@ const Encomendas = () => {
         if (error) throw error;
       }
 
-      // Salvar tags da nova encomenda
-      if (tagsSelecionadas.length > 0 && novaEncomenda) {
-        const tagsData = tagsSelecionadas.map(tag => ({
-          encomenda_id: novaEncomenda.id,
-          tag_id: tag.id,
-        }));
-        const { error: errorTags } = await supabase
-          .from('encomendas_tags')
-          .insert(tagsData);
-
-        if (errorTags) {
-          console.error('Erro ao salvar tags:', errorTags);
-        }
-      }
 
       setDialogOpen(false);
       resetForm();
