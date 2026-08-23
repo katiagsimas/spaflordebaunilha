@@ -1440,7 +1440,7 @@ export default function ReceitaForm() {
             {ingredientes.length > 0 && (
               <div className="flex justify-end">
                 <div className="text-lg font-bold">
-                  Custo Total dos Ingredientes: R$ {ingredientes.reduce((total, ing) => total + ing.custoReceita, 0).toFixed(2)}
+                  Custo Total dos Insumos: R$ {ingredientes.reduce((total, ing) => total + ing.custoReceita, 0).toFixed(2)}
                 </div>
               </div>
             )}
@@ -1619,7 +1619,7 @@ export default function ReceitaForm() {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex items-center gap-2">
                     <ChefHat className="h-5 w-5 text-primary" />
-                    <span className="font-semibold">Modo de Preparo e Montagem</span>
+                    <span className="font-semibold">Protocolo</span>
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="pt-4 pb-4">
@@ -1634,95 +1634,6 @@ export default function ReceitaForm() {
             </Accordion>
           )}
 
-          {/* Upload de Imagens */}
-          {(ingredientes.length > 0 || embalagens.length > 0) && (
-            <div className="space-y-4">
-              <Label>Imagens da Receita</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {imagens.map((imagem, index) => (
-                  <div key={index} className="relative group">
-                    {imagensComErroPreview.includes(imagem) ? (
-                      <div className="flex h-40 w-full items-center justify-center rounded-lg border-2 border-dashed border-border bg-muted px-3 text-center text-sm text-muted-foreground">
-                        Imagem indisponível para visualização
-                      </div>
-                    ) : (
-                      <img
-                        src={obterSrcImagemReceita(imagem)}
-                        alt={`Imagem ${index + 1}`}
-                        className="w-full h-40 object-cover rounded-lg border-2 border-border"
-                        onError={() => handleErroPreviewImagem(imagem)}
-                      />
-                    )}
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleRemoveImage(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                
-                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-border rounded-lg cursor-pointer hover:bg-accent/50 transition-colors">
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <Upload className="h-8 w-8 mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground text-center px-2">
-                      Clique para adicionar imagem
-                    </p>
-                  </div>
-                  <input 
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              </div>
-
-              {uploadsImagem.length > 0 && (
-                <div className="space-y-3 rounded-lg border bg-muted/30 p-4">
-                  {uploadsImagem.map((upload) => (
-                    <div key={upload.id} className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-3 text-sm">
-                        <span className="truncate font-medium">{upload.nome}</span>
-                        <span
-                          className={
-                            upload.status === "erro"
-                              ? "text-destructive"
-                              : upload.status === "concluído"
-                                ? "text-primary"
-                                : "text-muted-foreground"
-                          }
-                        >
-                          {upload.status === "enviando"
-                            ? "enviando"
-                            : upload.status === "concluído"
-                              ? "concluído"
-                              : "erro"}
-                        </span>
-                      </div>
-                      <Progress value={upload.progresso} className="h-2" />
-                      {upload.mensagem && (
-                        <p
-                          className={
-                            upload.status === "erro"
-                              ? "text-xs text-destructive"
-                              : "text-xs text-muted-foreground"
-                          }
-                        >
-                          {upload.mensagem}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
           {/* Quadro de Precificação */}
           {(ingredientes.length > 0 || embalagens.length > 0) && (
             <Card className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border-primary/20">
@@ -1735,7 +1646,7 @@ export default function ReceitaForm() {
                     <h4 className="font-semibold text-sm text-muted-foreground">Custos Calculados</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm">Ingredientes:</span>
+                        <span className="text-sm">Insumos:</span>
                         <span className="font-semibold text-primary">R$ {custoIngredientes.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -1775,7 +1686,7 @@ export default function ReceitaForm() {
                             type="text"
                             value={gasto.nome}
                             onChange={(e) => handleOutroGastoChange(index, 'nome', e.target.value)}
-                            placeholder="Ex: Topo de bolo"
+                            placeholder="Ex: Pétalas de Rosas Desidratadas"
                             className="flex-1"
                           />
                           <Input
@@ -1819,7 +1730,7 @@ export default function ReceitaForm() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {despesasVenda.map((despesa, index) => {
+                          {despesasVenda.filter(d => d.id !== 'comissao_delivery' && d.id !== 'entrega').map((despesa, index) => {
                             const valorCalculado = valorVenda > 0 ? despesa.valor : 0;
                             return (
                               <TableRow key={despesa.id}>
