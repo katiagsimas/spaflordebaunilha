@@ -10,19 +10,38 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCategorias } from "@/hooks/useCategorias";
-import { Tag, Search, Filter, Download } from "lucide-react";
+import { Tag, Search, Filter, Download, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from '@/lib/xlsxShim';
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Categorias() {
   const { showLoading, hideLoading } = useGlobalLoading();
-  const { categorias, loading, updateCategoria } = useCategorias();
+  const { categorias, loading, updateCategoria, createCategoria, deleteCategoria } = useCategorias();
   
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
   const [resultadosPorPagina, setResultadosPorPagina] = useState('todos');
+
+  // Estado do Modal
+  const [modalAberto, setModalAberto] = useState(false);
+  const [categoriaEditando, setCategoriaEditando] = useState<{ id: string; nome: string } | null>(null);
+  const [nomeCategoria, setNomeCategoria] = useState('');
+  const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -102,6 +121,48 @@ export default function Categorias() {
     }
   };
 
+  const handleAbrirModal = (categoria?: { id: string; nome: string }) => {
+    if (categoria) {
+      setCategoriaEditando(categoria);
+      setNomeCategoria(categoria.nome);
+    } else {
+      setCategoriaEditando(null);
+      setNomeCategoria('');
+    }
+    setModalAberto(true);
+  };
+
+  const handleSalvarCategoria = async () => {
+    if (!nomeCategoria.trim()) {
+      toast.error("Informe o nome da categoria");
+      return;
+    }
+
+    try {
+      setSalvando(true);
+      if (categoriaEditando) {
+        await updateCategoria(categoriaEditando.id, { nome: nomeCategoria.trim() });
+      } else {
+        await createCategoria(nomeCategoria.trim());
+      }
+      setModalAberto(false);
+    } catch (error: any) {
+      // toast já é exibido pelo hook
+    } finally {
+      setSalvando(false);
+    }
+  };
+
+  const handleExcluirCategoria = async (id: string, nome: string) => {
+    if (confirm(`Deseja realmente excluir a categoria "${nome}"?`)) {
+      try {
+        await deleteCategoria(id);
+      } catch (error) {
+        // toast já é exibido pelo hook
+      }
+    }
+  };
+
   const handleLimparFiltros = () => {
     setTermoBusca('');
     setFiltroStatus('todos');
@@ -112,14 +173,20 @@ export default function Categorias() {
     filtroStatus !== 'todos',
   ].filter(Boolean).length;
 
-  if (loading) return null;
+  if (loading && !categorias.length) return null;
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Categorias"
-        description="Gerencie as categorias"
+        description="Gerencie as categorias dos seus itens e produtos"
         backButton={<BackButton to="/cadastros" />}
+        actions={
+          <Button onClick={() => handleAbrirModal()} className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-white gap-2">
+            <Plus className="h-4 w-4" />
+            Nova Categoria
+          </Button>
+        }
       />
 
       <Card>
@@ -215,7 +282,8 @@ export default function Categorias() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Categoria</TableHead>
-                    <TableHead className="text-right">Status</TableHead>
+                    <TableHead className="w-[150px] text-center">Status</TableHead>
+                    <TableHead className="w-[80px] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -225,16 +293,43 @@ export default function Categorias() {
                       className={!categoria.ativo ? 'opacity-50 bg-muted/50' : ''}
                     >
                       <TableCell className="font-medium">{categoria.nome}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
-                            {categoria.ativo ? "Habilitada" : "Desabilitada"}
-                          </span>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center items-center gap-2">
                           <Switch
                             checked={categoria.ativo}
                             onCheckedChange={() => handleToggleAtivo(categoria.id, categoria.ativo)}
                           />
+                          <span className="text-xs text-muted-foreground w-20 text-left">
+                            {categoria.ativo ? "Habilitada" : "Desabilitada"}
+                          </span>
                         </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={() => handleAbrirModal({ id: categoria.id, nome: categoria.nome })}
+                              className="gap-2"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                              Editar
+                            </DropdownMenuItem>
+                            {!categoria.padrao_sistema && (
+                              <DropdownMenuItem 
+                                onClick={() => handleExcluirCategoria(categoria.id, categoria.nome)}
+                                className="gap-2 text-destructive focus:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -243,6 +338,42 @@ export default function Categorias() {
             )}
           </CardContent>
         </Card>
+
+        {/* Modal de Cadastro/Edição */}
+        <Dialog open={modalAberto} onOpenChange={setModalAberto}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {categoriaEditando ? 'Editar Categoria' : 'Nova Categoria'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="nome">Nome da Categoria</Label>
+                <Input
+                  id="nome"
+                  placeholder="Ex: Escalda Pés, Sabonetes..."
+                  value={nomeCategoria}
+                  onChange={(e) => setNomeCategoria(e.target.value)}
+                  autoFocus
+                  onKeyDown={(e) => e.key === 'Enter' && handleSalvarCategoria()}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setModalAberto(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                onClick={handleSalvarCategoria} 
+                disabled={salvando}
+                className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-white"
+              >
+                {salvando ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
