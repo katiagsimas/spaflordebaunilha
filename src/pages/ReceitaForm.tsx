@@ -838,7 +838,7 @@ export default function ReceitaForm() {
       return;
     }
 
-    if (!formData.rendimento || Number(formData.rendimento) <= 0) {
+    if (formData.rendimento && Number(formData.rendimento) < 0) {
       toast.error("Por favor, informe um rendimento válido");
       return;
     }
@@ -874,8 +874,8 @@ export default function ReceitaForm() {
         cardapio: formData.cardapio,
         tempo_preparo: Math.round(totalHoras * 60),
         unidade_tempo: "minutos",
-        rendimento: Number(formData.rendimento),
-        unidade_rendimento: formData.unidadeRendimentoId,
+        rendimento: formData.rendimento ? Number(formData.rendimento) : 0,
+        unidade_rendimento: formData.unidadeRendimentoId || null,
         custo_total: custoParaSalvar,
         valor_venda: valorVenda || null,
         modo_preparo: modoPreparo || null,
@@ -1187,18 +1187,18 @@ export default function ReceitaForm() {
             </div>
 
             <div>
-              <Label htmlFor="categoria">Categoria</Label>
+              <Label htmlFor="categoria">Tipo de Serviço</Label>
               <Select
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
               >
                 <SelectTrigger id="categoria">
-                  <SelectValue placeholder="Selecione uma categoria" />
+                  <SelectValue placeholder="Selecione o tipo de serviço..." />
                 </SelectTrigger>
                 <SelectContent>
                   {categoriasAtivas.length === 0 && (
                     <div className="p-2 text-sm text-muted-foreground text-center">
-                      Nenhuma categoria habilitada.{" "}
+                      Nenhum tipo de serviço habilitado.{" "}
                       <Button
                         variant="link"
                         className="p-0 h-auto"
@@ -1222,14 +1222,15 @@ export default function ReceitaForm() {
                 <Label htmlFor="cardapio">Status do Serviço</Label>
                 <Select
                   value={formData.cardapio}
-                  onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
+                  onValueChange={(value: "ativo" | "fora" | "breve") => setFormData({ ...formData, cardapio: value as any })}
                 >
                   <SelectTrigger id="cardapio">
                     <SelectValue placeholder="Status do serviço" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ativo">Ativo</SelectItem>
-                    <SelectItem value="fora">Fora</SelectItem>
+                    <SelectItem value="fora">Pausado</SelectItem>
+                    <SelectItem value="breve">Em Breve</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1251,7 +1252,7 @@ export default function ReceitaForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="rendimento">Rendimento *</Label>
+                <Label htmlFor="rendimento">Rendimento (opcional)</Label>
 
 
                 <Input
@@ -1264,7 +1265,7 @@ export default function ReceitaForm() {
                 />
               </div>
               <div>
-                <Label htmlFor="unidadeRendimento">Unid. de Medida *</Label>
+                <Label htmlFor="unidadeRendimento">Unid. de Medida (opcional)</Label>
                 <Select
                   value={formData.unidadeRendimentoId}
                   onValueChange={(value) => setFormData({ ...formData, unidadeRendimentoId: value })}
