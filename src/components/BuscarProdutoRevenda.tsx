@@ -34,7 +34,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
   const [modalNovoAberto, setModalNovoAberto] = useState(false);
   const [marcaSelecionada, setMarcaSelecionada] = useState<'natura' | 'avon' | null>(null);
 
-  const buscar = async (codigoForcado?: string) => {
+  const buscar = async (codigoForcado?: string, isNovoCadastro: boolean = false) => {
     const cod = codigoForcado || codigo;
     if (!cod.trim()) {
       toast.error("Informe o código do produto");
@@ -47,7 +47,19 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
       setSemPreco(null);
       const insumo = await importarProdutoRevendaComoInsumo(cod, user.id);
       onImportado(insumo);
-      toast.success(`${insumo.tipo_insumo.descricao} (${insumo.marca}) carregado!`);
+      
+      if (isNovoCadastro) {
+        toast.success(
+          <div className="flex flex-col gap-1">
+            <span className="font-bold text-sfb-cacau">Novo item criado e adicionado!</span>
+            <span className="text-xs opacity-90">{insumo.tipo_insumo.descricao} ({insumo.marca})</span>
+          </div>,
+          { duration: 5000 }
+        );
+      } else {
+        toast.success(`${insumo.tipo_insumo.descricao} (${insumo.marca}) carregado!`);
+      }
+      
       setCodigo("");
     } catch (error: any) {
       if (error instanceof ProdutoSemPrecoError) {
@@ -62,6 +74,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
       setCarregando(false);
     }
   };
+
 
   return (
     <div className="space-y-2">
@@ -153,8 +166,9 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
                     const codSalvo = codigo;
                     setModalNovoAberto(false);
                     setMarcaSelecionada(null);
-                    // Tenta buscar novamente o código que acabou de ser cadastrado
-                    setTimeout(() => buscar(codSalvo), 500);
+                    // Tenta buscar novamente o código que acabou de ser cadastrado, indicando que é um novo cadastro
+                    setTimeout(() => buscar(codSalvo, true), 500);
+
                   }} 
                 />
               </div>
