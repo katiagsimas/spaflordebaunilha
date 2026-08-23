@@ -150,8 +150,8 @@ export default function Categorias() {
 
   const handleExportarPDF = () => {
     try {
-      const { jsPDF } = require('jspdf');
-      const autoTable = require('jspdf-autotable').default;
+      // Exportação PDF usando importações do topo
+
 
       const doc = new jsPDF();
       const tableColumn = ["Categoria", "Status"];
