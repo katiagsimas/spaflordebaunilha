@@ -631,8 +631,6 @@ export default function ReceitaForm() {
         tempo_receita_unidade: 'minutos',
         rendimento_quantidade: rendimento,
         rendimento_unidade_id: rendimentoUnidadeId,
-        modo_receita: modoReceita.trim() || null,
-        modo_preparo: modoReceita.trim() || null,
         imagem_1_url: url1 || null,
         imagem_2_url: url2 || null,
         custo_total: custoTotal,
