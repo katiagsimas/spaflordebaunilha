@@ -94,8 +94,9 @@ export async function importarProdutoRevendaComoInsumo(
 ): Promise<InsumoImportado> {
   const { produto, groupId } = await buscarProdutoRevendaPorCodigo(codigo, userId);
   if (!produto) {
-    throw new Error(`Nenhum produto Natura/Avon encontrado com o código "${codigo}".`);
+    throw new Error(`Produto Natura/Avon não encontrado com o código "${codigo}".`);
   }
+
 
   const unidade = await garantirUnidadeUn(userId, groupId);
   const marcaLabel = LABEL_MARCA[produto.marca] || produto.marca;

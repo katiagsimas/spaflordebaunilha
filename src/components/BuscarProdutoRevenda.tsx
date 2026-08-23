@@ -65,8 +65,9 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
       if (error instanceof ProdutoSemPrecoError) {
         setSemPreco({ marca: error.marca, codigo: error.codigo, descricao: error.descricao });
         toast.error(error.message);
-      } else if (error.message?.includes("não encontrado")) {
+      } else if (error.message?.toLowerCase().includes("não encontrado") || error.message?.toLowerCase().includes("nenhum produto")) {
         setModalNovoAberto(true);
+
       } else {
         toast.error(error.message || "Erro ao buscar produto de revenda");
       }
