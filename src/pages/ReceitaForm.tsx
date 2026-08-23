@@ -1222,14 +1222,9 @@ export default function ReceitaForm() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-
-
-
           {/* Seção de Mão de Obra */}
           <MaoObraSection maosObra={maosObra} onChange={setMaosObra} />
+
 
           <div className="space-y-4">
             <div className="rounded-lg border border-sfb-areia/60 bg-white p-4">
