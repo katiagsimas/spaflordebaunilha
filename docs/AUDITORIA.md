@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-08-23 — Refinamento do Painel de Estoque e Fluxo de Edição ✅
+
+**Escopo:** Refinamento da interface do Estoque e melhoria na experiência de edição de itens.
+
+### Implementações realizadas:
+- **Interface**: Adicionada a coluna **"Total Itens"** na listagem de "Histórico de Movimentações" (Dashboard de Estoque), exibindo a quantidade atual formatada com a unidade de medida.
+- **Navegação**: A ação **"Editar"** no menu de contexto de cada item agora redireciona a usuária para o formulário completo em `/estoque/entrada?edit={id}` em vez de abrir um modal simplificado.
+- **Formulário**: O componente `EstoqueEntrada.tsx` foi adaptado para detectar o modo de edição via URL (`editId`).
+  - Carregamento automático dos dados do item existente.
+  - Bloqueio da alteração de Insumo/Tipo durante a edição para manter integridade.
+  - Submissão agora utiliza `updateEstoqueItem` do hook `useEstoque`, ajustando saldo e custo unitário.
+  - Registro automático de uma movimentação do tipo **"ajuste"** para histórico de auditoria sempre que uma edição é salva.
+- **Limpeza**: Removido o modal de edição simplificado do `EstoqueDashboard.tsx` e estados de controle obsoletos.
+
+### Segurança e Integridade:
+- Edição restrita ao `owner_group_id` via hook e políticas de RLS existentes.
+- Ações de exclusão e duplicação mantidas com confirmações visuais.
+
+---
+
+
 ## AUDITORIA COMPLETA #3 — 2026-06-22 17:05 UTC
 
 ### 📊 Resumo Executivo
