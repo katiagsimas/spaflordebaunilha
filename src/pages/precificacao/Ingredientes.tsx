@@ -520,7 +520,7 @@ export default function Ingredientes() {
     }
   };
 
-  const handleExcluirIngrediente = async (ingrediente: any) => {
+  const handleExcluirInsumo = async (ingrediente: any) => {
     setIngredienteParaExcluir(ingrediente);
     setDialogExcluirAberto(true);
   };
@@ -536,7 +536,7 @@ export default function Ingredientes() {
       if (emUso) {
         toast({
           title: '❌ Não é possível excluir',
-          description: 'Este ingrediente está sendo utilizado em pré-preparos ou fichas técnicas. Remova-o antes de excluir.',
+          description: 'Este insumo está sendo utilizado em pré-preparos ou fichas técnicas. Remova-o antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
@@ -553,8 +553,8 @@ export default function Ingredientes() {
       if (error) throw error;
 
       toast({
-        title: '✅ Ingrediente excluído',
-        description: 'O ingrediente foi excluído com sucesso.',
+        title: '✅ Insumo excluído',
+        description: 'O insumo foi excluído com sucesso.',
       });
 
       await fetchIngredientes();
@@ -627,7 +627,7 @@ export default function Ingredientes() {
         {qtdDesatualizados > 0 && <Alert className="bg-sfb-creme border-2 border-sfb-dourado">
             <AlertTriangle className="h-4 w-4 text-sfb-coral" />
             <AlertDescription className="text-sfb-preto">
-              <strong>{qtdDesatualizados}</strong> ingrediente(s) com preço desatualizado (mais de 30 dias)
+              <strong>{qtdDesatualizados}</strong> insumo(s) com preço desatualizado (mais de 30 dias)
             </AlertDescription>
           </Alert>}
       </div>
@@ -636,7 +636,7 @@ export default function Ingredientes() {
       <div className="flex justify-between items-center gap-2">
         <Button onClick={() => handleAbrirModal()} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
           <Plus className="mr-2 h-4 w-4" />
-          Novo Ingrediente
+          Novo Insumo
         </Button>
         <Button variant="outline" onClick={handleExportarExcel}>
           <Download className="mr-2 h-4 w-4" />
@@ -648,7 +648,7 @@ export default function Ingredientes() {
       <div className="flex gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar por ingrediente ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
+          <Input placeholder="Buscar por insumo ou marca..." value={termoBusca} onChange={e => setTermoBusca(e.target.value)} className="pl-10" />
         </div>
       </div>
 
@@ -657,7 +657,7 @@ export default function Ingredientes() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Ingrediente</TableHead>
+              <TableHead>Insumo</TableHead>
               <TableHead>Marca</TableHead>
               <TableHead>Qtde Embalagem</TableHead>
               <TableHead>Unidade</TableHead>
@@ -669,7 +669,7 @@ export default function Ingredientes() {
           <TableBody>
             {ingredientesFiltrados.length === 0 ? <TableRow>
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                  {termoBusca ? 'Nenhum ingrediente encontrado com esse termo.' : 'Nenhum ingrediente cadastrado. Clique em "Novo Ingrediente".'}
+                  {termoBusca ? 'Nenhum insumo encontrado com esse termo.' : 'Nenhum insumo cadastrado. Clique em "Novo Insumo".'}
                 </TableCell>
               </TableRow> : ingredientesFiltrados.map((ingrediente: any) => {
             const desatualizado = verificarDesatualizado(ingrediente.data_atualizacao);
@@ -722,7 +722,7 @@ export default function Ingredientes() {
                               Editar
                             </DropdownMenuItem>
                             <DropdownMenuItem 
-                              onClick={() => handleExcluirIngrediente(ingrediente)}
+                              onClick={() => handleExcluirInsumo(ingrediente)}
                               className="text-destructive"
                             >
 
@@ -743,7 +743,7 @@ export default function Ingredientes() {
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editando ? 'Editar Ingrediente' : 'Novo Ingrediente'}</DialogTitle>
+            <DialogTitle>{editando ? 'Editar Insumo' : 'Novo Insumo'}</DialogTitle>
             <DialogDescription>
               {editando ? 'Você pode alterar marca e preço' : 'Selecione o tipo e informe marca e preço'}
             </DialogDescription>
@@ -752,7 +752,7 @@ export default function Ingredientes() {
           <div className="space-y-4 py-4">
             {/* Picklist Tipo */}
             {!editando && <div className="space-y-2">
-                <Label>Nome do Ingrediente *</Label>
+                <Label>Nome do Insumo *</Label>
                 <Popover open={popoverAberto} onOpenChange={setPopoverAberto}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" role="combobox" aria-expanded={popoverAberto} className="w-full justify-between">
@@ -800,7 +800,7 @@ export default function Ingredientes() {
 
             {/* Dados auto-preenchidos (edição) */}
             {editando && tipoSelecionadoObj && <div className="p-4 bg-muted/50 rounded-lg">
-                <Label className="text-xs text-muted-foreground">Ingrediente</Label>
+                <Label className="text-xs text-muted-foreground">Insumo</Label>
                 <p className="font-medium">
                   {tipoSelecionadoObj.descricao} ({tipoSelecionadoObj.quantidade_embalagem.toLocaleString('pt-BR')}{' '}
                   {tipoSelecionadoObj.unidade_medida.sigla})
@@ -839,15 +839,15 @@ export default function Ingredientes() {
       <Dialog open={modalCriarTipoAberto} onOpenChange={setModalCriarTipoAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogTitle>Novo Insumo</DialogTitle>
             <DialogDescription>
-              Cadastre o tipo base do ingrediente com sua quantidade padrão
+              Cadastre o tipo base do insumo com sua quantidade padrão
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="novo-tipo-descricao">Nome do Ingrediente *</Label>
+              <Label htmlFor="novo-tipo-descricao">Nome do Insumo *</Label>
               <Input id="novo-tipo-descricao" placeholder="Ex: Farinha de Trigo" value={novoTipoDescricao} onChange={e => setNovoTipoDescricao(e.target.value)} />
             </div>
 
