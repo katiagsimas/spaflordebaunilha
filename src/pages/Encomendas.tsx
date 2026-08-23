@@ -728,7 +728,7 @@ const Encomendas = () => {
       const dadosParaSalvar = {
         ...dadosEncomenda,
         valor: valorFinal,
-        data_entrega: formData.data_entrega || null,
+        data_entrega: formData.data_entrega || formData.data_pedido,
         hora_entrega: formData.hora_entrega || null,
         conta_receber_id: contaId,
       };
