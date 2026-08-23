@@ -1101,10 +1101,14 @@ export default function ReceitaForm() {
   };
 
   const handleIngredienteCriado = (data: any) => {
-    setIngredientesCadastrados([...ingredientesCadastrados, data]);
+    // Evita duplicados na listagem local
+    setIngredientesCadastrados(prev => {
+      if (prev.find(i => i.id === data.id)) return prev;
+      return [...prev, data];
+    });
 
     const novoIngrediente: IngredienteReceita = {
-      id: `ing-${Date.now()}`,
+      id: `ing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       ingredienteId: data.id,
       ingrediente: data.tipo_insumo.descricao,
       marca: data.marca || '',
@@ -1116,9 +1120,10 @@ export default function ReceitaForm() {
       custoReceita: 0,
     };
 
-    setIngredientes([...ingredientes, novoIngrediente]);
+    setIngredientes(prev => [...prev, novoIngrediente]);
     setTermoBuscaIngrediente('');
   };
+
 
   const handleEmbalagemCriada = (data: any) => {
     setEmbalagensCadastradas([...embalagensCadastradas, data]);
