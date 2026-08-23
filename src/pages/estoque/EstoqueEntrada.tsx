@@ -28,6 +28,9 @@ export default function EstoqueEntrada() {
   const [insumoId, setInsumoId] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [custoTotal, setCustoTotal] = useState('');
+  const [precoProduto, setPrecoProduto] = useState('');
+  const [quantidadeEmbalagem, setQuantidadeEmbalagem] = useState('');
+  const [atualizarGlobal, setAtualizarGlobal] = useState(false);
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
 
@@ -79,20 +82,65 @@ export default function EstoqueEntrada() {
     setInsumoId(id);
     const item = insumos.find((i) => i.id === id);
     if (item) {
-      if (item.quantidade_embalagem > 0) setQuantidade(String(item.quantidade_embalagem));
-      if (item.preco > 0) setCustoTotal(String(item.preco));
+      setQuantidadeEmbalagem(String(item.quantidade_embalagem || ''));
+      setPrecoProduto(String(item.preco || ''));
+      
+      // Auto-calcular custo total se tivermos quantidade comprada
+      if (quantidade && item.preco > 0 && item.quantidade_embalagem > 0) {
+        const total = (item.preco / item.quantidade_embalagem) * Number(quantidade);
+        setCustoTotal(total.toFixed(2));
+      } else if (item.preco > 0 && !quantidade) {
+        // Se não tiver quantidade comprada ainda, assumimos 1 embalagem por padrão
+        setQuantidade(String(item.quantidade_embalagem || 1));
+        setCustoTotal(String(item.preco));
+      }
     }
+  };
+
+  const calcularCustoTotal = (qtdComprada: string, precoEmb: string, qtdEmb: string) => {
+    const qC = Number(qtdComprada);
+    const pE = Number(precoEmb);
+    const qE = Number(qtdEmb);
+    if (qC > 0 && pE > 0 && qE > 0) {
+      return (pE / qE) * qC;
+    }
+    return 0;
+  };
+
+  const handleQuantidadeCompradaChange = (val: string) => {
+    setQuantidade(val);
+    const total = calcularCustoTotal(val, precoProduto, quantidadeEmbalagem);
+    if (total > 0) setCustoTotal(total.toFixed(2));
+  };
+
+  const handlePrecoProdutoChange = (val: string) => {
+    setPrecoProduto(val);
+    const total = calcularCustoTotal(quantidade, val, quantidadeEmbalagem);
+    if (total > 0) setCustoTotal(total.toFixed(2));
+  };
+
+  const handleQuantidadeEmbalagemChange = (val: string) => {
+    setQuantidadeEmbalagem(val);
+    const total = calcularCustoTotal(quantidade, precoProduto, val);
+    if (total > 0) setCustoTotal(total.toFixed(2));
   };
 
   const handleProdutoRevendaImportado = async (insumo: InsumoImportado) => {
     setTipo('ingrediente');
     await queryClient.invalidateQueries({ queryKey: ['ingredientes-estoque'] });
     setInsumoId(insumo.id);
+    setQuantidadeEmbalagem(String(insumo.tipo_insumo.quantidade_embalagem || 1));
+    setPrecoProduto(String(insumo.preco || ''));
     setQuantidade(String(insumo.tipo_insumo.quantidade_embalagem || 1));
     if (insumo.preco > 0) setCustoTotal(String(insumo.preco));
   };
 
-  const custoUnitario = Number(quantidade) > 0 ? Number(custoTotal) / Number(quantidade) : 0;
+  const custoUnitarioBase = Number(precoProduto) > 0 && Number(quantidadeEmbalagem) > 0 
+    ? Number(precoProduto) / Number(quantidadeEmbalagem) 
+    : 0;
+  
+  const insumoSelecionado = insumos.find(i => i.id === insumoId);
+  const siglaUnidade = insumoSelecionado?.sigla || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +151,23 @@ export default function EstoqueEntrada() {
 
     try {
       setSalvando(true);
+      
+      // Se solicitado, atualizar preço global do insumo
+      if (atualizarGlobal && insumoId) {
+        const table = tipo === 'ingrediente' ? 'ingredientes' : 'embalagens';
+        const { error: updateError } = await supabase
+          .from(table)
+          .update({ preco: Number(precoProduto) })
+          .eq('id', insumoId);
+        
+        if (updateError) {
+          console.error('Erro ao atualizar preço global:', updateError);
+          toast.error('Entrada será registrada, mas houve erro ao atualizar preço global em Insumos.');
+        } else {
+          toast.success('Preço atualizado em Insumos/Fichas Técnicas.');
+        }
+      }
+
       await registrarEntrada({
         tipo,
         ingrediente_id: tipo === 'ingrediente' ? insumoId : undefined,
@@ -178,15 +243,54 @@ export default function EstoqueEntrada() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Quantidade Comprada *</Label>
+                <Label>Qtd na Embalagem *</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={quantidadeEmbalagem}
+                    onChange={(e) => handleQuantidadeEmbalagemChange(e.target.value)}
+                    placeholder="Ex: 1000"
+                  />
+                  {siglaUnidade && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                      {siglaUnidade}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Preço da Embalagem (R$) *</Label>
                 <Input
                   type="number"
                   step="0.01"
                   min="0.01"
-                  value={quantidade}
-                  onChange={(e) => setQuantidade(e.target.value)}
-                  placeholder="Ex: 5"
+                  value={precoProduto}
+                  onChange={(e) => handlePrecoProdutoChange(e.target.value)}
+                  placeholder="Ex: 49.02"
                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Quantidade Comprada *</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={quantidade}
+                    onChange={(e) => handleQuantidadeCompradaChange(e.target.value)}
+                    placeholder="Ex: 100"
+                  />
+                  {siglaUnidade && (
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                      {siglaUnidade}
+                    </span>
+                  )}
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>Custo Total (R$) *</Label>
@@ -196,19 +300,36 @@ export default function EstoqueEntrada() {
                   min="0.01"
                   value={custoTotal}
                   onChange={(e) => setCustoTotal(e.target.value)}
-                  placeholder="Ex: 25.90"
+                  placeholder="Ex: 4.90"
                 />
               </div>
             </div>
 
-            {Number(quantidade) > 0 && Number(custoTotal) > 0 && (
-              <div className="p-3 rounded-lg bg-muted">
-                <span className="text-sm font-body text-muted-foreground">
-                  Custo unitário calculado:{' '}
-                  <strong>{custoUnitario.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
-                </span>
+            {custoUnitarioBase > 0 && (
+              <div className="p-3 rounded-lg bg-sfb-baunilha border border-sfb-terracota/20">
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-body text-sfb-cacau/70">
+                    Custo unitário base: <strong>{custoUnitarioBase.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 4 })}</strong> por {siglaUnidade || 'unidade'}
+                  </span>
+                  <span className="text-xs font-body text-sfb-cacau/70">
+                    Custo total da entrada: <strong>{Number(custoTotal).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                  </span>
+                </div>
               </div>
             )}
+
+            <div className="flex items-center space-x-2 py-2">
+              <input
+                type="checkbox"
+                id="atualizarGlobal"
+                checked={atualizarGlobal}
+                onChange={(e) => setAtualizarGlobal(e.target.checked)}
+                className="h-4 w-4 rounded border-sfb-cacau/20 text-sfb-terracota focus:ring-sfb-terracota"
+              />
+              <Label htmlFor="atualizarGlobal" className="text-sm cursor-pointer text-sfb-cacau">
+                Atualizar preço em Insumos, Pré-Preparo e Ficha Técnica?
+              </Label>
+            </div>
 
             <div className="space-y-2">
               <Label>Observação</Label>

@@ -20,6 +20,8 @@ export interface EstoqueItem {
   // Joined
   nome_insumo?: string;
   unidade?: string;
+  unidade_medida_id?: string;
+  tipo_insumo_id?: string;
 }
 
 export interface EstoqueMovimentacao {
@@ -50,8 +52,8 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
   const ingredienteIds = items.filter(i => i.ingrediente_id).map(i => i.ingrediente_id);
   const embalagemIds = items.filter(i => i.embalagem_id).map(i => i.embalagem_id);
 
-  const ingredientesMap: Record<string, { nome: string; unidade: string }> = {};
-  const embalagensMap: Record<string, { nome: string; unidade: string }> = {};
+  const ingredientesMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
+  const embalagensMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
 
   const buscarIngredientes = async () => {
     const { data: ingredientes } = await supabase
@@ -62,6 +64,8 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
       ingredientesMap[ing.id] = {
         nome: ing.tipos_insumos?.descricao || 'Ingrediente',
         unidade: ing.tipos_insumos?.unidades_medida?.sigla || '',
+        unidade_medida_id: ing.tipos_insumos?.unidade_medida_id || '',
+        tipo_insumo_id: ing.tipo_insumo_id || '',
       };
     });
   };
@@ -75,6 +79,8 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
       embalagensMap[emb.id] = {
         nome: emb.tipos_insumos?.descricao || 'Embalagem',
         unidade: emb.tipos_insumos?.unidades_medida?.sigla || '',
+        unidade_medida_id: emb.tipos_insumos?.unidade_medida_id || '',
+        tipo_insumo_id: emb.tipo_insumo_id || '',
       };
     });
   };
@@ -92,6 +98,12 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
     unidade: item.tipo === 'ingrediente'
       ? ingredientesMap[item.ingrediente_id]?.unidade || ''
       : embalagensMap[item.embalagem_id]?.unidade || '',
+    unidade_medida_id: item.tipo === 'ingrediente'
+      ? ingredientesMap[item.ingrediente_id]?.unidade_medida_id || ''
+      : embalagensMap[item.embalagem_id]?.unidade_medida_id || '',
+    tipo_insumo_id: item.tipo === 'ingrediente'
+      ? ingredientesMap[item.ingrediente_id]?.tipo_insumo_id || ''
+      : embalagensMap[item.embalagem_id]?.tipo_insumo_id || '',
   })) as EstoqueItem[];
 }
 
@@ -302,6 +314,79 @@ export function useEstoque() {
     },
   });
 
+  const updateEstoqueItemMutation = useMutation({
+    mutationFn: async ({ 
+      estoqueId, 
+      quantidade, 
+      custoMedio,
+      estoqueMinimo 
+    }: { 
+      estoqueId: string; 
+      quantidade: number;
+      custoMedio?: number;
+      estoqueMinimo?: number | null;
+    }) => {
+      const updateData: any = { 
+        quantidade_atual: quantidade,
+      };
+      if (custoMedio !== undefined) updateData.custo_medio = custoMedio;
+      if (estoqueMinimo !== undefined) updateData.estoque_minimo = estoqueMinimo;
+
+      const { error } = await (supabase.from('estoque' as any) as any)
+        .update(updateData)
+        .eq('id', estoqueId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Item atualizado com sucesso!');
+      invalidateEstoque();
+    },
+    onError: (err: any) => {
+      console.error('Erro ao atualizar item do estoque:', err);
+      toast.error('Erro ao atualizar item');
+    },
+  });
+
+  const deleteEstoqueItemMutation = useMutation({
+    mutationFn: async (estoqueId: string) => {
+      const { error } = await (supabase.from('estoque' as any) as any)
+        .delete()
+        .eq('id', estoqueId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Item removido do estoque');
+      invalidateEstoque();
+    },
+    onError: (err: any) => {
+      console.error('Erro ao excluir item do estoque:', err);
+      toast.error('Erro ao excluir item');
+    },
+  });
+
+  const duplicateEstoqueItemMutation = useMutation({
+    mutationFn: async (item: EstoqueItem) => {
+      if (!user || !activeGroupId) throw new Error('Sessão inválida');
+      
+      const { id, created_at, updated_at, nome_insumo, unidade, ...insertData } = item as any;
+      insertData.usuario_id = user.id;
+      insertData.owner_group_id = activeGroupId;
+
+      const { error } = await (supabase.from('estoque' as any) as any)
+        .insert(insertData);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success('Item duplicado com sucesso!');
+      invalidateEstoque();
+    },
+    onError: (err: any) => {
+      console.error('Erro ao duplicar item do estoque:', err);
+      toast.error('Erro ao duplicar item');
+    },
+  });
+
   // Public wrappers preserve original signatures
   const registrarEntrada = (params: Parameters<typeof registrarEntradaMutation.mutateAsync>[0]) =>
     registrarEntradaMutation.mutateAsync(params);
@@ -311,6 +396,15 @@ export function useEstoque() {
 
   const atualizarEstoqueMinimo = (estoqueId: string, minimo: number | null) =>
     atualizarEstoqueMinimoMutation.mutateAsync({ estoqueId, minimo });
+
+  const updateEstoqueItem = (params: Parameters<typeof updateEstoqueItemMutation.mutateAsync>[0]) =>
+    updateEstoqueItemMutation.mutateAsync(params);
+
+  const deleteEstoqueItem = (estoqueId: string) =>
+    deleteEstoqueItemMutation.mutateAsync(estoqueId);
+
+  const duplicateEstoqueItem = (item: EstoqueItem) =>
+    duplicateEstoqueItemMutation.mutateAsync(item);
 
   const valorTotal = itens.reduce((acc, item) => acc + (item.quantidade_atual * item.custo_medio), 0);
   const itensAbaixoMinimo = itens.filter(i => i.estoque_minimo != null && i.quantidade_atual < (i.estoque_minimo || 0));
@@ -327,5 +421,8 @@ export function useEstoque() {
     registrarEntrada,
     registrarSaidaManual,
     atualizarEstoqueMinimo,
+    updateEstoqueItem,
+    deleteEstoqueItem,
+    duplicateEstoqueItem,
   };
 }
