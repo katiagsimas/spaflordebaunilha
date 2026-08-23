@@ -177,6 +177,7 @@ export function useEstoque() {
       embalagem_id?: string;
       quantidade: number;
       custo_total: number;
+      estoque_minimo?: number | null;
       observacao?: string;
     }) => {
       if (!user || !activeGroupId) throw new Error('Sessão inválida');
@@ -206,6 +207,7 @@ export function useEstoque() {
           .update({
             quantidade_atual: novaQtd,
             custo_medio: novoCustoMedio,
+            estoque_minimo: params.estoque_minimo !== undefined ? params.estoque_minimo : existing.estoque_minimo,
           })
           .eq('id', existing.id);
 
@@ -220,6 +222,7 @@ export function useEstoque() {
           embalagem_id: params.embalagem_id || null,
           quantidade_atual: params.quantidade,
           custo_medio: custoUnitario,
+          estoque_minimo: params.estoque_minimo || null,
         };
 
         const { data: created, error } = await (supabase.from('estoque' as any) as any)

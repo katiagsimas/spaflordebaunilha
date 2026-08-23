@@ -33,6 +33,7 @@ export default function EstoqueEntrada() {
   const [precoProduto, setPrecoProduto] = useState('');
   const [quantidadeEmbalagem, setQuantidadeEmbalagem] = useState('');
   const [atualizarGlobal, setAtualizarGlobal] = useState(false);
+  const [estoqueMinimo, setEstoqueMinimo] = useState('');
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [itemEmEdicao, setItemEmEdicao] = useState<EstoqueItem | null>(null);
@@ -49,6 +50,7 @@ export default function EstoqueEntrada() {
         setPrecoProduto(item.custo_medio.toString());
         setQuantidadeEmbalagem('1'); // Padrão se for edição direta do saldo
         setCustoTotal((item.quantidade_atual * item.custo_medio).toFixed(2));
+        setEstoqueMinimo(item.estoque_minimo?.toString() || '');
       }
     }
   }, [editId, itens]);
@@ -179,6 +181,7 @@ export default function EstoqueEntrada() {
           custoMedio: Number(precoProduto) > 0 && Number(quantidadeEmbalagem) > 0 
             ? Number(precoProduto) / Number(quantidadeEmbalagem) 
             : Number(precoProduto),
+          estoqueMinimo: estoqueMinimo !== '' ? Number(estoqueMinimo) : null,
         });
 
         // Opcional: registrar uma movimentação de ajuste para manter o histórico
@@ -223,6 +226,7 @@ export default function EstoqueEntrada() {
         embalagem_id: tipo === 'embalagem' ? insumoId : undefined,
         quantidade: Number(quantidade),
         custo_total: Number(custoTotal),
+        estoque_minimo: estoqueMinimo !== '' ? Number(estoqueMinimo) : null,
         observacao: observacao || undefined,
       });
       navigate('/estoque');
@@ -353,6 +357,28 @@ export default function EstoqueEntrada() {
                   placeholder="Ex: 4.90"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Estoque Mínimo</Label>
+              <div className="relative">
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={estoqueMinimo}
+                  onChange={(e) => setEstoqueMinimo(e.target.value)}
+                  placeholder="Ex: 10"
+                />
+                {siglaUnidade && (
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                    {siglaUnidade}
+                  </span>
+                )}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                O sistema avisará quando o saldo for menor que este valor.
+              </p>
             </div>
 
             {custoUnitarioBase > 0 && (
