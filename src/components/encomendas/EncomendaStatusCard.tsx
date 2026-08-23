@@ -185,7 +185,7 @@ export interface EncomendaStatusCardProps {
   statusKey: string | null;
   encomendas: any[];
   clientesComEncomendas: string[];
-  tagsDisponiveis: any[];
+  
   onEdit: (encomenda: any) => void;
   onDelete: (id: string) => void;
   onDarBaixa: (encomenda: any) => void;
@@ -201,7 +201,7 @@ export function EncomendaStatusCard({
   statusKey,
   encomendas,
   clientesComEncomendas,
-  tagsDisponiveis,
+  
   onEdit,
   onDelete,
   onDarBaixa,
