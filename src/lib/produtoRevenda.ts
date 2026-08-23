@@ -124,6 +124,10 @@ export async function importarProdutoRevendaComoInsumo(
   let tipoInsumo: any = tipoExistente;
 
   if (!tipoInsumo) {
+    // Extrair apenas o número da string quantidade_ml (ex: "100ml" -> 100)
+    const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)/);
+    const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[0].replace(',', '.')) : 1;
+
     const { data, error } = await supabase
       .from('tipos_insumos')
       .insert({
@@ -131,7 +135,7 @@ export async function importarProdutoRevendaComoInsumo(
         owner_group_id: groupId,
         tipo: 'ingrediente',
         descricao,
-        quantidade_embalagem: 1,
+        quantidade_embalagem: quantidadeCalculo,
         unidade_medida_id: unidade.id,
       })
       .select('id, descricao, quantidade_embalagem, pre_preparo_id, unidade_medida:unidades_medida(nome, sigla)')
