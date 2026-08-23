@@ -111,8 +111,6 @@ const Encomendas = () => {
   ];
   
   // Estados para tags
-  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
-  const [tagsSelecionadas, setTagsSelecionadas] = useState<any[]>([]);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
     receita_id: string;
