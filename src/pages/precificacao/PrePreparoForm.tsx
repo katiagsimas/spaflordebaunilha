@@ -848,12 +848,12 @@ export default function PrePreparoForm() {
           </CardContent>
         </Card>
 
-        {/* Card Ingredientes */}
+        {/* Card Insumos */}
         <Card>
           <CardHeader>
-            <CardTitle>Ingredientes</CardTitle>
+            <CardTitle>Insumos</CardTitle>
             <CardDescription>
-              Adicione os ingredientes necessários e suas quantidades
+              Adicione os insumos necessários e suas quantidades
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -862,7 +862,7 @@ export default function PrePreparoForm() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Ingrediente</TableHead>
+                      <TableHead>Insumo</TableHead>
                       <TableHead>Marca</TableHead>
                       <TableHead>Qtde Emb.</TableHead>
                       <TableHead>Un.</TableHead>
@@ -917,20 +917,20 @@ export default function PrePreparoForm() {
               <PopoverTrigger asChild>
                 <Button variant="outline" className="w-full">
                   <Plus className="mr-2 h-4 w-4" />
-                  Adicionar Ingrediente
+                  Adicionar Insumo
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
                 <Command>
                   <CommandInput 
-                    placeholder="Buscar ingrediente..." 
+                    placeholder="Buscar insumo..." 
                     value={termoBuscaIngrediente}
                     onValueChange={setTermoBuscaIngrediente}
                   />
                   <CommandEmpty>
                     <div className="flex flex-col items-center gap-2 py-4">
                       <p className="text-sm text-muted-foreground">
-                        Nenhum ingrediente encontrado
+                        Nenhum insumo encontrado
                       </p>
                       <Button
                         variant="outline"
@@ -945,7 +945,7 @@ export default function PrePreparoForm() {
                         className="gap-2"
                       >
                         <Plus className="h-4 w-4" />
-                        Cadastrar novo ingrediente
+                        Cadastrar novo insumo
                       </Button>
                     </div>
                   </CommandEmpty>
@@ -976,7 +976,7 @@ export default function PrePreparoForm() {
               <div className="border-t pt-4 space-y-2">
                 {ingredientesSelecionados.length > 0 && (
                   <div className="flex justify-between text-base">
-                    <span>Total de Ingredientes:</span>
+                    <span>Total de Insumos:</span>
                     <span>{formatarPreco(custoIngredientes)}</span>
                   </div>
                 )}
@@ -1107,7 +1107,7 @@ export default function PrePreparoForm() {
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription>
-            Após salvar, este pré-preparo aparecerá automaticamente na lista de Ingredientes 
+            Após salvar, este pré-preparo aparecerá automaticamente na lista de Insumos 
             e poderá ser usado em receitas!
           </AlertDescription>
         </Alert>
@@ -1150,7 +1150,7 @@ export default function PrePreparoForm() {
       <Dialog open={modalCriarTipoAberto} onOpenChange={setModalCriarTipoAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogTitle>Novo Insumo</DialogTitle>
             <DialogDescription>
               Cadastre o tipo base do ingrediente com sua quantidade padrão
             </DialogDescription>
@@ -1158,7 +1158,7 @@ export default function PrePreparoForm() {
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="descricao">Nome do Ingrediente *</Label>
+              <Label htmlFor="descricao">Nome do Insumo *</Label>
               <Input
                 id="descricao"
                 placeholder="Ex: Farinha de Trigo"
@@ -1279,7 +1279,7 @@ export default function PrePreparoForm() {
                 });
               }
             }}>
-              Próximo: Cadastrar Ingrediente
+              Próximo: Cadastrar Insumo
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1289,7 +1289,7 @@ export default function PrePreparoForm() {
       <Dialog open={modalCriarIngredienteAberto} onOpenChange={setModalCriarIngredienteAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogTitle>Novo Insumo</DialogTitle>
             {tipoRecemCriado && (
               <p className="text-sm text-muted-foreground">
                 Tipo: {tipoRecemCriado.descricao} - {tipoRecemCriado.quantidade_embalagem} {tipoRecemCriado.unidade_medida?.sigla}
@@ -1376,8 +1376,8 @@ export default function PrePreparoForm() {
                 }
 
                 toast({
-                  title: '✅ Ingrediente cadastrado',
-                  description: 'Ingrediente adicionado com sucesso!',
+                  title: '✅ Insumo cadastrado',
+                  description: 'Insumo adicionado com sucesso!',
                 });
 
                 // Recarregar ingredientes e adicionar automaticamente
