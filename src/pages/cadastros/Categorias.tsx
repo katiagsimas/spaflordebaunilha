@@ -13,6 +13,9 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { Tag, Search, Filter, Download, Plus, MoreVertical, Edit2, Trash2, ChevronLeft, ChevronRight, ArrowUpDown, LayoutList } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from '@/lib/xlsxShim';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
+
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 import {
   Dialog,
