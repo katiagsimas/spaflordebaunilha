@@ -53,11 +53,15 @@ import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
 import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
 import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function PrePreparoForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { categorias } = useCategorias();
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
@@ -857,7 +861,17 @@ export default function PrePreparoForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="rounded-lg border border-sfb-areia/60 bg-white p-4">
+              <BuscarProdutoRevenda 
+                onImportado={async (insumo) => {
+                  await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+                  await fetchIngredientes();
+                  handleAdicionarIngrediente(insumo);
+                }} 
+              />
+            </div>
             {ingredientesSelecionados.length > 0 && (
+
               <div className="border rounded-lg">
                 <Table>
                   <TableHeader>

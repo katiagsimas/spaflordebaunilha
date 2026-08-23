@@ -16,7 +16,7 @@ import { CardAnalise } from "@/components/CardAnalise";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { getActiveGroupId } from "@/lib/activeGroup";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -31,6 +31,7 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
+  CommandInput as CommandInputBase,
   CommandItem,
 } from '@/components/ui/command';
 import {
@@ -43,6 +44,7 @@ import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
 import { BuscarProdutoRevenda } from "@/components/BuscarProdutoRevenda";
 import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
+
 
 interface CustoFixo {
   id: string;
@@ -130,14 +132,14 @@ interface UploadImagemItem {
 }
 
 export default function ReceitaForm() {
-
-
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
   const { activeGroupId } = useGroup();
+  const queryClient = useQueryClient();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
+
   const { categorias, categoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
@@ -1100,11 +1102,18 @@ export default function ReceitaForm() {
     }
   };
 
-  const handleIngredienteCriado = (data: any) => {
-    setIngredientesCadastrados([...ingredientesCadastrados, data]);
+  const handleIngredienteCriado = async (data: any) => {
+    // Invalida o cache global para que outros componentes vejam o novo produto
+    await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+    
+    // Evita duplicados na listagem local
+    setIngredientesCadastrados(prev => {
+      if (prev.find(i => i.id === data.id)) return prev;
+      return [...prev, data];
+    });
 
     const novoIngrediente: IngredienteReceita = {
-      id: `ing-${Date.now()}`,
+      id: `ing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       ingredienteId: data.id,
       ingrediente: data.tipo_insumo.descricao,
       marca: data.marca || '',
@@ -1116,15 +1125,24 @@ export default function ReceitaForm() {
       custoReceita: 0,
     };
 
-    setIngredientes([...ingredientes, novoIngrediente]);
+    setIngredientes(prev => [...prev, novoIngrediente]);
     setTermoBuscaIngrediente('');
   };
 
-  const handleEmbalagemCriada = (data: any) => {
-    setEmbalagensCadastradas([...embalagensCadastradas, data]);
+
+
+  const handleEmbalagemCriada = async (data: any) => {
+    // Invalida o cache global para que outros componentes vejam o novo produto
+    await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+    
+    // Evita duplicados na listagem local
+    setEmbalagensCadastradas(prev => {
+      if (prev.find(e => e.id === data.id)) return prev;
+      return [...prev, data];
+    });
 
     const novaEmbalagem: EmbalagemReceita = {
-      id: `emb-${Date.now()}`,
+      id: `emb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       embalagemId: data.id,
       embalagem: data.tipo_insumo.descricao,
       marca: data.marca || '',
@@ -1136,9 +1154,11 @@ export default function ReceitaForm() {
       custoReceita: 0,
     };
 
-    setEmbalagens([...embalagens, novaEmbalagem]);
+    setEmbalagens(prev => [...prev, novaEmbalagem]);
     setTermoBuscaEmbalagem('');
   };
+
+
 
   return (
     <div className="space-y-6">
