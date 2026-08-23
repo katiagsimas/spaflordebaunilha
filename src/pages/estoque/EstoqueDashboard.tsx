@@ -56,11 +56,9 @@ export default function EstoqueDashboard() {
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
 
-  // Estados para edição
-  const [itemParaEditar, setItemParaEditar] = useState<EstoqueItem | null>(null);
-  const [novaQuantidade, setNovaQuantidade] = useState('');
-  const [novoMinimo, setNovoMinimo] = useState('');
+  // Estados para exclusão/duplicação (edição agora navega)
   const [editando, setEditando] = useState(false);
+
 
   if (loading) return <LoadingState />;
 
@@ -228,12 +226,15 @@ export default function EstoqueDashboard() {
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Valor no Estoque
                     </th>
-                      <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
-                        Status / Mínimo
-                      </th>
-                      <th className="px-5 py-3 text-center font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
-                        Ações
-                      </th>
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                      Total Itens
+                    </th>
+                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                      Status / Mínimo
+                    </th>
+                    <th className="px-5 py-3 text-center font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -268,6 +269,12 @@ export default function EstoqueDashboard() {
                         <td className="px-5 py-3 text-right font-body text-sm text-sfb-cacau">
                           {valorItem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                         </td>
+                        <td className="px-5 py-3 text-right font-body text-sm text-sfb-cacau">
+                          {Number(item.quantidade_atual).toLocaleString('pt-BR', {
+                            maximumFractionDigits: 2,
+                          })}{' '}
+                          {item.unidade}
+                        </td>
                         <td className="px-5 py-3 text-right">
                           {abaixoMinimo ? (
                             <Badge className="gap-1 rounded-md bg-sfb-terracota/20 font-body text-xs text-sfb-terracota hover:bg-sfb-terracota/30">
@@ -289,11 +296,7 @@ export default function EstoqueDashboard() {
                             <DropdownMenuContent align="end" className="w-40">
                               <DropdownMenuItem 
                                 className="flex items-center gap-2 cursor-pointer"
-                                onClick={() => {
-                                  setItemParaEditar(item);
-                                  setNovaQuantidade(item.quantidade_atual.toString());
-                                  setNovoMinimo(item.estoque_minimo?.toString() || '');
-                                }}
+                                onClick={() => navigate(`/estoque/entrada?edit=${item.id}`)}
                               >
                                 <Edit2 className="h-4 w-4" /> Editar
                               </DropdownMenuItem>
@@ -407,68 +410,6 @@ export default function EstoqueDashboard() {
         </aside>
       </div>
 
-      {/* Modal de Edição */}
-      <Dialog open={!!itemParaEditar} onOpenChange={(open) => !open && setItemParaEditar(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-display">Editar Item: {itemParaEditar?.nome_insumo}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label>Quantidade Atual ({itemParaEditar?.unidade})</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={novaQuantidade}
-                onChange={(e) => setNovaQuantidade(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Estoque Mínimo ({itemParaEditar?.unidade})</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={novoMinimo}
-                onChange={(e) => setNovoMinimo(e.target.value)}
-                placeholder="Ex: 5"
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setItemParaEditar(null)}
-              className="rounded-lg border-sfb-cacau/30 text-sfb-cacau"
-            >
-              Cancelar
-            </Button>
-            <Button
-              disabled={editando}
-              onClick={async () => {
-                if (!itemParaEditar) return;
-                try {
-                  setEditando(true);
-                  await updateEstoqueItem({
-                    estoqueId: itemParaEditar.id,
-                    quantidade: Number(novaQuantidade),
-                    estoqueMinimo: novoMinimo ? Number(novoMinimo) : null,
-                  });
-                  setItemParaEditar(null);
-                } catch (err) {
-                  // Erro já tratado no hook
-                } finally {
-                  setEditando(false);
-                }
-              }}
-              className="rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
-            >
-              {editando ? 'Salvando...' : 'Salvar Alterações'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

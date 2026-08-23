@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PageHeader } from '@/components/PageHeader';
 import { BackButton } from '@/components/BackButton';
-import { useEstoque } from '@/hooks/useEstoque';
+import { useEstoque, type EstoqueItem } from '@/hooks/useEstoque';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGroup } from '@/contexts/GroupContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,9 +20,11 @@ import type { InsumoImportado } from '@/lib/produtoRevenda';
 
 export default function EstoqueEntrada() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
   const { user } = useAuth();
   const { activeGroup } = useGroup();
-  const { registrarEntrada } = useEstoque();
+  const { registrarEntrada, itens, updateEstoqueItem } = useEstoque();
   const queryClient = useQueryClient();
   const [tipo, setTipo] = useState<'ingrediente' | 'embalagem'>('ingrediente');
   const [insumoId, setInsumoId] = useState('');
@@ -33,6 +35,23 @@ export default function EstoqueEntrada() {
   const [atualizarGlobal, setAtualizarGlobal] = useState(false);
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
+  const [itemEmEdicao, setItemEmEdicao] = useState<EstoqueItem | null>(null);
+
+  // Carregar dados para edição
+  useEffect(() => {
+    if (editId && itens.length > 0) {
+      const item = itens.find(i => i.id === editId);
+      if (item) {
+        setItemEmEdicao(item);
+        setTipo(item.tipo);
+        setInsumoId(item.tipo === 'ingrediente' ? item.ingrediente_id || '' : item.embalagem_id || '');
+        setQuantidade(item.quantidade_atual.toString());
+        setPrecoProduto(item.custo_medio.toString());
+        setQuantidadeEmbalagem('1'); // Padrão se for edição direta do saldo
+        setCustoTotal((item.quantidade_atual * item.custo_medio).toFixed(2));
+      }
+    }
+  }, [editId, itens]);
 
   // Load insumos/embalagens — mesma fonte usada por Meu Cardápio
   const { data: ingredientes = [] } = useQuery({
@@ -152,6 +171,36 @@ export default function EstoqueEntrada() {
     try {
       setSalvando(true);
       
+      // Se for edição, usamos updateEstoqueItem em vez de registrarEntrada (que soma ao saldo)
+      if (editId) {
+        await updateEstoqueItem({
+          estoqueId: editId,
+          quantidade: Number(quantidade),
+          custoMedio: Number(precoProduto) > 0 && Number(quantidadeEmbalagem) > 0 
+            ? Number(precoProduto) / Number(quantidadeEmbalagem) 
+            : Number(precoProduto),
+        });
+
+        // Opcional: registrar uma movimentação de ajuste para manter o histórico
+        const { error: movError } = await (supabase.from('estoque_movimentacoes' as any) as any)
+          .insert({
+            estoque_id: editId,
+            usuario_id: user?.id,
+            owner_group_id: activeGroup?.id,
+            tipo_movimentacao: 'ajuste',
+            quantidade: Number(quantidade),
+            custo_unitario: Number(precoProduto) / Number(quantidadeEmbalagem),
+            custo_total: Number(custoTotal),
+            observacao: `Edição via formulário: ${observacao || 'sem obs'}`,
+          });
+        
+        if (movError) console.error('Erro ao registrar histórico de ajuste:', movError);
+        
+        toast.success('Estoque atualizado com sucesso!');
+        navigate('/estoque');
+        return;
+      }
+
       // Se solicitado, atualizar preço global do insumo
       if (atualizarGlobal && insumoId) {
         const table = tipo === 'ingrediente' ? 'ingredientes' : 'embalagens';
@@ -178,7 +227,7 @@ export default function EstoqueEntrada() {
       });
       navigate('/estoque');
     } catch (err: any) {
-      toast.error('Erro ao registrar entrada: ' + (err.message || ''));
+      toast.error('Erro ao processar: ' + (err.message || ''));
     } finally {
       setSalvando(false);
     }
@@ -187,8 +236,8 @@ export default function EstoqueEntrada() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Nova Entrada de Estoque"
-        description="Registre uma compra de insumo ou embalagem"
+        title={editId ? "Editar Item de Estoque" : "Nova Entrada de Estoque"}
+        description={editId ? `Editando saldo e valores de ${itemEmEdicao?.nome_insumo || ''}` : "Registre uma compra de insumo ou embalagem"}
         backButton={<BackButton to="/estoque" />}
       />
 
@@ -208,7 +257,7 @@ export default function EstoqueEntrada() {
 
             <div className="space-y-2">
               <Label>Tipo de Insumo *</Label>
-              <Select value={tipo} onValueChange={(v) => { setTipo(v as any); setInsumoId(''); }}>
+              <Select disabled={!!editId} value={tipo} onValueChange={(v) => { setTipo(v as any); setInsumoId(''); }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -221,7 +270,7 @@ export default function EstoqueEntrada() {
 
             <div className="space-y-2">
               <Label>Insumo *</Label>
-              <Select value={insumoId} onValueChange={handleSelecionarInsumo}>
+              <Select disabled={!!editId} value={insumoId} onValueChange={handleSelecionarInsumo}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione o insumo" />
                 </SelectTrigger>
@@ -344,7 +393,7 @@ export default function EstoqueEntrada() {
 
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={salvando}>
-                {salvando ? 'Salvando...' : 'Registrar Entrada'}
+                {salvando ? 'Salvando...' : (editId ? 'Salvar Alterações' : 'Registrar Entrada')}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate('/estoque')}>
                 Cancelar
