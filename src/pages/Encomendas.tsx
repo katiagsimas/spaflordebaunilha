@@ -997,13 +997,13 @@ const Encomendas = () => {
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
-              Pedidos e Encomendas
+            <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
+              Serviços e Venda de Produtos
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
-              <p className="text-xs italic text-[#C98A75] sm:text-sm">
-                Do pedido à entrega, tudo sob controle
+              <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
+              <p className="text-xs italic text-sfb-terracota sm:text-sm">
+                Gerencie os agendamentos de serviços e as vendas de produtos da sua marca
               </p>
             </div>
           </div>
@@ -1022,15 +1022,15 @@ const Encomendas = () => {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="shrink-0 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#2A1F1A]/90">
+            <Button className="shrink-0 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
               <Plus className="h-4 w-4 mr-2" />
-              Nova Encomenda
+              Novo Serviço
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingOrder ? "Editar Encomenda" : "Nova Encomenda"}
+                  {editingOrder ? "Editar Serviço" : "Novo Serviço"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">

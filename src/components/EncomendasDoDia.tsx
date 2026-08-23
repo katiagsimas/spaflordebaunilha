@@ -189,13 +189,13 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
               <h3 className="font-display text-xl tracking-tight text-sfb-cacau sm:text-2xl">
                 Nenhum serviço ou venda para hoje
               </h3>
-              <p className="mt-2 max-w-md font-body text-sm text-sfb-vinho/70">
-                Você ainda não possui encomendas cadastradas para hoje. Que tal cadastrar a primeira?
+              <p className="mt-2 max-w-md font-body text-sm text-sfb-cacau/70">
+                Você ainda não possui serviços ou vendas cadastrados para hoje. Que tal cadastrar o primeiro?
               </p>
               {onNovaEncomenda && (
                 <Button
                   onClick={onNovaEncomenda}
-                  className="mt-5 gap-2 rounded-lg bg-sfb-vinho text-sfb-creme shadow-md transition hover:bg-sfb-vinho-escuro tracking-[0.16em] text-xs uppercase"
+                  className="mt-5 gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha shadow-md transition hover:bg-sfb-terracota/90 tracking-[0.16em] text-xs uppercase"
                 >
                   <Plus className="h-4 w-4" />
                   Nova Encomenda
