@@ -332,10 +332,25 @@ export default function Categorias() {
                     </Select>
                   </div>
                 </div>
-                <Button onClick={handleExportar} variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Exportar Excel
-                </Button>
+                <div className="flex gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Exportar
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={handleExportar} className="gap-2 cursor-pointer">
+                        Excel (XLSX)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleExportarPDF} className="gap-2 cursor-pointer">
+                        PDF
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
               </div>
             </div>
 
