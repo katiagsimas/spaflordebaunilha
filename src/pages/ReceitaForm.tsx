@@ -1223,6 +1223,7 @@ export default function ReceitaForm() {
             </div>
           </div>
 
+
           {/* Seção de Mão de Obra */}
           <MaoObraSection maosObra={maosObra} onChange={setMaosObra} />
 
