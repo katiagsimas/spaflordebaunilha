@@ -29,17 +29,13 @@ async function carregarImagemDataURL(url: string): Promise<string | null> {
 }
 
 async function carregarDados(encomendaId: string) {
-  const [{ data: encomenda }, { data: itens }, { data: tagsRel }] = await Promise.all([
+  const [{ data: encomenda }, { data: itens }] = await Promise.all([
     supabase.from("encomendas").select("*").eq("id", encomendaId).maybeSingle(),
     supabase
       .from("encomenda_itens")
       .select("*")
       .eq("encomenda_id", encomendaId)
       .order("created_at", { ascending: true }),
-    supabase
-      .from("encomendas_tags")
-      .select("tag:tags_encomendas(nome, cor)")
-      .eq("encomenda_id", encomendaId),
   ]);
 
   if (!encomenda) throw new Error("Encomenda não encontrada");
@@ -61,7 +57,7 @@ async function carregarDados(encomendaId: string) {
     cliente = data;
   }
 
-  const tags = (tagsRel ?? []).map((t: any) => t.tag).filter(Boolean);
+  const tags = [];
 
   return { encomenda, itens: itens ?? [], empresa, cliente, tags };
 }
@@ -332,26 +328,6 @@ export async function gerarOrdemProducao(encomendaId: string) {
   texto(doc, (pageW / 3) * 2 + 4, y + 11, "STATUS", String(encomenda.status || "-").toUpperCase());
   y += 26;
 
-  // Tags / tipo de evento
-  if (tags.length > 0) {
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.setTextColor(...COR_CINZA);
-    doc.text("CATEGORIAS / EVENTO:", 12, y);
-    let tx = 50;
-    tags.forEach((t: any) => {
-      const txt = String(t.nome ?? "");
-      const w = Number(doc.getTextWidth(txt)) + 6;
-      doc.setFillColor(...COR_PISTACHE);
-      doc.roundedRect(tx, y - 3.5, w, 5, 1, 1, "F");
-      doc.setTextColor(...COR_PRETO);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(7.5);
-      doc.text(txt, tx + 3, y);
-      tx += w + 3;
-    });
-    y += 6;
-  }
 
   // Itens a produzir
   autoTable(doc, {

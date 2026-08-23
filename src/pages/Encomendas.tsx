@@ -30,7 +30,7 @@ import { useGroup } from "@/contexts/GroupContext";
 import { useUnidadesMedida } from "@/hooks/useUnidadesMedida";
 import ContasReceberFormModal from "@/components/financeiro/ContasReceberFormModal";
 import { useNavigate } from "react-router-dom";
-import { EncomendaTagsSection } from "@/components/EncomendaTagsSection";
+
 import { EncomendaImagePreview } from "@/components/EncomendaImagePreview";
 import { CalendariosEncomendas } from "@/components/CalendariosEncomendas";
 import calendarioEncomendasIcon from "@/assets/calendario-encomendas-icon.png";
@@ -111,8 +111,6 @@ const Encomendas = () => {
   ];
   
   // Estados para tags
-  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
-  const [tagsSelecionadas, setTagsSelecionadas] = useState<any[]>([]);
   const [tempProdutos, setTempProdutos] = useState<Array<{
     id: string;
     receita_id: string;
@@ -294,29 +292,7 @@ const Encomendas = () => {
       }
     };
 
-    const fetchTags = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Buscar tags do usuário E tags do sistema (user_id IS NULL)
-        const { data, error } = await supabase
-          .from('tags_encomendas')
-          .select('*')
-          .or(`user_id.eq.${user.id},user_id.is.null`)
-          .eq('ativo', true)
-          .order('padrao_sistema', { ascending: false })
-          .order('nome');
-
-        if (error) throw error;
-        setTagsDisponiveis(data || []);
-      } catch (error) {
-        console.error('Erro ao buscar tags:', error);
-      }
-    };
-
     fetchPlanoContasVenda();
-    fetchTags();
   }, []);
 
   const resetForm = () => {
@@ -348,7 +324,7 @@ const Encomendas = () => {
     setEditingOrder(null);
     setTempProdutos([]);
     setContaReceberId(null);
-    setTagsSelecionadas([]);
+    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -421,21 +397,6 @@ const Encomendas = () => {
           }
         }
         
-        // Salvar tags ao atualizar
-        // Deletar tags antigas
-        await supabase
-          .from('encomendas_tags')
-          .delete()
-          .eq('encomenda_id', editingOrder.id);
-
-        // Inserir novas tags
-        if (tagsSelecionadas.length > 0) {
-          const tagsData = tagsSelecionadas.map(tag => ({
-            encomenda_id: editingOrder.id,
-            tag_id: tag.id,
-          }));
-          await supabase.from('encomendas_tags').insert(tagsData);
-        }
         
         setDialogOpen(false);
         resetForm();
@@ -519,26 +480,6 @@ const Encomendas = () => {
     setContaReceberId(encomenda.conta_receber_id || null);
     
     // Buscar tags da encomenda
-    try {
-      const { data: tagsData } = await supabase
-        .from('encomendas_tags')
-        .select(`
-          tag_id,
-          tag:tags_encomendas (
-            id,
-            nome,
-            cor
-          )
-        `)
-        .eq('encomenda_id', encomenda.id);
-
-      if (tagsData) {
-        const tagsEncomenda = tagsData.map(t => t.tag).filter(Boolean);
-        setTagsSelecionadas(tagsEncomenda);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar tags da encomenda:', error);
-    }
     
     setDialogOpen(true);
   };
@@ -815,20 +756,6 @@ const Encomendas = () => {
         if (error) throw error;
       }
 
-      // Salvar tags da nova encomenda
-      if (tagsSelecionadas.length > 0 && novaEncomenda) {
-        const tagsData = tagsSelecionadas.map(tag => ({
-          encomenda_id: novaEncomenda.id,
-          tag_id: tag.id,
-        }));
-        const { error: errorTags } = await supabase
-          .from('encomendas_tags')
-          .insert(tagsData);
-
-        if (errorTags) {
-          console.error('Erro ao salvar tags:', errorTags);
-        }
-      }
 
       setDialogOpen(false);
       resetForm();
@@ -919,7 +846,7 @@ const Encomendas = () => {
         'Data Pedido': new Date(encomenda.data_pedido).toLocaleDateString("pt-BR"),
         'Data Entrega': encomenda.data_entrega ? parseISOToDate(encomenda.data_entrega).toLocaleDateString("pt-BR") : 'Aguardando Agendamento',
         'Hora Entrega': encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : '-',
-        'Tags': encomenda.tags && encomenda.tags.length > 0 ? encomenda.tags.map((t: any) => t.nome).join(', ') : '-',
+        
         'Valor': `R$ ${encomenda.valor.toFixed(2)}`,
         'Telefone': encomenda.telefone || '-',
         'Endereço': encomenda.endereco || '-',
@@ -938,7 +865,7 @@ const Encomendas = () => {
         { wch: 15 }, // Data Pedido
         { wch: 15 }, // Data Entrega
         { wch: 12 }, // Hora Entrega
-        { wch: 20 }, // Tags
+        
         { wch: 15 }, // Valor
         { wch: 15 }, // Telefone
         { wch: 30 }, // Endereço
@@ -963,13 +890,11 @@ const Encomendas = () => {
       const matchesCliente = clienteFilter === "Todos" || e.cliente === clienteFilter;
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       
-      // Filtro por tag
-      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
       
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesTag && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
@@ -1613,19 +1538,6 @@ const Encomendas = () => {
                     />
                   </div>
 
-                  {/* Seção de Tags */}
-                  <EncomendaTagsSection 
-                    tagsDisponiveis={tagsDisponiveis}
-                    tagsSelecionadas={tagsSelecionadas}
-                    onTagToggle={(tag) => {
-                      const selecionada = tagsSelecionadas.find(t => t.id === tag.id);
-                      if (selecionada) {
-                        setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id));
-                      } else {
-                        setTagsSelecionadas([...tagsSelecionadas, tag]);
-                      }
-                    }}
-                  />
 
                   <div className="flex gap-2 justify-end">
                   <Button
@@ -1645,15 +1557,6 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
-          {/* Card minimalista Tags de Encomendas */}
-          <button
-            type="button"
-            onClick={() => navigate('/encomendas/tags')}
-            className="ml-auto flex items-center gap-2 rounded-lg bg-[#2A1F1A] px-4 py-2.5 text-white transition hover:bg-[#2A1F1A]/90 shrink-0"
-          >
-            <TagIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Tags de Encomendas</span>
-          </button>
       </div>
 
       {/* Filtro Mês/Ano - Horizontal */}

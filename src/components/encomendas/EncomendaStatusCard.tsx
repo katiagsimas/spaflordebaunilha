@@ -185,7 +185,7 @@ export interface EncomendaStatusCardProps {
   statusKey: string | null;
   encomendas: any[];
   clientesComEncomendas: string[];
-  tagsDisponiveis: any[];
+  
   onEdit: (encomenda: any) => void;
   onDelete: (id: string) => void;
   onDarBaixa: (encomenda: any) => void;
@@ -201,7 +201,7 @@ export function EncomendaStatusCard({
   statusKey,
   encomendas,
   clientesComEncomendas,
-  tagsDisponiveis,
+  
   onEdit,
   onDelete,
   onDarBaixa,
@@ -235,14 +235,6 @@ export function EncomendaStatusCard({
     }
   }, [persistKey, clienteFilter, origemFilter, eventoFilter, dataEntregaFilter, quickFilter, sortBy]);
 
-  const origensTags = useMemo(
-    () => tagsDisponiveis.filter((t) => ORIGEM_NOMES.includes(t.nome.toLowerCase())),
-    [tagsDisponiveis],
-  );
-  const eventoTags = useMemo(
-    () => tagsDisponiveis.filter((t) => EVENTO_NOMES.includes(t.nome.toLowerCase())),
-    [tagsDisponiveis],
-  );
 
   const hojeISO = getTodayISO();
 
@@ -258,12 +250,6 @@ export function EncomendaStatusCard({
         return true;
       })
       .filter((e) => clienteFilter === "Todos" || e.cliente === clienteFilter)
-      .filter((e) =>
-        origemFilter === "todos" ? true : e.tags?.some((t: any) => t.id === origemFilter),
-      )
-      .filter((e) =>
-        eventoFilter === "todos" ? true : e.tags?.some((t: any) => t.id === eventoFilter),
-      )
       .filter((e) => (!dataEntregaFilter ? true : e.data_entrega === dataEntregaFilter));
 
     const cmp = (a: any, b: any) => {
@@ -373,45 +359,6 @@ export function EncomendaStatusCard({
               </Select>
             </div>
 
-            <div>
-              <Label className="text-xs mb-1.5 block">Origem</Label>
-              <Select value={origemFilter} onValueChange={setOrigemFilter}>
-                <SelectTrigger className="bg-background h-9 text-sm">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todas</SelectItem>
-                  {origensTags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
-                        {tag.nome}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-xs mb-1.5 block">Evento</Label>
-              <Select value={eventoFilter} onValueChange={setEventoFilter}>
-                <SelectTrigger className="bg-background h-9 text-sm">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {eventoTags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
-                        {tag.nome}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             <div>
               <Label className="text-xs mb-1.5 block">Data de Entrega</Label>
@@ -449,7 +396,7 @@ export function EncomendaStatusCard({
                       <TableHead>Data Pedido</TableHead>
                       <TableHead>Data Entrega</TableHead>
                       <TableHead>Hora</TableHead>
-                      <TableHead>Tipo de Evento</TableHead>
+                      
                       <TableHead>Valor</TableHead>
                       <TableHead className="text-right">Ações</TableHead>
                     </TableRow>
@@ -480,27 +427,6 @@ export function EncomendaStatusCard({
                         </TableCell>
                         <TableCell>
                           {encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : "-"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-wrap gap-1 max-w-xs">
-                            {(() => {
-                              const tiposEventoTags =
-                                encomenda.tags?.filter((tag: any) =>
-                                  EVENTO_NOMES.includes(tag.nome.toLowerCase()),
-                                ) || [];
-                              return tiposEventoTags.length > 0
-                                ? tiposEventoTags.map((tag: any) => (
-                                    <Badge
-                                      key={tag.id}
-                                      style={{ backgroundColor: tag.cor, color: "#fff" }}
-                                      className="text-xs"
-                                    >
-                                      {tag.nome}
-                                    </Badge>
-                                  ))
-                                : null;
-                            })()}
-                          </div>
                         </TableCell>
                         <TableCell>R$ {Number(encomenda.valor || 0).toFixed(2)}</TableCell>
                         <TableCell className="text-right">

@@ -39,26 +39,12 @@ export default function EncomendasLista() {
   const { status = "total" } = useParams<{ status: string }>();
   const navigate = useNavigate();
   const { encomendas, deleteEncomenda } = useEncomendas();
-  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
+  
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
 
   const cfg = STATUS_MAP[status] || STATUS_MAP.total;
 
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase
-        .from("tags_encomendas")
-        .select("*")
-        .or(`user_id.eq.${user.id},user_id.is.null`)
-        .eq("ativo", true)
-        .order("padrao_sistema", { ascending: false })
-        .order("nome");
-      setTagsDisponiveis(data || []);
-    })();
-  }, []);
 
   const encomendasMes = useMemo(() => {
     if (!encomendas) return [] as any[];
@@ -181,7 +167,7 @@ export default function EncomendasLista() {
         statusKey={cfg.statusKey}
         encomendas={encomendasMes}
         clientesComEncomendas={clientesComEncomendas}
-        tagsDisponiveis={tagsDisponiveis}
+        
         onEdit={handleEdit}
         onDelete={handleDelete}
         onDarBaixa={handleDarBaixa}

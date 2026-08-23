@@ -32,7 +32,7 @@ interface Encomenda {
   pagamentos?: Array<{ valor: number; data: string; tipo_pagamento: string; pago?: boolean; banco_id?: string }>;
   saldo_restante?: number;
   conta_receber_id?: string | null;
-  tags?: Array<{ id: string; nome: string; cor: string; padrao_sistema?: boolean }>;
+  
   created_at?: string;
   updated_at?: string;
 }
@@ -52,15 +52,7 @@ export function useEncomendas() {
       const { data, error } = await supabase
         .from('encomendas')
         .select(`
-          *,
-          tags:encomendas_tags (
-            tag:tags_encomendas (
-              id,
-              nome,
-              cor,
-              padrao_sistema
-            )
-          )
+          *
         `)
         .eq('owner_group_id', activeGroupId!)
         .order('data_entrega', { ascending: false });
@@ -74,7 +66,7 @@ export function useEncomendas() {
         ...encomenda,
         topo_imagens: Array.isArray(encomenda.topo_imagens) ? encomenda.topo_imagens : [],
         pagamentos: Array.isArray(encomenda.pagamentos) ? encomenda.pagamentos : [],
-        tags: encomenda.tags?.map((t: any) => t.tag).filter(Boolean) || [],
+        
       })) as unknown as Encomenda[];
     },
   });

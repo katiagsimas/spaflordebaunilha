@@ -49,7 +49,7 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
   {
     id: "comercial",
     titulo: "Meu Comercial",
-    descricao: "Clientes, fornecedores, propostas, contratos, encomendas e tags de encomendas",
+    descricao: "Clientes, fornecedores, propostas, contratos e encomendas",
     tabelas: [
       "clientes",
       "cliente_familiares",
@@ -60,8 +60,6 @@ export const BACKUP_MODULOS: BackupModuloDef[] = [
       "contratos_templates",
       "encomendas",
       "encomenda_itens",
-      "encomendas_tags",
-      "tags_encomendas",
       "tags",
     ],
   },
