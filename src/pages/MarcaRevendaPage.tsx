@@ -26,6 +26,7 @@ export default function MarcaRevendaPage() {
   const { marca } = useParams<{ marca: 'natura' | 'avon' }>();
   const [searchParams] = useSearchParams();
   const codigoParam = searchParams.get('codigo');
+  const origemParam = searchParams.get('origem');
 
   const dbMarca = marca as 'natura' | 'avon';
   
@@ -171,7 +172,13 @@ export default function MarcaRevendaPage() {
         <div className="flex justify-between items-center">
           <Button
             variant="outline"
-            onClick={() => navigate("/precificacao/produtos-revenda")}
+            onClick={() => {
+              if (origemParam === 'estoque') {
+                navigate("/estoque/entrada");
+              } else {
+                navigate("/precificacao/produtos-revenda");
+              }
+            }}
             className="border-sfb-areia/60 text-sfb-cacau hover:bg-sfb-baunilha gap-2"
           >
             <ChevronLeft className="h-4 w-4" /> Voltar
