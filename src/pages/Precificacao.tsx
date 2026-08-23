@@ -9,7 +9,7 @@ export default function Precificacao() {
   const menuItems = [
     {
       title: "Fichas Técnicas",
-      description: "Crie e gerencie as fichas técnicas de seus produtos",
+      description: "Crie e gerencie as Fichas Técnicas do seus Serviços",
       icon: BookOpen,
       to: "/precificacao/ficha-tecnica",
     },
