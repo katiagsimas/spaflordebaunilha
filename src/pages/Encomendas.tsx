@@ -212,10 +212,11 @@ const Encomendas = () => {
     const amanha = addDays(hoje, 1);
     const fimSemana = addDays(hoje, 7);
 
-    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA
+    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA ou DATA DO PEDIDO
     const encomendasMes = encomendas.filter((enc) => {
-      if (!enc.data_entrega) return false;
-      const dataEntrega = parseISOToDate(enc.data_entrega);
+      const dataRef = enc.data_entrega || enc.data_pedido;
+      if (!dataRef) return false;
+      const dataEntrega = parseISOToDate(dataRef);
       return (
         dataEntrega.getMonth() === mesSelecionado &&
         dataEntrega.getFullYear() === anoSelecionado
