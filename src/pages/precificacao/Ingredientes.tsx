@@ -270,12 +270,12 @@ export default function Ingredientes() {
       ];
       ws['!cols'] = colWidths;
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Ingredientes');
+      XLSX.utils.book_append_sheet(wb, ws, 'Insumos');
       const hoje = new Date().toISOString().split('T')[0];
-      XLSX.writeFile(wb, `Ingredientes_${hoje}.xlsx`);
+      XLSX.writeFile(wb, `Insumos_${hoje}.xlsx`);
       toast({
         title: '✅ Exportado',
-        description: 'Planilha de ingredientes exportada com sucesso!'
+        description: 'Planilha de insumos exportada com sucesso!'
       });
     } catch (error) {
       console.error('Erro ao exportar:', error);

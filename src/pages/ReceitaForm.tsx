@@ -1969,7 +1969,7 @@ export default function ReceitaForm() {
         unidades={unidades}
         userId={user?.id}
         activeGroupId={activeGroupId}
-        onIngredienteCriado={handleIngredienteCriado}
+        onInsumoCriado={handleIngredienteCriado}
       />
 
       <CriarEmbalagemModal
