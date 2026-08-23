@@ -38,17 +38,21 @@ export default function MarcaRevendaPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Abre automaticamente o produto quando chega com ?codigo= (fluxo "Cadastrar preço")
+  // Abre automaticamente o formulário de cadastro quando o produto não existe, ou o de edição quando existe
   const autoAbertoRef = useRef(false);
   useEffect(() => {
     if (autoAbertoRef.current || !codigoParam || loadingProdutos) return;
+    autoAbertoRef.current = true;
+    
     const alvo = produtos.find((p) => (p.codigo || '').trim() === codigoParam.trim());
     if (alvo) {
-      autoAbertoRef.current = true;
       setEditingProduto(alvo);
-      setIsFormOpen(true);
+    } else {
+      // Se não encontrar, abre para cadastro com o código pré-preenchido
+      setEditingProduto({ codigo: codigoParam, marca: dbMarca, status: 'Ativo' } as any);
     }
-  }, [codigoParam, produtos, loadingProdutos]);
+    setIsFormOpen(true);
+  }, [codigoParam, produtos, loadingProdutos, dbMarca]);
 
 
   const filteredProdutos = useMemo(() => {
