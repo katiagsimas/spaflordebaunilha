@@ -1222,6 +1222,9 @@ export default function ReceitaForm() {
               </div>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
 
 
 
