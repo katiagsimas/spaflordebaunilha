@@ -1130,7 +1130,10 @@ export default function ReceitaForm() {
 
 
 
-  const handleEmbalagemCriada = (data: any) => {
+  const handleEmbalagemCriada = async (data: any) => {
+    // Invalida o cache global para que outros componentes vejam o novo produto
+    await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+    
     // Evita duplicados na listagem local
     setEmbalagensCadastradas(prev => {
       if (prev.find(e => e.id === data.id)) return prev;
@@ -1153,6 +1156,7 @@ export default function ReceitaForm() {
     setEmbalagens(prev => [...prev, novaEmbalagem]);
     setTermoBuscaEmbalagem('');
   };
+
 
 
   return (
