@@ -13,6 +13,7 @@ export interface ProdutoRevenda {
   quantidade_ml: string | null;
   quantidade_pontos: number;
   preco: number;
+  preco_venda: number;
   categoria_id: string | null;
   status: 'Ativo' | 'Pausado';
   owner_group_id: string | null;

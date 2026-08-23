@@ -25,7 +25,8 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
       marca,
       status: 'Ativo',
       quantidade_pontos: 0,
-      preco: 0
+      preco: 0,
+      preco_venda: 0
     }
   });
 
@@ -96,13 +97,25 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="preco">Preço (R$)</Label>
+          <Label htmlFor="preco">Preço de Custo</Label>
           <Input
             id="preco"
             type="number"
             step="0.01"
             min="0"
             {...register('preco', { valueAsNumber: true })}
+            placeholder="0,00"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="preco_venda">Preço de Venda</Label>
+          <Input
+            id="preco_venda"
+            type="number"
+            step="0.01"
+            min="0"
+            {...register('preco_venda', { valueAsNumber: true })}
             placeholder="0,00"
           />
         </div>

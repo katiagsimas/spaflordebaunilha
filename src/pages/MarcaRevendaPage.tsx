@@ -85,7 +85,8 @@ export default function MarcaRevendaPage() {
       Descricao: p.descricao,
       Linha: p.linha || '',
       'Qtd/ml': p.quantidade_ml || '',
-      Preco: Number(p.preco ?? 0).toFixed(2),
+      'Preço Custo': Number(p.preco ?? 0).toFixed(2),
+      'Preço Venda': Number(p.preco_venda ?? 0).toFixed(2),
       Pontos: p.quantidade_pontos || 0,
       Status: p.status
     }));
@@ -104,13 +105,14 @@ export default function MarcaRevendaPage() {
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Preço", "Pontos", "Status"];
+    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Preço Custo", "Preço Venda", "Pontos", "Status"];
     const tableRows = filteredProdutos.map(p => [
       p.codigo || '',
       p.descricao,
       p.linha || '',
       p.quantidade_ml || '',
       `R$ ${Number(p.preco ?? 0).toFixed(2)}`,
+      `R$ ${Number(p.preco_venda ?? 0).toFixed(2)}`,
       p.quantidade_pontos || 0,
       p.status
     ]);
@@ -244,7 +246,8 @@ export default function MarcaRevendaPage() {
                   <TableHead className="text-sfb-baunilha">Descrição</TableHead>
                   <TableHead className="text-sfb-baunilha">Linha</TableHead>
                   <TableHead className="text-sfb-baunilha">Qtd/ml</TableHead>
-                  <TableHead className="text-sfb-baunilha">Preço</TableHead>
+                  <TableHead className="text-sfb-baunilha">Preço Custo</TableHead>
+                  <TableHead className="text-sfb-baunilha">Preço Venda</TableHead>
                   <TableHead className="text-sfb-baunilha">Pontos</TableHead>
                   <TableHead className="text-sfb-baunilha">Status</TableHead>
                   <TableHead className="text-right text-sfb-baunilha">Ações</TableHead>
@@ -273,6 +276,7 @@ export default function MarcaRevendaPage() {
                       <TableCell>{produto.linha || '-'}</TableCell>
                       <TableCell>{produto.quantidade_ml || '-'}</TableCell>
                       <TableCell>{Number(produto.preco ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                      <TableCell>{Number(produto.preco_venda ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
                       <TableCell>{produto.quantidade_pontos || 0}</TableCell>
                       <TableCell>
                         <Badge
