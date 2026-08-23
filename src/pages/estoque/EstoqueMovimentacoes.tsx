@@ -7,7 +7,9 @@ import { BackButton } from '@/components/BackButton';
 import { useEstoque } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
 import { EmptyState } from '@/components/EmptyState';
-import { ArrowDownUp, Package } from 'lucide-react';
+import { ArrowDownUp, Package, Plus, SlidersHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -25,6 +27,7 @@ interface EncomendaRef {
 }
 
 export default function EstoqueMovimentacoes() {
+  const navigate = useNavigate();
   const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque();
 
   const encomendaIds = useMemo(
@@ -69,6 +72,23 @@ export default function EstoqueMovimentacoes() {
         title="Movimentações de Estoque"
         description="Histórico completo de entradas, saídas e ajustes"
         backButton={<BackButton to="/estoque" />}
+        action={
+          <div className="flex gap-2">
+            <Button
+              onClick={() => navigate('/estoque/entrada')}
+              className="gap-2 bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
+            >
+              <Plus className="h-4 w-4" /> Nova Entrada
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/estoque/ajuste')}
+              className="gap-2 border-sfb-cacau/30 text-sfb-cacau hover:bg-sfb-baunilha"
+            >
+              <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
+            </Button>
+          </div>
+        }
       />
 
       {movimentacoes.length === 0 ? (
