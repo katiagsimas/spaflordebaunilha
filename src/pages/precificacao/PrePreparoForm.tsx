@@ -98,6 +98,8 @@ export default function PrePreparoForm() {
 
   // Unidades
   const [unidades, setUnidades] = useState<any[]>([]);
+  const [unitsLoaded, setUnitsLoaded] = useState(false);
+
 
   // Imagens
   const [imagem1, setImagem1] = useState<File | null>(null);
@@ -113,22 +115,23 @@ export default function PrePreparoForm() {
   const [custoTotal, setCustoTotal] = useState(0);
   const [custoPorUnidade, setCustoPorUnidade] = useState(0);
 
+  const loadData = async () => {
+    await fetchUnidades();
+    await fetchIngredientes();
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      await fetchUnidades();
-      await fetchIngredientes();
-    };
-    
     loadData();
     
     if (isEditMode) {
       fetchPrePreparo();
     }
-  }, [id]);
+  }, [id, unitsLoaded]); // Re-run if units load to ensure proper combo recipe formatting
 
   useEffect(() => {
     calcularCustos();
   }, [ingredientesSelecionados, rendimentoQtd, maosObra, perfis, profile]);
+
 
   const fetchIngredientes = async () => {
     try {
@@ -211,6 +214,8 @@ export default function PrePreparoForm() {
 
       if (error) throw error;
       setUnidades(data || []);
+      setUnitsLoaded(true);
+
     } catch (error) {
       console.error('Erro ao buscar unidades:', error);
     }
@@ -871,6 +876,7 @@ export default function PrePreparoForm() {
               />
             </div>
             {ingredientesSelecionados.length > 0 && (
+
 
               <div className="border rounded-lg">
                 <Table>
