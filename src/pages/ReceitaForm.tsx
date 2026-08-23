@@ -834,12 +834,17 @@ export default function ReceitaForm() {
 
   const handleSave = async () => {
     if (!formData.nome.trim()) {
-      toast.error("Por favor, informe o nome da receita");
+      toast.error("Por favor, informe o nome do serviço");
       return;
     }
 
-    if (formData.rendimento && Number(formData.rendimento) < 0) {
+    if (!formData.rendimento || Number(formData.rendimento) <= 0) {
       toast.error("Por favor, informe um rendimento válido");
+      return;
+    }
+
+    if (!formData.unidadeRendimentoId) {
+      toast.error("Por favor, informe a unidade de medida do rendimento");
       return;
     }
     
@@ -1252,20 +1257,20 @@ export default function ReceitaForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="rendimento">Rendimento (opcional)</Label>
-
+                <Label htmlFor="rendimento">Rendimento *</Label>
 
                 <Input
                   id="rendimento"
                   type="number"
                   min="1"
+                  step="0.01"
                   value={formData.rendimento}
                   onChange={(e) => setFormData({ ...formData, rendimento: e.target.value })}
-                  placeholder="Ex: 500"
+                  placeholder="Ex: 1"
                 />
               </div>
               <div>
-                <Label htmlFor="unidadeRendimento">Unid. de Medida (opcional)</Label>
+                <Label htmlFor="unidadeRendimento">Unid. de Medida *</Label>
                 <Select
                   value={formData.unidadeRendimentoId}
                   onValueChange={(value) => setFormData({ ...formData, unidadeRendimentoId: value })}
