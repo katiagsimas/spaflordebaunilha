@@ -1159,21 +1159,38 @@ export default function ReceitaForm() {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="cardapio">Serviço</Label>
-              <Select
-                value={formData.cardapio}
-                onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
-              >
-                <SelectTrigger id="cardapio">
-                  <SelectValue placeholder="Status do serviço" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="fora">Fora</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label htmlFor="cardapio">Serviço</Label>
+                <Select
+                  value={formData.cardapio}
+                  onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
+                >
+                  <SelectTrigger id="cardapio">
+                    <SelectValue placeholder="Status do serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="fora">Fora</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {ingredientes.length === 1 && ingredientes[0].quantidadeUtilizada === Number(formData.rendimento) && (
+                <div className="flex items-center space-x-2 pb-3">
+                  <Checkbox 
+                    id="sincronizarGlobal" 
+                    checked={(formData as any).sincronizarGlobal}
+                    onCheckedChange={(checked) => setFormData({ ...formData, sincronizarGlobal: !!checked } as any)}
+                  />
+                  <Label htmlFor="sincronizarGlobal" className="text-xs cursor-pointer text-sfb-cacau/70 leading-none">
+                    Sincronizar preço global?
+                  </Label>
+                </div>
+              )}
             </div>
+
+            <div>
 
 
 
