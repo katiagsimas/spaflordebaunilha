@@ -1066,28 +1066,32 @@ const Encomendas = () => {
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="data_entrega">Data de Entrega</Label>
-                    <Input
-                      id="data_entrega"
-                      type="date"
-                      value={formData.data_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, data_entrega: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hora_entrega">Hora da Entrega</Label>
-                    <Input
-                      id="hora_entrega"
-                      type="time"
-                      value={formData.hora_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, hora_entrega: e.target.value })
-                      }
-                    />
-                  </div>
+                  {formMode === "servico" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="data_entrega">Data de Entrega</Label>
+                        <Input
+                          id="data_entrega"
+                          type="date"
+                          value={formData.data_entrega}
+                          onChange={(e) =>
+                            setFormData({ ...formData, data_entrega: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="hora_entrega">Hora da Entrega</Label>
+                        <Input
+                          id="hora_entrega"
+                          type="time"
+                          value={formData.hora_entrega}
+                          onChange={(e) =>
+                            setFormData({ ...formData, hora_entrega: e.target.value })
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
@@ -1390,149 +1394,155 @@ const Encomendas = () => {
                           </CardContent>
                         </Card>
 
-                        {/* Topo de Bolo */}
-                        <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                              Acessórios / Outros
-                            </h4>
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={formData.topo_bolo || ""}
-                                onChange={(e) => setFormData({ ...formData, topo_bolo: Number(e.target.value) })}
-                                className="h-9 text-sm"
-                                placeholder="0.00"
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                        {/* Outros */}
-                        <Card className="border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3">
-                              Outros
-                            </h4>
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-medium text-purple-800 dark:text-purple-200">R$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={formData.outros || ""}
-                                onChange={(e) => setFormData({ ...formData, outros: Number(e.target.value) })}
-                                className="h-9 text-sm"
-                                placeholder="0.00"
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      {/* Cards sempre visíveis - Informações do Topo e Upload de Imagens */}
-                      <div className="grid grid-cols-2 gap-3 mt-4">
-                        {/* Card de Informações do Topo */}
-                        <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                              Informações Adicionais do Serviço
-                            </h4>
-                            <div className="space-y-3">
-                              <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Tema</Label>
-                                <Input
-                                  type="text"
-                                  value={formData.topo_tema}
-                                  onChange={(e) => setFormData({ ...formData, topo_tema: e.target.value })}
-                                  className="h-9 text-sm mt-1"
-                                  placeholder="Ex: Unicórnio, Futebol..."
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Referência / Pessoa</Label>
-                                <Input
-                                  type="text"
-                                  value={formData.topo_aniversariante}
-                                  onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
-                                  className="h-9 text-sm mt-1"
-                                  placeholder="Nome da pessoa ou referência"
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Detalhe Específico</Label>
-                                <Input
-                                  type="text"
-                                  value={formData.topo_idade}
-                                  onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
-                                  className="h-9 text-sm mt-1"
-                                  placeholder="Ex: Padrão, Especial..."
-                                />
-                              </div>
-                              <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Observações</Label>
-                                <Textarea
-                                  value={formData.topo_obs}
-                                  onChange={(e) => setFormData({ ...formData, topo_obs: e.target.value })}
-                                  className="text-sm mt-1 min-h-[60px]"
-                                  placeholder="Detalhes adicionais..."
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-
-                      {/* Card de Upload de Imagens - Até 3 imagens */}
-                        <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                              Imagens de Referência ({formData.topo_imagens.length}/3)
-                            </h4>
-                            <div className="space-y-3">
-                              {/* Grid de imagens existentes */}
-                              <div className="grid grid-cols-3 gap-2">
-                                {formData.topo_imagens.map((imagePath, index) => (
-                                  <EncomendaImagePreview
-                                    key={index}
-                                    imagePath={imagePath}
-                                    index={index}
-                                    onRemove={handleRemoveImage}
+                        {formMode === "servico" && (
+                          <>
+                            {/* Topo de Bolo */}
+                            <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
+                              <CardContent className="p-4">
+                                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
+                                  Acessórios / Outros
+                                </h4>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={formData.topo_bolo || ""}
+                                    onChange={(e) => setFormData({ ...formData, topo_bolo: Number(e.target.value) })}
+                                    className="h-9 text-sm"
+                                    placeholder="0.00"
                                   />
-                                ))}
-                              </div>
-
-                              {/* Botão de upload */}
-                              {formData.topo_imagens.length < 3 && (
-                                <div className="border-2 border-dashed border-pink-300 dark:border-pink-700 rounded-lg p-4 text-center">
-                                  <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
-                                    id="topo-image-upload"
-                                    disabled={uploadingImage}
-                                  />
-                                  <label
-                                    htmlFor="topo-image-upload"
-                                    className="cursor-pointer flex flex-col items-center gap-2"
-                                  >
-                                    <Upload className="h-8 w-8 text-pink-500" />
-                                    <span className="text-sm text-pink-700 dark:text-pink-300">
-                                      {uploadingImage ? "Enviando..." : "Clique para enviar imagem"}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground">
-                                      Máximo 5MB por imagem
-                                    </span>
-                                  </label>
                                 </div>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                              </CardContent>
+                            </Card>
+
+                            {/* Outros */}
+                            <Card className="border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20">
+                              <CardContent className="p-4">
+                                <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3">
+                                  Outros
+                                </h4>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-purple-800 dark:text-purple-200">R$</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={formData.outros || ""}
+                                    onChange={(e) => setFormData({ ...formData, outros: Number(e.target.value) })}
+                                    className="h-9 text-sm"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </>
+                        )}
                       </div>
+
+                      {/* Cards - Informações Adicionais e Upload de Imagens (Somente para Serviço) */}
+                      {formMode === "servico" && (
+                        <div className="grid grid-cols-2 gap-3 mt-4">
+                          {/* Card de Informações Adicionais do Serviço */}
+                          <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
+                            <CardContent className="p-4">
+                              <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
+                                Informações Adicionais do Serviço
+                              </h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Tema</Label>
+                                  <Input
+                                    type="text"
+                                    value={formData.topo_tema}
+                                    onChange={(e) => setFormData({ ...formData, topo_tema: e.target.value })}
+                                    className="h-9 text-sm mt-1"
+                                    placeholder="Ex: Unicórnio, Futebol..."
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Referência / Pessoa</Label>
+                                  <Input
+                                    type="text"
+                                    value={formData.topo_aniversariante}
+                                    onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
+                                    className="h-9 text-sm mt-1"
+                                    placeholder="Nome da pessoa ou referência"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Detalhe Específico</Label>
+                                  <Input
+                                    type="text"
+                                    value={formData.topo_idade}
+                                    onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
+                                    className="h-9 text-sm mt-1"
+                                    placeholder="Ex: Padrão, Especial..."
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-pink-700 dark:text-pink-300">Observações</Label>
+                                  <Textarea
+                                    value={formData.topo_obs}
+                                    onChange={(e) => setFormData({ ...formData, topo_obs: e.target.value })}
+                                    className="text-sm mt-1 min-h-[60px]"
+                                    placeholder="Detalhes adicionais..."
+                                  />
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                        {/* Card de Upload de Imagens - Até 3 imagens */}
+                          <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
+                            <CardContent className="p-4">
+                              <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
+                                Imagens de Referência ({formData.topo_imagens.length}/3)
+                              </h4>
+                              <div className="space-y-3">
+                                {/* Grid de imagens existentes */}
+                                <div className="grid grid-cols-3 gap-2">
+                                  {formData.topo_imagens.map((imagePath, index) => (
+                                    <EncomendaImagePreview
+                                      key={index}
+                                      imagePath={imagePath}
+                                      index={index}
+                                      onRemove={handleRemoveImage}
+                                    />
+                                  ))}
+                                </div>
+
+                                {/* Botão de upload */}
+                                {formData.topo_imagens.length < 3 && (
+                                  <div className="border-2 border-dashed border-pink-300 dark:border-pink-700 rounded-lg p-4 text-center">
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleImageUpload}
+                                      className="hidden"
+                                      id="topo-image-upload"
+                                      disabled={uploadingImage}
+                                    />
+                                    <label
+                                      htmlFor="topo-image-upload"
+                                      className="cursor-pointer flex flex-col items-center gap-2"
+                                    >
+                                      <Upload className="h-8 w-8 text-pink-500" />
+                                      <span className="text-sm text-pink-700 dark:text-pink-300">
+                                        {uploadingImage ? "Enviando..." : "Clique para enviar imagem"}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        Máximo 5MB por imagem
+                                      </span>
+                                    </label>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      )}
 
                       {/* Botões de Valor a Pagar e Pagamento */}
                       <div className="grid grid-cols-2 gap-3 mt-4">
