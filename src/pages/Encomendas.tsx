@@ -480,26 +480,6 @@ const Encomendas = () => {
     setContaReceberId(encomenda.conta_receber_id || null);
     
     // Buscar tags da encomenda
-    try {
-      const { data: tagsData } = await supabase
-        .from('encomendas_tags')
-        .select(`
-          tag_id,
-          tag:tags_encomendas (
-            id,
-            nome,
-            cor
-          )
-        `)
-        .eq('encomenda_id', encomenda.id);
-
-      if (tagsData) {
-        const tagsEncomenda = tagsData.map(t => t.tag).filter(Boolean);
-        setTagsSelecionadas(tagsEncomenda);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar tags da encomenda:', error);
-    }
     
     setDialogOpen(true);
   };
