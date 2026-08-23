@@ -1066,28 +1066,32 @@ const Encomendas = () => {
                       }
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="data_entrega">Data de Entrega</Label>
-                    <Input
-                      id="data_entrega"
-                      type="date"
-                      value={formData.data_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, data_entrega: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="hora_entrega">Hora da Entrega</Label>
-                    <Input
-                      id="hora_entrega"
-                      type="time"
-                      value={formData.hora_entrega}
-                      onChange={(e) =>
-                        setFormData({ ...formData, hora_entrega: e.target.value })
-                      }
-                    />
-                  </div>
+                  {formMode === "servico" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="data_entrega">Data de Entrega</Label>
+                        <Input
+                          id="data_entrega"
+                          type="date"
+                          value={formData.data_entrega}
+                          onChange={(e) =>
+                            setFormData({ ...formData, data_entrega: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="hora_entrega">Hora da Entrega</Label>
+                        <Input
+                          id="hora_entrega"
+                          type="time"
+                          value={formData.hora_entrega}
+                          onChange={(e) =>
+                            setFormData({ ...formData, hora_entrega: e.target.value })
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
