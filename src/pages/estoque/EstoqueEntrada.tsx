@@ -148,13 +148,17 @@ export default function EstoqueEntrada() {
 
   const handleProdutoRevendaImportado = async (insumo: InsumoImportado) => {
     setTipo('ingrediente');
+    // Invalida ambos para garantir que a lista de ingredientes mostre o novo item
     await queryClient.invalidateQueries({ queryKey: ['ingredientes-estoque'] });
+    await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+    
     setInsumoId(insumo.id);
     setQuantidadeEmbalagem(String(insumo.tipo_insumo.quantidade_embalagem || 1));
     setPrecoProduto(String(insumo.preco || ''));
     setQuantidade(String(insumo.tipo_insumo.quantidade_embalagem || 1));
     if (insumo.preco > 0) setCustoTotal(String(insumo.preco));
   };
+
 
   const custoUnitarioBase = Number(precoProduto) > 0 && Number(quantidadeEmbalagem) > 0 
     ? Number(precoProduto) / Number(quantidadeEmbalagem) 
