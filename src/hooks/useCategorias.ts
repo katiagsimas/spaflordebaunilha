@@ -26,12 +26,18 @@ export function useCategorias(tipo: 'geral' | 'servico' = 'geral') {
     queryFn: async () => {
       if (!userId) return [];
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('categorias')
         .select('*')
         .eq('usuario_id', userId as string)
-        .eq('tipo', tipo)
         .order('nome');
+
+      if (tipo) {
+        query = query.eq('tipo', tipo);
+      }
+
+      const { data, error } = await query;
+
 
 
 
