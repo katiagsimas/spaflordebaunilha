@@ -8,12 +8,6 @@ export default function Precificacao() {
 
   const menuItems = [
     {
-      title: "Pré-Preparos",
-      description: "Bases e preparos usados em várias fichas técnicas",
-      icon: FlaskConical,
-      to: "/precificacao/pre-preparos",
-    },
-    {
       title: "Fichas Técnicas",
       description: "Crie e gerencie as fichas técnicas de seus produtos",
       icon: BookOpen,

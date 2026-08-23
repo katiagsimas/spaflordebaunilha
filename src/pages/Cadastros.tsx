@@ -42,6 +42,12 @@ export default function Cadastros() {
       icon: ShoppingBag,
       to: "/cadastros/produtos-revenda",
     },
+    {
+      title: "Pré-Preparos",
+      description: "Bases e preparos usados em várias fichas técnicas",
+      icon: FlaskConical,
+      to: "/cadastros/pre-preparos",
+    },
   ];
 
   return (
