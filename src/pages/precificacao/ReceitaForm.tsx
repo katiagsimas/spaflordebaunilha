@@ -224,10 +224,10 @@ export default function ReceitaForm() {
   const fetchReceita = async () => {
     try {
       const { data, error } = await supabase
-        .from('pre_preparos')
+        .from('pre_receitas')
         .select(`
           *,
-          ingredientes:pre_preparos_ingredientes (
+          ingredientes:pre_receitas_ingredientes (
             *,
             ingrediente:ingredientes (
               *,
@@ -273,9 +273,9 @@ export default function ReceitaForm() {
 
       // Buscar mão de obra
       const { data: maosObraData } = await supabase
-        .from('pre_preparos_mao_obra')
+        .from('pre_receitas_mao_obra')
         .select('*')
-        .eq('pre_preparo_id', id);
+        .eq('pre_receita_id', id);
 
       if (maosObraData) {
         const maosObraFormatadas = maosObraData.map((mo: any) => ({
@@ -466,7 +466,7 @@ export default function ReceitaForm() {
       const { data: tipoExistente } = await supabase
         .from('tipos_insumos')
         .select('id')
-        .eq('pre_preparo_id', preReceitaId)
+        .eq('pre_receita_id', preReceitaId)
         .maybeSingle();
 
       if (tipoExistente) {
@@ -494,7 +494,7 @@ export default function ReceitaForm() {
             descricao: nomeTipo,
             quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
             unidade_medida_id: rendimentoUnidadeId,
-            pre_preparo_id: preReceitaId, // Vínculo com receita
+            pre_receita_id: preReceitaId, // Vínculo com receita
           })
           .select()
           .single();
@@ -520,7 +520,7 @@ export default function ReceitaForm() {
           .update({
             marca: 'Receita',
             preco: custoTotal,
-            e_pre_preparo: true,
+            e_pre_receita: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           })
           .eq('id', ingredienteExistente.id);
@@ -536,7 +536,7 @@ export default function ReceitaForm() {
             tipo_insumo_id: tipoId,
             marca: 'Receita',
             preco: custoTotal,
-            e_pre_preparo: true,
+            e_pre_receita: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
           });
           
@@ -643,7 +643,7 @@ export default function ReceitaForm() {
       if (isEditMode) {
         // Atualizar
         const { error } = await supabase
-          .from('pre_preparos')
+          .from('pre_receitas')
           .update(dadosReceita)
           .eq('id', id);
 
@@ -651,15 +651,15 @@ export default function ReceitaForm() {
 
         // Deletar ingredientes antigos
         await supabase
-          .from('pre_preparos_ingredientes')
+          .from('pre_receitas_ingredientes')
           .delete()
-          .eq('pre_preparo_id', id);
+          .eq('pre_receita_id', id);
 
         preReceitaId = id;
       } else {
         // Criar
         const { data, error } = await supabase
-          .from('pre_preparos')
+          .from('pre_receitas')
           .insert(dadosReceita)
           .select()
           .single();
@@ -690,7 +690,7 @@ export default function ReceitaForm() {
       }
       
       const ingredientesParaInserir = ingredientesReais.map((ing, index) => ({
-        pre_preparo_id: preReceitaId,
+        pre_receita_id: preReceitaId,
         ingrediente_id: ing.id,
         quantidade_utilizada: ing.qtdUtilizada,
         custo_ingrediente: ing.custo,
@@ -698,7 +698,7 @@ export default function ReceitaForm() {
       }));
 
       const { error: errorIngredientes } = await supabase
-        .from('pre_preparos_ingredientes')
+        .from('pre_receitas_ingredientes')
         .insert(ingredientesParaInserir);
 
       if (errorIngredientes) throw errorIngredientes;
@@ -712,15 +712,15 @@ export default function ReceitaForm() {
         }));
 
         await supabase
-          .from('pre_preparos_mao_obra')
+          .from('pre_receitas_mao_obra')
           .delete()
-          .eq('pre_preparo_id', preReceitaId);
+          .eq('pre_receita_id', preReceitaId);
 
         const { error: errorMaoObra } = await supabase
-          .from('pre_preparos_mao_obra')
+          .from('pre_receitas_mao_obra')
           .insert(
             maosObraParaSalvar.map(mo => ({
-              pre_preparo_id: preReceitaId,
+              pre_receita_id: preReceitaId,
               ...mo,
             }))
           );
