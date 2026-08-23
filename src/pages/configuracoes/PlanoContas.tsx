@@ -82,7 +82,6 @@ export default function PlanoContas() {
       const { data: dataCategorias, error: errorCat } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .eq('user_id', user.id)
         .eq('ativo', true)
         .order('ordem');
 
@@ -93,7 +92,6 @@ export default function PlanoContas() {
       const { data: planosExistentes, error: errorVerif } = await supabase
         .from('plano_contas')
         .select('id')
-        .eq('user_id', user.id)
         .limit(1);
 
       if (errorVerif) throw errorVerif;
@@ -123,7 +121,6 @@ export default function PlanoContas() {
             faixa_dre
           )
         `)
-        .eq('user_id', user.id)
         .order('codigo_estruturado');
 
       if (errorPlanos) throw errorPlanos;

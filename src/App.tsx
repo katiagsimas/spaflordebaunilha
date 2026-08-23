@@ -1,4 +1,4 @@
-<div>Altere a quantidade da embalagem "Protetor de Bacia" para 100, no sub=módulo "Embalagens" do módulo "Cadastros", garanta persistência e garanta principalmente que não haja quebras nas demais funcionalidades</div>
+<div>No card Plano de Contas também deveriam ter Planos de Contas Pré Cadastrados, favor verificar e corrigir, garantindo persistência no banco de dados e principalmente garanta que não haja quebra nas demais funcionalidades</div>
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
