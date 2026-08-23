@@ -96,7 +96,7 @@ export default function Receitas() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <BackButton to="/precificacao" />
+          <div />
           <Button
             variant="ghost"
             onClick={() => navigate("/cadastros/receitas")}

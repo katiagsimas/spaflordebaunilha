@@ -230,7 +230,7 @@ const App = () => (
           
           
           {/* Precificação - Página Container + Sub-rotas */}
-          <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao" element={<ProtectedRoute><Layout><ReceitasFicha /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><ReceitasFicha /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
