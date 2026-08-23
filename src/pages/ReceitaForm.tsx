@@ -18,7 +18,6 @@ import { useGroup } from "@/contexts/GroupContext";
 import { getActiveGroupId } from "@/lib/activeGroup";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
-
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,6 +31,7 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandInput,
+  CommandInput as CommandInputBase,
   CommandItem,
 } from '@/components/ui/command';
 import {
@@ -44,6 +44,7 @@ import { EmbalagemAutocomplete } from "@/components/EmbalagemAutocomplete";
 import { CriarIngredienteModal } from "@/components/CriarIngredienteModal";
 import { BuscarProdutoRevenda } from "@/components/BuscarProdutoRevenda";
 import { CriarEmbalagemModal } from "@/components/CriarEmbalagemModal";
+
 
 interface CustoFixo {
   id: string;
