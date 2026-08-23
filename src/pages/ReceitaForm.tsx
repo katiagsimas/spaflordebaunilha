@@ -1187,18 +1187,18 @@ export default function ReceitaForm() {
             </div>
 
             <div>
-              <Label htmlFor="categoria">Categoria</Label>
+              <Label htmlFor="categoria">Tipo de Serviço</Label>
               <Select
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
               >
                 <SelectTrigger id="categoria">
-                  <SelectValue placeholder="Selecione uma categoria" />
+                  <SelectValue placeholder="Selecione o tipo de serviço..." />
                 </SelectTrigger>
                 <SelectContent>
                   {categoriasAtivas.length === 0 && (
                     <div className="p-2 text-sm text-muted-foreground text-center">
-                      Nenhuma categoria habilitada.{" "}
+                      Nenhum tipo de serviço habilitado.{" "}
                       <Button
                         variant="link"
                         className="p-0 h-auto"
