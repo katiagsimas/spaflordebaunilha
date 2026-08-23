@@ -1155,7 +1155,7 @@ const Encomendas = () => {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label>Produtos da Encomenda</Label>
+                    <Label>Itens do Serviço/Venda</Label>
                     <Dialog open={produtoDialogOpen} onOpenChange={setProdutoDialogOpen}>
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
@@ -1245,7 +1245,7 @@ const Encomendas = () => {
                             >
                               Cancelar
                             </Button>
-                            <Button type="button" onClick={handleAddProduto}>
+                            <Button type="button" onClick={handleAddProduto} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
                               Adicionar
                             </Button>
                           </div>
