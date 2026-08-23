@@ -64,7 +64,6 @@ export default function CategoriasPlanoContas() {
       const { data: categoriasExistentes, error: erroVerificacao } = await supabase
         .from('categorias_plano_contas')
         .select('id')
-        .eq('user_id', user.id)
         .limit(1);
 
       if (erroVerificacao) throw erroVerificacao;
