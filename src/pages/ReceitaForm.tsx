@@ -1,3 +1,4 @@
+/* Os produtos de Revenda a serem cadastrados nos módulos "Receitas" e "Serviços" deverão utilizar para a basede cálcullo a "Qtd/ml e o valor/preço de custo */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
