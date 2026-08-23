@@ -1357,7 +1357,7 @@ const Encomendas = () => {
                         <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
                           <CardContent className="p-4">
                             <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                              Topo de Bolo
+                              Acessórios / Outros
                             </h4>
                             <div className="flex items-center gap-1">
                               <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
@@ -1402,7 +1402,7 @@ const Encomendas = () => {
                         <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
                           <CardContent className="p-4">
                             <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                              Informações do Topo de Bolo
+                              Informações Adicionais do Serviço
                             </h4>
                             <div className="space-y-3">
                               <div>
@@ -1416,23 +1416,23 @@ const Encomendas = () => {
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Nome do(a) Aniversariante</Label>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Referência / Pessoa</Label>
                                 <Input
                                   type="text"
                                   value={formData.topo_aniversariante}
                                   onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
                                   className="h-9 text-sm mt-1"
-                                  placeholder="Nome"
+                                  placeholder="Nome da pessoa ou referência"
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Idade</Label>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Detalhe Específico</Label>
                                 <Input
                                   type="text"
                                   value={formData.topo_idade}
                                   onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
                                   className="h-9 text-sm mt-1"
-                                  placeholder="Ex: 5 anos"
+                                  placeholder="Ex: Padrão, Especial..."
                                 />
                               </div>
                               <div>
