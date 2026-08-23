@@ -834,12 +834,17 @@ export default function ReceitaForm() {
 
   const handleSave = async () => {
     if (!formData.nome.trim()) {
-      toast.error("Por favor, informe o nome da receita");
+      toast.error("Por favor, informe o nome do serviço");
       return;
     }
 
-    if (formData.rendimento && Number(formData.rendimento) < 0) {
+    if (!formData.rendimento || Number(formData.rendimento) <= 0) {
       toast.error("Por favor, informe um rendimento válido");
+      return;
+    }
+
+    if (!formData.unidadeRendimentoId) {
+      toast.error("Por favor, informe a unidade de medida do rendimento");
       return;
     }
     
