@@ -227,7 +227,7 @@ export default function ReceitaForm() {
         .from('pre_preparos')
         .select(`
           *,
-          ingredientes:pre_receitas_ingredientes (
+          ingredientes:pre_preparos_ingredientes (
             *,
             ingrediente:ingredientes (
               *,
@@ -249,15 +249,15 @@ export default function ReceitaForm() {
 
       setNome(data.nome);
       setCategoriaId(data.categoria_id || '');
-      setTempoReceita(data.tempo_receita.toString());
-      setTempoUnidade(data.tempo_receita_unidade);
-      setRendimentoQtd(data.rendimento_quantidade.toString());
+      setTempoReceita((data as any).tempo_receita?.toString() || (data as any).tempo_preparo?.toString() || '0');
+      setTempoUnidade((data as any).tempo_receita_unidade || (data as any).tempo_preparo_unidade || 'minutos');
+      setRendimentoQtd(data.rendimento_quantidade?.toString() || '1');
       setRendimentoUnidadeId(data.rendimento_unidade_id);
-      setModoReceita(data.modo_receita || '');
+      setModoReceita((data as any).modo_receita || (data as any).modo_preparo || '');
       setImagem1Preview(data.imagem_1_url || '');
       setImagem2Preview(data.imagem_2_url || '');
 
-      const ingredientesFormatados = data.ingredientes.map((item: any) => ({
+      const ingredientesFormatados = (data.ingredientes as any[] || []).map((item: any) => ({
         id: item.ingrediente.id,
         nome: item.ingrediente.tipo_insumo?.descricao,
         marca: item.ingrediente.marca,
@@ -265,7 +265,7 @@ export default function ReceitaForm() {
         unidade: item.ingrediente.tipo_insumo?.unidade_medida?.sigla,
         preco: item.ingrediente.preco,
         qtdUtilizada: item.quantidade_utilizada,
-        qtdUtilizadaDisplay: item.quantidade_utilizada.toString().replace('.', ','),
+        qtdUtilizadaDisplay: item.quantidade_utilizada?.toString().replace('.', ',') || '0',
         custo: item.custo_ingrediente,
       }));
 
@@ -629,9 +629,12 @@ export default function ReceitaForm() {
         categoria_id: categoriaId || null,
         tempo_receita: Math.round(totalHorasMaoObra * 60),
         tempo_receita_unidade: 'minutos',
+        tempo_preparo: Math.round(totalHorasMaoObra * 60),
+        tempo_preparo_unidade: 'minutos',
         rendimento_quantidade: rendimento,
         rendimento_unidade_id: rendimentoUnidadeId,
         modo_receita: modoReceita.trim() || null,
+        modo_preparo: modoReceita.trim() || null,
         imagem_1_url: url1 || null,
         imagem_2_url: url2 || null,
         custo_total: custoTotal,
@@ -660,7 +663,7 @@ export default function ReceitaForm() {
         // Criar
         const { data, error } = await supabase
           .from('pre_preparos')
-          .insert(dadosReceita)
+          .insert([dadosReceita])
           .select()
           .single();
 

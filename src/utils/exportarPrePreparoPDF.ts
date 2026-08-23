@@ -127,7 +127,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     };
   });
   const custoMaoObra = linhasMaoObra.reduce((s, l) => s + l.total, 0);
-  const tempoPreparoTotalMinutos = Number((preparo as any).tempo_preparo || 0) || Math.round(
+  const tempoPreparoTotalMinutos = Number((preparo as any).tempo_receita || 0) || Math.round(
     linhasMaoObra.reduce((s, l) => s + Number(l.horas || 0), 0) * 60,
   );
   const custoTotal = custoIngredientes + custoMaoObra;
@@ -429,7 +429,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   y = cardY + cardH + 6;
 
   // ===== Modo de Preparo (compacto, ajusta fonte para caber na página) =====
-  if (preparo.modo_preparo && preparo.modo_preparo.trim()) {
+  if ((preparo as any).modo_receita && (preparo as any).modo_receita.trim()) {
     y += 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(10);
@@ -446,7 +446,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     // Reduz fonte progressivamente até caber
     while (fontSize >= 6.5) {
       doc.setFontSize(fontSize);
-      linhas = doc.splitTextToSize(preparo.modo_preparo, pageW - marginX * 2);
+      linhas = doc.splitTextToSize((preparo as any).modo_receita, pageW - marginX * 2);
       const alturaTotal = linhas.length * lineHeight;
       if (alturaTotal <= espacoDisponivel) break;
       fontSize -= 0.5;

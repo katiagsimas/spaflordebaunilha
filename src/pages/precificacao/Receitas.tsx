@@ -119,8 +119,10 @@ export default function Receitas() {
     }
   };
 
-  const formatarTempo = (tempo: number, unidade: string) => {
-    return `${tempo} ${unidade}`;
+  const formatarTempo = (tempo: any, unidade: any) => {
+    if (tempo === undefined || tempo === null) return "—";
+    const unit = unidade || "minutos";
+    return `${tempo} ${unit}`;
   };
 
   const formatarPreco = (preco: number) => {
@@ -337,7 +339,7 @@ export default function Receitas() {
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      {formatarTempo(receita.tempo_receita, receita.tempo_receita_unidade)}
+                      {formatarTempo(receita.tempo_receita || (receita as any).tempo_preparo, receita.tempo_receita_unidade || (receita as any).tempo_preparo_unidade)}
                     </div>
                   </TableCell>
                   <TableCell>
