@@ -8,18 +8,6 @@ export default function Precificacao() {
 
   const menuItems = [
     {
-      title: "Fichas Técnicas",
-      description: "Crie e gerencie as fichas técnicas de seus produtos",
-      icon: BookOpen,
-      to: "/precificacao/ficha-tecnica",
-    },
-    {
-      title: "Pré-Preparos",
-      description: "Bases e preparos usados em várias fichas técnicas",
-      icon: FlaskConical,
-      to: "/precificacao/pre-preparos",
-    },
-    {
       title: "Insumos",
       description: "Gerencie seu banco de insumos",
       icon: Utensils,
@@ -36,6 +24,18 @@ export default function Precificacao() {
       description: "Gerencie itens adquiridos para revenda direta (Natura, Avon)",
       icon: ShoppingBag,
       to: "/precificacao/produtos-revenda",
+    },
+    {
+      title: "Pré-Preparos",
+      description: "Bases e preparos usados em várias fichas técnicas",
+      icon: FlaskConical,
+      to: "/precificacao/pre-preparos",
+    },
+    {
+      title: "Fichas Técnicas",
+      description: "Crie e gerencie as fichas técnicas de seus produtos",
+      icon: BookOpen,
+      to: "/precificacao/ficha-tecnica",
     },
   ];
 
