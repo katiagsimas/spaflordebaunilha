@@ -1341,7 +1341,7 @@ export default function ReceitaForm() {
                         <CommandEmpty>
                           <div className="flex flex-col items-center gap-2 py-4">
                             <p className="text-sm text-muted-foreground">
-                              Nenhum ingrediente encontrado
+                              Nenhum insumo encontrado
                             </p>
                             <Button
                               variant="outline"
