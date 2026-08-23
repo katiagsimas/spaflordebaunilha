@@ -736,7 +736,7 @@ export default function PrePreparoForm() {
         description: isEditMode ? 'Pré-preparo atualizado!' : 'Pré-preparo cadastrado!',
       });
 
-      navigate('/precificacao/pre-preparos');
+      navigate('/cadastros/pre-preparos');
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       toast({
