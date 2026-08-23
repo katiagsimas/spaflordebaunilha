@@ -236,8 +236,9 @@ const Encomendas = () => {
     );
 
     const paraHoje = encomendasPendentes.filter((e) => {
-      if (!e.data_entrega) return false;
-      return isToday(parseISOToDate(e.data_entrega));
+      const dataRef = e.data_entrega || e.data_pedido;
+      if (!dataRef) return false;
+      return isToday(parseISOToDate(dataRef));
     }).length;
 
     const paraAmanha = encomendasPendentes.filter((e) => {
