@@ -188,7 +188,7 @@ export default function EstoqueEntrada() {
     <div className="space-y-6">
       <PageHeader
         title="Nova Entrada de Estoque"
-        description="Registre uma compra de ingrediente ou embalagem"
+        description="Registre uma compra de insumo ou embalagem"
         backButton={<BackButton to="/estoque" />}
       />
 
