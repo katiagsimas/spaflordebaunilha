@@ -3,7 +3,8 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { 
   Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, 
   Trash2, PauseCircle, PlayCircle, Search, Filter, Download, 
-  FileJson, FileText, ChevronRight, ChevronsLeft, ChevronsRight
+  FileJson, FileText, ChevronRight, ChevronsLeft, ChevronsRight,
+  Tag
 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
+import { useCategorias } from "@/hooks/useCategorias";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -31,11 +33,13 @@ export default function MarcaRevendaPage() {
   const dbMarca = marca as 'natura' | 'avon';
   
   const { produtos, loading: loadingProdutos, deleteProduto, updateProduto } = useProdutosRevenda(dbMarca);
+  const { categorias } = useCategorias();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduto, setEditingProduto] = useState<ProdutoRevenda | undefined>(undefined);
   const [produtoToDelete, setProdutoToDelete] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState(codigoParam ?? "");
   const [statusFilter, setStatusFilter] = useState<"todos" | "Ativo" | "Pausado">("todos");
+  const [categoriaFilter, setCategoriaFilter] = useState<string>("todos");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
@@ -60,14 +64,19 @@ export default function MarcaRevendaPage() {
     const term = searchQuery.trim().toLowerCase();
     return produtos.filter((produto) => {
       const matchesStatus = statusFilter === "todos" || produto.status === statusFilter;
-      if (!term) return matchesStatus;
+      const matchesCategoria = categoriaFilter === "todos" || produto.categoria_id === categoriaFilter;
+      
+      if (!matchesStatus || !matchesCategoria) return false;
+      
+      if (!term) return true;
+      
       const matchesSearch =
         (produto.descricao?.toLowerCase().includes(term)) ||
         (produto.codigo?.toLowerCase().includes(term)) ||
         (produto.linha?.toLowerCase().includes(term));
-      return matchesStatus && matchesSearch;
+      return matchesSearch;
     });
-  }, [produtos, searchQuery, statusFilter]);
+  }, [produtos, searchQuery, statusFilter, categoriaFilter]);
 
   const totalPages = Math.ceil(filteredProdutos.length / itemsPerPage);
   const paginatedProdutos = useMemo(() => {
@@ -80,16 +89,20 @@ export default function MarcaRevendaPage() {
   }, [produtos]);
 
   const exportToCSV = () => {
-    const data = filteredProdutos.map(p => ({
-      Codigo: p.codigo || '',
-      Descricao: p.descricao,
-      Linha: p.linha || '',
-      'Qtd/ml': p.quantidade_ml || '',
-      'Preço Custo': Number(p.preco ?? 0).toFixed(2),
-      'Preço Venda': Number(p.preco_venda ?? 0).toFixed(2),
-      Pontos: p.quantidade_pontos || 0,
-      Status: p.status
-    }));
+    const data = filteredProdutos.map(p => {
+      const categoria = categorias.find(c => c.id === p.categoria_id);
+      return {
+        Codigo: p.codigo || '',
+        Descricao: p.descricao,
+        Categoria: categoria?.nome || '-',
+        Linha: p.linha || '',
+        'Qtd/ml': p.quantidade_ml || '',
+        'Preço Custo': Number(p.preco ?? 0).toFixed(2),
+        'Preço Venda': Number(p.preco_venda ?? 0).toFixed(2),
+        Pontos: p.quantidade_pontos || 0,
+        Status: p.status
+      };
+    });
 
     const csv = Papa.unparse(data);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -105,17 +118,21 @@ export default function MarcaRevendaPage() {
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    const tableColumn = ["Código", "Descrição", "Linha", "Qtd/ml", "Preço Custo", "Preço Venda", "Pontos", "Status"];
-    const tableRows = filteredProdutos.map(p => [
-      p.codigo || '',
-      p.descricao,
-      p.linha || '',
-      p.quantidade_ml || '',
-      `R$ ${Number(p.preco ?? 0).toFixed(2)}`,
-      `R$ ${Number(p.preco_venda ?? 0).toFixed(2)}`,
-      p.quantidade_pontos || 0,
-      p.status
-    ]);
+    const tableColumn = ["Código", "Descrição", "Categoria", "Linha", "Qtd/ml", "Preço Custo", "Preço Venda", "Pontos", "Status"];
+    const tableRows = filteredProdutos.map(p => {
+      const categoria = categorias.find(c => c.id === p.categoria_id);
+      return [
+        p.codigo || '',
+        p.descricao,
+        categoria?.nome || '-',
+        p.linha || '',
+        p.quantidade_ml || '',
+        `R$ ${Number(p.preco ?? 0).toFixed(2)}`,
+        `R$ ${Number(p.preco_venda ?? 0).toFixed(2)}`,
+        p.quantidade_pontos || 0,
+        p.status
+      ];
+    });
 
     doc.setFontSize(18);
     doc.text(`Produtos ${config.label}`, 14, 22);
@@ -205,14 +222,29 @@ export default function MarcaRevendaPage() {
             />
           </div>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as "todos" | "Ativo" | "Pausado")}>
-            <SelectTrigger className="w-full md:w-[160px] bg-white border-sfb-areia/60 text-sfb-cacau gap-2">
+            <SelectTrigger className="w-full md:w-[130px] bg-white border-sfb-areia/60 text-sfb-cacau gap-2">
               <Filter className="h-4 w-4 text-sfb-terracota" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent className="bg-white border-sfb-areia/60">
-              <SelectItem value="todos">Todos</SelectItem>
+              <SelectItem value="todos">Status</SelectItem>
               <SelectItem value="Ativo">Ativo</SelectItem>
               <SelectItem value="Pausado">Pausado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+            <SelectTrigger className="w-full md:w-[180px] bg-white border-sfb-areia/60 text-sfb-cacau gap-2">
+              <Tag className="h-4 w-4 text-sfb-terracota" />
+              <SelectValue placeholder="Categoria" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-sfb-areia/60">
+              <SelectItem value="todos">Categorias</SelectItem>
+              {categorias.map((cat) => (
+                <SelectItem key={cat.id} value={cat.id}>
+                  {cat.nome}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <div className="flex gap-2">
@@ -244,12 +276,13 @@ export default function MarcaRevendaPage() {
                 <TableRow className="hover:bg-sfb-terracota border-sfb-terracota">
                   <TableHead className="w-[100px] text-sfb-baunilha">Código</TableHead>
                   <TableHead className="text-sfb-baunilha">Descrição</TableHead>
+                  <TableHead className="text-sfb-baunilha">Categoria</TableHead>
                   <TableHead className="text-sfb-baunilha">Linha</TableHead>
                   <TableHead className="text-sfb-baunilha">Qtd/ml</TableHead>
-                  <TableHead className="text-sfb-baunilha">Preço Custo</TableHead>
-                  <TableHead className="text-sfb-baunilha">Preço Venda</TableHead>
-                  <TableHead className="text-sfb-baunilha">Pontos</TableHead>
-                  <TableHead className="text-sfb-baunilha">Status</TableHead>
+                  <TableHead className="text-sfb-baunilha text-right">Custo</TableHead>
+                  <TableHead className="text-sfb-baunilha text-right">Venda</TableHead>
+                  <TableHead className="text-sfb-baunilha text-center">Pontos</TableHead>
+                  <TableHead className="text-sfb-baunilha text-center">Status</TableHead>
                   <TableHead className="text-right text-sfb-baunilha">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -271,14 +304,17 @@ export default function MarcaRevendaPage() {
                 ) : (
                   paginatedProdutos.map((produto) => (
                     <TableRow key={produto.id}>
-                      <TableCell className="font-mono text-sm">{produto.codigo || '-'}</TableCell>
-                      <TableCell className="font-medium">{produto.descricao}</TableCell>
-                      <TableCell>{produto.linha || '-'}</TableCell>
-                      <TableCell>{produto.quantidade_ml || '-'}</TableCell>
-                      <TableCell>{Number(produto.preco ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                      <TableCell>{Number(produto.preco_venda ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
-                      <TableCell>{produto.quantidade_pontos || 0}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-mono text-xs">{produto.codigo || '-'}</TableCell>
+                      <TableCell className="font-medium text-sm">{produto.descricao}</TableCell>
+                      <TableCell className="text-sm">
+                        {categorias.find(c => c.id === produto.categoria_id)?.nome || '-'}
+                      </TableCell>
+                      <TableCell className="text-sm">{produto.linha || '-'}</TableCell>
+                      <TableCell className="text-sm">{produto.quantidade_ml || '-'}</TableCell>
+                      <TableCell className="text-right text-sm">{Number(produto.preco ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                      <TableCell className="text-right text-sm">{Number(produto.preco_venda ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</TableCell>
+                      <TableCell className="text-center text-sm">{produto.quantidade_pontos || 0}</TableCell>
+                      <TableCell className="text-center">
                         <Badge
                           className={
                             produto.status === 'Ativo'
