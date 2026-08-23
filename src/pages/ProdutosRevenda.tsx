@@ -20,13 +20,14 @@ export default function ProdutosRevenda() {
 
       <div className="container mx-auto px-6 pt-4 space-y-8">
         <div className="flex justify-start -mt-4 mb-4">
-          <BackButton to="/precificacao" />
+          <BackButton to="/cadastros" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {marcas.map((m) => (
             <button
               key={m.id}
-              onClick={() => navigate(`/precificacao/produtos-revenda/${m.id}`)}
+              onClick={() => navigate(`/cadastros/produtos-revenda/${m.id}`)}
+
               className="group text-left bg-white border-2 border-sfb-areia/60 rounded-xl p-5 transition-all duration-200 hover:border-sfb-terracota hover:shadow-md"
             >
               <div className="flex items-start gap-3">

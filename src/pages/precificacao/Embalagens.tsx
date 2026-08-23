@@ -600,11 +600,11 @@ export default function Embalagens() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <BackButton to="/precificacao" />
+          <BackButton to="/cadastros" />
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
-              onClick={() => navigate('/precificacao/ingredientes')}
+              onClick={() => navigate('/cadastros/ingredientes')}
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
               <ArrowLeft className="h-4 w-4" />

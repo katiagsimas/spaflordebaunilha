@@ -178,7 +178,7 @@ export default function MarcaRevendaPage() {
               if (origemParam === 'estoque') {
                 navigate("/estoque/entrada");
               } else {
-                navigate("/precificacao/produtos-revenda");
+                navigate("/cadastros/produtos-revenda");
               }
             }}
             className="border-sfb-areia/60 text-sfb-cacau hover:bg-sfb-baunilha gap-2"

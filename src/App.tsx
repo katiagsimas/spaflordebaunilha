@@ -256,14 +256,18 @@ const App = () => (
           <Route path="/configuracoes/categorias" element={<ProtectedRoute><Layout><Categorias /></Layout></ProtectedRoute>} />
           
           <Route path="/configuracoes/unidades-medida" element={<ProtectedRoute><Layout><UnidadesMedida /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/produtos-revenda/:marca" element={<ProtectedRoute><Layout><MarcaRevendaPage /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/produtos-revenda" element={<Navigate to="/precificacao/produtos-revenda" replace />} />
-          <Route path="/cadastros/produtos-revenda/:marca" element={<Navigate to="/precificacao/produtos-revenda" replace />} />
           
-          {/* Precificação - Insumos e Embalagens */}
-          <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/produtos-revenda/:marca" element={<ProtectedRoute><Layout><MarcaRevendaPage /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/produtos-revenda" element={<Navigate to="/cadastros/produtos-revenda" replace />} />
+          <Route path="/precificacao/produtos-revenda/:marca" element={<Navigate to="/cadastros/produtos-revenda/:marca" replace />} />
+          
+          {/* Cadastros - Insumos e Embalagens */}
+          <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ingredientes" element={<Navigate to="/cadastros/ingredientes" replace />} />
+          <Route path="/precificacao/embalagens" element={<Navigate to="/cadastros/embalagens" replace />} />
+
           
           {/* Pré-Preparos */}
           <Route path="/precificacao/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />

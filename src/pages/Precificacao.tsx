@@ -1,30 +1,12 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, Utensils, Ruler, ShoppingBag, FlaskConical } from "lucide-react";
+import { BookOpen, FlaskConical } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
   const navigate = useNavigate();
 
   const menuItems = [
-    {
-      title: "Insumos",
-      description: "Gerencie seu banco de insumos",
-      icon: Utensils,
-      to: "/precificacao/ingredientes",
-    },
-    {
-      title: "Embalagens",
-      description: "Controle de embalagens e materiais secundários",
-      icon: Ruler,
-      to: "/precificacao/embalagens",
-    },
-    {
-      title: "Produtos para Revenda",
-      description: "Gerencie itens adquiridos para revenda direta (Natura, Avon)",
-      icon: ShoppingBag,
-      to: "/precificacao/produtos-revenda",
-    },
     {
       title: "Pré-Preparos",
       description: "Bases e preparos usados em várias fichas técnicas",
