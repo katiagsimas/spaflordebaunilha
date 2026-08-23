@@ -189,7 +189,7 @@ export function useCalculosReceita() {
           margemReais,
           margemPercent,
           lucro,
-          precoVendaManual: receita.preco_venda || 0,
+          precoVendaManual: (receita as any).preco_venda || 0,
           alertas: alertas.join(" | "),
         };
       });
