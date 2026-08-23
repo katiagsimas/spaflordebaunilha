@@ -397,21 +397,6 @@ const Encomendas = () => {
           }
         }
         
-        // Salvar tags ao atualizar
-        // Deletar tags antigas
-        await supabase
-          .from('encomendas_tags')
-          .delete()
-          .eq('encomenda_id', editingOrder.id);
-
-        // Inserir novas tags
-        if (tagsSelecionadas.length > 0) {
-          const tagsData = tagsSelecionadas.map(tag => ({
-            encomenda_id: editingOrder.id,
-            tag_id: tag.id,
-          }));
-          await supabase.from('encomendas_tags').insert(tagsData);
-        }
         
         setDialogOpen(false);
         resetForm();
