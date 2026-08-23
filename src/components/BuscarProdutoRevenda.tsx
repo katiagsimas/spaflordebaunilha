@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Search, Tag, Plus } from "lucide-react";
+import { Search, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,7 +11,7 @@ import {
   ProdutoSemPrecoError,
   type InsumoImportado,
 } from "@/lib/produtoRevenda";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 
 interface BuscarProdutoRevendaProps {
@@ -32,9 +32,11 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
   const [carregando, setCarregando] = useState(false);
   const [semPreco, setSemPreco] = useState<{ marca: string; codigo: string; descricao: string } | null>(null);
   const [modalNovoAberto, setModalNovoAberto] = useState(false);
+  const [marcaSelecionada, setMarcaSelecionada] = useState<'natura' | 'avon' | null>(null);
 
-  const buscar = async () => {
-    if (!codigo.trim()) {
+  const buscar = async (codigoForcado?: string) => {
+    const cod = codigoForcado || codigo;
+    if (!cod.trim()) {
       toast.error("Informe o código do produto");
       return;
     }
@@ -43,7 +45,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
     try {
       setCarregando(true);
       setSemPreco(null);
-      const insumo = await importarProdutoRevendaComoInsumo(codigo, user.id);
+      const insumo = await importarProdutoRevendaComoInsumo(cod, user.id);
       onImportado(insumo);
       toast.success(`${insumo.tipo_insumo.descricao} (${insumo.marca}) carregado!`);
       setCodigo("");
@@ -78,7 +80,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
         />
         <Button
           type="button"
-          onClick={buscar}
+          onClick={() => buscar()}
           disabled={carregando}
           className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha shrink-0"
         >
@@ -105,48 +107,64 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
         </div>
       )}
 
-      <Dialog open={modalNovoAberto} onOpenChange={setModalNovoAberto}>
-        <DialogContent className="max-w-md">
+      <Dialog open={modalNovoAberto} onOpenChange={(open) => {
+        setModalNovoAberto(open);
+        if (!open) setMarcaSelecionada(null);
+      }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Produto não encontrado</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-sfb-cacau">
-              O código <strong>{codigo}</strong> não foi localizado. Deseja cadastrá-lo agora?
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                variant="outline" 
-                className="border-sfb-areia text-sfb-cacau"
-                onClick={() => {
-                  setModalNovoAberto(false);
-                  navigate(`/cadastros/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
-                }}
-              >
-                Cadastrar Natura
-              </Button>
-              <Button 
-                variant="outline" 
-                className="border-sfb-areia text-sfb-cacau"
-                onClick={() => {
-                  setModalNovoAberto(false);
-                  navigate(`/cadastros/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
-                }}
-              >
-                Cadastrar Avon
-              </Button>
-            </div>
-            <div className="pt-2 border-t border-sfb-areia/30">
-              <ProdutoRevendaForm 
-                marca="natura" 
-                produto={{ codigo } as any} 
-                onSuccess={() => {
-                  setModalNovoAberto(false);
-                  buscar();
-                }} 
-              />
-            </div>
+            {!marcaSelecionada ? (
+              <>
+                <p className="text-sm text-sfb-cacau">
+                  O código <strong>{codigo}</strong> não foi localizado. Deseja cadastrá-lo agora?
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="border-sfb-areia text-sfb-cacau"
+                    onClick={() => setMarcaSelecionada('natura')}
+                  >
+                    Cadastrar Natura
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="border-sfb-areia text-sfb-cacau"
+                    onClick={() => setMarcaSelecionada('avon')}
+                  >
+                    Cadastrar Avon
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-medium text-sfb-cacau">Novo Produto {marcaSelecionada === 'natura' ? 'Natura' : 'Avon'}</h3>
+                  <Button variant="ghost" size="sm" onClick={() => setMarcaSelecionada(null)} className="text-xs h-7 px-2">
+                    Alterar marca
+                  </Button>
+                </div>
+                <ProdutoRevendaForm 
+                  marca={marcaSelecionada} 
+                  produto={{ codigo } as any} 
+                  onSuccess={() => {
+                    const codSalvo = codigo;
+                    setModalNovoAberto(false);
+                    setMarcaSelecionada(null);
+                    // Tenta buscar novamente o código que acabou de ser cadastrado
+                    setTimeout(() => buscar(codSalvo), 500);
+                  }} 
+                />
+              </div>
+            )}
           </div>
+          <DialogFooter>
+            {!marcaSelecionada && (
+               <Button variant="ghost" onClick={() => setModalNovoAberto(false)}>Cancelar</Button>
+            )}
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -156,4 +174,5 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
     </div>
   );
 }
+
 
