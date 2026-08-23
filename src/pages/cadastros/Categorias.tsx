@@ -35,7 +35,7 @@ import { RelatorioCategorias } from "@/components/RelatorioCategorias";
 
 export default function Categorias() {
   const { showLoading, hideLoading } = useGlobalLoading();
-  const { categorias, loading, updateCategoria, createCategoria, deleteCategoria } = useCategorias();
+  const { categorias, loading, updateCategoria, createCategoria, deleteCategoria } = useCategorias('geral');
   
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
