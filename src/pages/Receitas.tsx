@@ -109,12 +109,12 @@ export default function Receitas() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
             <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
-              Fichas Técnicas
+              Serviços
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-12 bg-sfb-terracota" />
               <p className="text-sm font-body italic text-sfb-cacau/70">
-                Gerencie suas receitas e fichas técnicas
+                Crie e gerencie as Fichas Técnicas dos seus Serviços
               </p>
             </div>
           </div>
@@ -129,7 +129,7 @@ export default function Receitas() {
           className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
         >
 
-          <Plus className="mr-2 h-4 w-4" />Nova Ficha Técnica
+          <Plus className="mr-2 h-4 w-4" />Novo Serviço
         </Button>
       </div>
 
@@ -155,7 +155,7 @@ export default function Receitas() {
       </div>
 
       {resumosOrdenados.length === 0 ? (
-        <EmptyState icon={CookingPot} title="Nenhuma ficha técnica cadastrada" description="Crie sua primeira ficha técnica" actionLabel="Nova Ficha Técnica" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
+        <EmptyState icon={CookingPot} title="Nenhum Serviço Cadastrado" description="Crie seu primeiro serviço" actionLabel="Novo Serviço" onAction={() => navigate("/precificacao/ficha-tecnica/nova")} />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-sfb-areia/40 bg-sfb-baunilha/10 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)]">
           <div className="overflow-x-auto">
