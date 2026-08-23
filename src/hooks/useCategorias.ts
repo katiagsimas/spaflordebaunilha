@@ -150,7 +150,7 @@ export function useCategorias(tipo: 'geral' | 'servico' = 'geral') {
   const deleteCategoria = (id: string) => deleteCategoriaMutation.mutateAsync(id);
 
   const refetch = () =>
-    queryClient.invalidateQueries({ queryKey: ['categorias', userId] });
+    queryClient.invalidateQueries({ queryKey: ['categorias'] });
 
   return {
     categorias,

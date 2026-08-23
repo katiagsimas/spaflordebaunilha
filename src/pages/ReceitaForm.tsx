@@ -140,7 +140,7 @@ export default function ReceitaForm() {
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
 
-  const { categorias, categoriasAtivas } = useCategorias();
+  const { categorias, categoriasAtivas } = useCategorias('servico');
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
   const { profile } = useUserProfile();
