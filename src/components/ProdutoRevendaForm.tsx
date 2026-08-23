@@ -8,6 +8,8 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
 import { toast } from "sonner";
 import { DialogFooter } from "@/components/ui/dialog";
+import { CategoryAutoComplete } from "@/components/CategoryAutoComplete";
+
 
 interface ProdutoRevendaFormProps {
   produto?: ProdutoRevenda;
@@ -141,21 +143,13 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
         
         <div className="space-y-2">
           <Label htmlFor="categoria_id">Categoria</Label>
-          <Select 
-            value={categoria_id || undefined} 
-            onValueChange={(val) => setValue('categoria_id', val)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione a categoria" />
-            </SelectTrigger>
-            <SelectContent>
-              {categoriasAtivas.map((cat) => (
-                <SelectItem key={cat.id} value={cat.id}>
-                  {cat.nome}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <CategoryAutoComplete
+            categories={categoriasAtivas}
+            value={categoria_id || undefined}
+            onChange={(val) => setValue('categoria_id', val)}
+            placeholder="Selecione a categoria"
+            disabled={loading}
+          />
         </div>
       </div>
 
