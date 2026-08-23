@@ -324,7 +324,7 @@ const Encomendas = () => {
     setEditingOrder(null);
     setTempProdutos([]);
     setContaReceberId(null);
-    setTagsSelecionadas([]);
+    
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
