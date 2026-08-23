@@ -121,7 +121,6 @@ export default function PlanoContas() {
             faixa_dre
           )
         `)
-        .eq('user_id', user.id)
         .order('codigo_estruturado');
 
       if (errorPlanos) throw errorPlanos;
