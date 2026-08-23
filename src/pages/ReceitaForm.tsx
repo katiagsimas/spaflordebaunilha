@@ -1298,13 +1298,13 @@ export default function ReceitaForm() {
                 <PopoverTrigger asChild>
                   <Button type="button" variant="default" size="sm">
                     <Plus className="h-4 w-4 mr-2" />
-                    Adicionar Ingrediente
+                    Adicionar Insumo
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[400px] p-0" align="start">
                   <Command shouldFilter={false}>
                     <CommandInput
-                      placeholder="Buscar ingrediente..."
+                      placeholder="Buscar insumo..."
                       value={termoBuscaIngrediente}
                       onValueChange={setTermoBuscaIngrediente}
                     />
