@@ -81,11 +81,10 @@ export default function CategoriasPlanoContas() {
         }
       }
 
-      // Buscar todas as categorias
+      // Buscar todas as categorias injetando o contexto do grupo ativo
       const { data, error } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .eq('user_id', user.id)
         .order('codigo');
 
       if (error) throw error;
