@@ -33,7 +33,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Label } from "@/components/ui/label";
 
 export default function TiposServico() {
-  const { categorias, isLoading, createCategoria, updateCategoria, deleteCategoria } = useCategorias();
+  const { categorias, isLoading, createCategoria, updateCategoria, deleteCategoria } = useCategorias('servico');
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<{ id: string; nome: string } | null>(null);

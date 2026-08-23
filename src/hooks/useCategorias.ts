@@ -10,28 +10,35 @@ interface Categoria {
   nome: string;
   ativo: boolean;
   padrao_sistema: boolean;
+  tipo: 'geral' | 'servico' | null;
   created_at?: string;
   updated_at?: string;
 }
 
-export function useCategorias() {
+export function useCategorias(tipo: 'geral' | 'servico' = 'geral') {
+
   const userId = useUserId();
   const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
 
   const { data: categorias = [], isLoading: loading } = useQuery({
-    queryKey: ['categorias', userId],
+    queryKey: ['categorias', userId, tipo],
     queryFn: async () => {
       if (!userId) return [];
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('categorias')
         .select('*')
         .eq('usuario_id', userId)
+        .eq('tipo', tipo)
         .order('nome');
 
+
+
+
+
       if (error) throw error;
-      return (data || []) as Categoria[];
+      return (data || []) as any[];
     },
     enabled: !!userId,
   });
@@ -48,8 +55,10 @@ export function useCategorias() {
           usuario_id: userId, 
           owner_group_id: activeGroupId,
           ativo: true, 
-          padrao_sistema: false 
+          padrao_sistema: false,
+          tipo
         })
+
         .select()
         .single();
 

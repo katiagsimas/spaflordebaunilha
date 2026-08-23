@@ -62,7 +62,7 @@ export default function ReceitaForm() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { categorias } = useCategorias();
+  const { categorias } = useCategorias('servico');
   const { perfis } = useMaoObraPerfis();
   const { profile } = useUserProfile();
   const { showLoading, hideLoading } = useGlobalLoading();
