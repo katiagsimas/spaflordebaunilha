@@ -1591,8 +1591,8 @@ const Encomendas = () => {
                   >
                     Cancelar
                   </Button>
-                  <Button type="submit">
-                    {editingOrder ? "Salvar Alterações" : "Criar Encomenda"}
+                  <Button type="submit" className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
+                    {editingOrder ? "Salvar Alterações" : "Criar Serviço"}
                   </Button>
                 </div>
               </form>
