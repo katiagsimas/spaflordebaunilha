@@ -65,8 +65,11 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
       if (error instanceof ProdutoSemPrecoError) {
         setSemPreco({ marca: error.marca, codigo: error.codigo, descricao: error.descricao });
         toast.error(error.message);
-      } else if (error.message?.includes("não encontrado")) {
+      } else if (error.message?.toLowerCase().includes("não encontrado") || error.message?.toLowerCase().includes("nenhum produto")) {
+        console.log("Produto não encontrado, abrindo modal de cadastro...");
         setModalNovoAberto(true);
+
+
       } else {
         toast.error(error.message || "Erro ao buscar produto de revenda");
       }
@@ -161,8 +164,9 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
                 </div>
                 <ProdutoRevendaForm 
                   marca={marcaSelecionada} 
-                  produto={{ codigo } as any} 
+                  produto={{ id: 'temp-id', codigo } as any} 
                   onSuccess={() => {
+
                     const codSalvo = codigo;
                     setModalNovoAberto(false);
                     setMarcaSelecionada(null);

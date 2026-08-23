@@ -44,13 +44,17 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
   const onSubmit = async (data: Partial<ProdutoRevenda>) => {
     setLoading(true);
     try {
-      if (produto?.id) {
+      console.log("Enviando dados do produto:", { ...data, marca });
+      if (produto?.id && produto.id !== 'temp-id') {
         await updateProduto(produto.id, data);
       } else {
-        await createProduto(data as any);
+        // Garantir que a marca e o código estejam presentes
+        const payload = { ...data, marca };
+        await createProduto(payload as any);
       }
       onSuccess();
     } catch (error: any) {
+
       toast.error(error.message || "Erro ao salvar produto");
     } finally {
       setLoading(false);
