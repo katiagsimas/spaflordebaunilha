@@ -112,8 +112,8 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
               <CalendarDays className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <CardTitle className="font-display text-xl tracking-tight text-sfb-vinho-escuro sm:text-2xl">
-                Encomendas do dia
+              <CardTitle className="font-display text-xl tracking-tight text-sfb-cacau sm:text-2xl">
+                Serviços e Vendas do dia
               </CardTitle>
               <div className="mt-0.5 flex flex-wrap items-center gap-2">
                 <span className="font-body text-sm text-sfb-vinho/80">
@@ -186,8 +186,8 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
               className="pointer-events-none h-32 w-auto shrink-0 select-none object-contain sm:h-40"
             />
             <div className="flex flex-col items-center md:items-start">
-              <h3 className="font-display text-xl tracking-tight text-sfb-vinho-escuro sm:text-2xl">
-                Nenhuma encomenda para hoje
+              <h3 className="font-display text-xl tracking-tight text-sfb-cacau sm:text-2xl">
+                Nenhum serviço ou venda para hoje
               </h3>
               <p className="mt-2 max-w-md font-body text-sm text-sfb-vinho/70">
                 Você ainda não possui encomendas cadastradas para hoje. Que tal cadastrar a primeira?
