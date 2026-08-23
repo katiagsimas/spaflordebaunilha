@@ -846,7 +846,7 @@ const Encomendas = () => {
         'Data Pedido': new Date(encomenda.data_pedido).toLocaleDateString("pt-BR"),
         'Data Entrega': encomenda.data_entrega ? parseISOToDate(encomenda.data_entrega).toLocaleDateString("pt-BR") : 'Aguardando Agendamento',
         'Hora Entrega': encomenda.hora_entrega ? encomenda.hora_entrega.slice(0, 5) : '-',
-        'Tags': encomenda.tags && encomenda.tags.length > 0 ? encomenda.tags.map((t: any) => t.nome).join(', ') : '-',
+        
         'Valor': `R$ ${encomenda.valor.toFixed(2)}`,
         'Telefone': encomenda.telefone || '-',
         'Endereço': encomenda.endereco || '-',
@@ -865,7 +865,7 @@ const Encomendas = () => {
         { wch: 15 }, // Data Pedido
         { wch: 15 }, // Data Entrega
         { wch: 12 }, // Hora Entrega
-        { wch: 20 }, // Tags
+        
         { wch: 15 }, // Valor
         { wch: 15 }, // Telefone
         { wch: 30 }, // Endereço
@@ -890,13 +890,11 @@ const Encomendas = () => {
       const matchesCliente = clienteFilter === "Todos" || e.cliente === clienteFilter;
       const matchesDataEntrega = !dataEntregaFilter || e.data_entrega === dataEntregaFilter;
       
-      // Filtro por tag
-      const matchesTag = tagFilter === "todos" || (e.tags && e.tags.some((t: any) => t.id === tagFilter));
       
       // Filtro por busca de nome
       const matchesBusca = !buscaNome || e.cliente.toLowerCase().includes(buscaNome.toLowerCase());
       
-      return matchesStatus && matchesCliente && matchesDataEntrega && matchesTag && matchesBusca;
+      return matchesStatus && matchesCliente && matchesDataEntrega && matchesBusca;
     })
     .sort((a, b) => new Date(b.created_at || "").getTime() - new Date(a.created_at || "").getTime());
 
