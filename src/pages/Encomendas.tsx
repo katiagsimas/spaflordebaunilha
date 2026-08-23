@@ -1559,15 +1559,6 @@ const Encomendas = () => {
               </form>
             </DialogContent>
           </Dialog>
-          {/* Card minimalista Tags de Encomendas */}
-          <button
-            type="button"
-            onClick={() => navigate('/encomendas/tags')}
-            className="ml-auto flex items-center gap-2 rounded-lg bg-[#2A1F1A] px-4 py-2.5 text-white transition hover:bg-[#2A1F1A]/90 shrink-0"
-          >
-            <TagIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Tags de Encomendas</span>
-          </button>
       </div>
 
       {/* Filtro Mês/Ano - Horizontal */}
