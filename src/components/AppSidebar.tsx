@@ -69,7 +69,7 @@ const menuSections: { label: string; items: MenuItem[] }[] = [
     items: [
       { title: "Parceiros", url: "/clientes-fornecedores", icon: Users, active: true },
       { title: "Negociações", url: "/comercial/negociacoes", icon: FileSignature, active: true },
-      { title: "Vendas", url: "/encomendas", icon: ClipboardList, active: true },
+      { title: "Serviços e Vendas", url: "/encomendas", icon: ClipboardList, active: true },
     ],
   },
   {
@@ -248,7 +248,7 @@ export function AppSidebar() {
                               {({ isActive }) => (
                                 <>
                                   <Icon className={`h-5 w-5 transition-colors ${isActive && !bloqueado ? 'text-sfb-baunilha' : 'text-sfb-baunilha/70 group-hover:text-sfb-baunilha'}`} />
-                                  {item.title === "Vendas" && temEncomendasHoje && !bloqueado && !open && (
+                                  {item.title === "Serviços e Vendas" && temEncomendasHoje && !bloqueado && !open && (
                                     <span className="absolute top-1 right-1 h-2.5 w-2.5 rounded-full bg-sfb-baunilha animate-ping" />
                                   )}
                                   {open && (
@@ -257,7 +257,7 @@ export function AppSidebar() {
                                       {bloqueado && (
                                         <Lock className="h-3.5 w-3.5 text-sfb-baunilha/40" />
                                       )}
-                                      {item.title === "Vendas" && temEncomendasHoje && !bloqueado && (
+                                      {item.title === "Serviços e Vendas" && temEncomendasHoje && !bloqueado && (
                                         <Badge className="bg-sfb-terracota text-sfb-baunilha text-[10px] px-2 py-0.5 rounded-full font-body font-bold animate-pulse ml-1">
                                           {encomendasHojeQtd} HOJE
                                         </Badge>

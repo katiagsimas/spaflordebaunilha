@@ -1,3 +1,4 @@
+/* Refine o formulário "Novo Serviço" alterando a regra de 30% do CMV ideal para 20%, tal regra deverá ser aplicada somente para Tipos de serviço Spa dos Pés e Spa Facial, garanta persistência e principalmente, garanta que não haja quebras de outras funcionalidades. Os produtos de Revenda a serem cadastrados nos módulos "Receitas" e "Serviços" deverão utilizar para a base de cálculo a "Qtd/ml" e o valor/preço de custo. Módulo "Vendas" refinado para "Serviços e Venda de Produtos". */
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { getTodayISO, formatDateBR, parseISOToDate } from "@/lib/dateUtils";
@@ -752,7 +753,7 @@ const Encomendas = () => {
   const handleAbrirPagamento = () => {
     // Verificar se já existe conta vinculada
     if (contaReceberId) {
-      toast.error('Esta encomenda já possui uma conta a receber. Alterações devem ser feitas no Módulo de Contas a Receber.');
+      toast.error('Este serviço/venda já possui uma conta a receber. Alterações devem ser feitas no Módulo de Contas a Receber.');
       return;
     }
 
@@ -828,9 +829,9 @@ const Encomendas = () => {
 
       setDialogOpen(false);
       resetForm();
-      toast.success('Encomenda criada com sucesso!');
+      toast.success('Serviço/Venda criado com sucesso!');
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar encomenda");
+      toast.error(error.message || "Erro ao criar serviço/venda");
     }
   };
 
@@ -847,14 +848,14 @@ const Encomendas = () => {
 
   // Gerar descrição dos produtos
   const getDescricaoProdutos = () => {
-    if (produtosExibidos.length === 0) return 'Encomenda';
-    return `Encomenda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
+    if (produtosExibidos.length === 0) return 'Serviço/Venda';
+    return `Serviço/Venda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
   };
 
   const handleDarBaixa = async (encomenda: any) => {
     // Verificar se tem conta a receber vinculada
     if (!encomenda.conta_receber_id) {
-      toast.error('Esta encomenda não possui conta a receber vinculada. Configure o pagamento primeiro.');
+      toast.error('Este serviço/venda não possui conta a receber vinculada. Configure o pagamento primeiro.');
       return;
     }
 
@@ -997,13 +998,13 @@ const Encomendas = () => {
       >
         <div className="flex items-center gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-6 lg:px-8 lg:py-7">
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-normal leading-tight text-[#2A1F1A] sm:text-3xl lg:text-[36px]">
-              Pedidos e Encomendas
+            <h1 className="font-display text-2xl font-normal leading-tight text-sfb-cacau sm:text-3xl lg:text-[36px]">
+              Serviços e Venda de Produtos
             </h1>
             <div className="mt-2 flex items-center gap-3">
-              <span className="h-px w-8 bg-[#C98A75] sm:w-10" />
-              <p className="text-xs italic text-[#C98A75] sm:text-sm">
-                Do pedido à entrega, tudo sob controle
+              <span className="h-px w-8 bg-sfb-terracota sm:w-10" />
+              <p className="text-xs italic text-sfb-terracota sm:text-sm">
+                Gerencie os agendamentos de serviços e as vendas de produtos da sua marca
               </p>
             </div>
           </div>
@@ -1022,15 +1023,15 @@ const Encomendas = () => {
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="shrink-0 rounded-lg bg-[#2A1F1A] text-white hover:bg-[#2A1F1A]/90">
+            <Button className="shrink-0 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
               <Plus className="h-4 w-4 mr-2" />
-              Nova Encomenda
+              Novo Serviço
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingOrder ? "Editar Encomenda" : "Nova Encomenda"}
+                  {editingOrder ? "Editar Serviço" : "Novo Serviço"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -1155,7 +1156,7 @@ const Encomendas = () => {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label>Produtos da Encomenda</Label>
+                    <Label>Itens do Serviço/Venda</Label>
                     <Dialog open={produtoDialogOpen} onOpenChange={setProdutoDialogOpen}>
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
@@ -1245,7 +1246,7 @@ const Encomendas = () => {
                             >
                               Cancelar
                             </Button>
-                            <Button type="button" onClick={handleAddProduto}>
+                            <Button type="button" onClick={handleAddProduto} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
                               Adicionar
                             </Button>
                           </div>
@@ -1357,7 +1358,7 @@ const Encomendas = () => {
                         <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
                           <CardContent className="p-4">
                             <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                              Topo de Bolo
+                              Acessórios / Outros
                             </h4>
                             <div className="flex items-center gap-1">
                               <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
@@ -1402,7 +1403,7 @@ const Encomendas = () => {
                         <Card className="border-l-4 border-l-pink-500 bg-pink-50/50 dark:bg-pink-950/20">
                           <CardContent className="p-4">
                             <h4 className="text-sm font-semibold text-pink-800 dark:text-pink-200 mb-3">
-                              Informações do Topo de Bolo
+                              Informações Adicionais do Serviço
                             </h4>
                             <div className="space-y-3">
                               <div>
@@ -1416,23 +1417,23 @@ const Encomendas = () => {
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Nome do(a) Aniversariante</Label>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Referência / Pessoa</Label>
                                 <Input
                                   type="text"
                                   value={formData.topo_aniversariante}
                                   onChange={(e) => setFormData({ ...formData, topo_aniversariante: e.target.value })}
                                   className="h-9 text-sm mt-1"
-                                  placeholder="Nome"
+                                  placeholder="Nome da pessoa ou referência"
                                 />
                               </div>
                               <div>
-                                <Label className="text-xs text-pink-700 dark:text-pink-300">Idade</Label>
+                                <Label className="text-xs text-pink-700 dark:text-pink-300">Detalhe Específico</Label>
                                 <Input
                                   type="text"
                                   value={formData.topo_idade}
                                   onChange={(e) => setFormData({ ...formData, topo_idade: e.target.value })}
                                   className="h-9 text-sm mt-1"
-                                  placeholder="Ex: 5 anos"
+                                  placeholder="Ex: Padrão, Especial..."
                                 />
                               </div>
                               <div>
@@ -1591,8 +1592,8 @@ const Encomendas = () => {
                   >
                     Cancelar
                   </Button>
-                  <Button type="submit">
-                    {editingOrder ? "Salvar Alterações" : "Criar Encomenda"}
+                  <Button type="submit" className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
+                    {editingOrder ? "Salvar Alterações" : "Criar Serviço"}
                   </Button>
                 </div>
               </form>
@@ -1699,7 +1700,7 @@ const Encomendas = () => {
                   Calendários de Encomendas
                 </CardTitle>
                 <CardDescription className="mt-0.5 font-body text-sm text-sfb-vinho/80">
-                  Visualize e organize suas encomendas por mês
+                  Visualize e organize seus serviços e vendas por mês
                 </CardDescription>
               </div>
             </div>
@@ -1708,16 +1709,16 @@ const Encomendas = () => {
             <button
               type="button"
               onClick={() => navigate('/encomendas/calendarios')}
-              aria-label="Abrir Calendários de Encomendas"
+              aria-label="Abrir Agenda de Serviços e Vendas"
               className="group flex flex-col items-center gap-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D2F28]/40 rounded-xl p-4"
             >
               <img
                 src={calendarioEncomendasIcon}
-                alt="Calendários de Encomendas"
+                alt="Agenda de Serviços e Vendas"
                 className="h-32 w-32 object-contain drop-shadow-sm md:h-40 md:w-40"
               />
-              <span className="rounded-lg bg-sfb-vinho px-4 py-2 text-sm font-semibold text-sfb-creme shadow-md transition group-hover:bg-sfb-vinho-escuro">
-                Abrir Calendários
+              <span className="rounded-lg bg-sfb-terracota px-4 py-2 text-sm font-semibold text-sfb-baunilha shadow-md transition hover:bg-sfb-terracota/90">
+                Abrir Agenda
               </span>
             </button>
           </CardContent>
@@ -1746,7 +1747,7 @@ const Encomendas = () => {
           onClick={() => navigate(-1)}
           aria-label="Voltar"
           title="Voltar"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-vinho text-sfb-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-sfb-vinho-escuro/60 transition hover:scale-105 hover:bg-sfb-vinho-escuro active:scale-95"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-terracota text-sfb-baunilha shadow-[0_8px_24px_-8px_rgba(201,138,117,0.6)] ring-1 ring-sfb-terracota/60 transition hover:scale-105 hover:bg-sfb-terracota/90 active:scale-95"
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </button>
