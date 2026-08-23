@@ -8,6 +8,8 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { useProdutosRevenda, type ProdutoRevenda } from "@/hooks/useProdutosRevenda";
 import { toast } from "sonner";
 import { DialogFooter } from "@/components/ui/dialog";
+import { CategoryAutoComplete } from "@/components/CategoryAutoComplete";
+
 
 interface ProdutoRevendaFormProps {
   produto?: ProdutoRevenda;
