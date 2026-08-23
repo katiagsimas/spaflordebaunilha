@@ -1226,7 +1226,7 @@ const Encomendas = () => {
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="quantidade">Quantidade *</Label>
+                              <Label htmlFor="quantidade">{formMode === "servico" ? "Quantidade *" : "Quantidade na Venda *"}</Label>
                               <Input
                                 id="quantidade"
                                 type="number"
@@ -1244,7 +1244,7 @@ const Encomendas = () => {
                                 id="unidade-medida"
                                 type="text"
                                 disabled
-                                value={produtoForm.unidade_medida || "Selecione um produto"}
+                                value={produtoForm.unidade_medida || (formMode === "servico" ? "Selecione um serviço" : "Digite o código")}
                                 className="bg-muted"
                               />
                             </div>
@@ -1252,7 +1252,7 @@ const Encomendas = () => {
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="valor-unitario">Valor Unitário (R$)</Label>
+                              <Label htmlFor="valor-unitario">{formMode === "servico" ? "Valor Unitário (R$)" : "Preço de Venda (R$)"}</Label>
                               <Input
                                 id="valor-unitario"
                                 type="number"
