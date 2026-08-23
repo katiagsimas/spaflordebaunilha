@@ -303,7 +303,7 @@ export default function Ingredientes() {
       if (eReceitaBase) {
         toast({
           title: 'Não editável',
-          description: 'Pré-preparos só podem ser editados na página de Receitas.',
+          description: 'Receitas só podem ser editados na página de Receitas.',
           variant: 'destructive'
         });
         return;
@@ -495,7 +495,7 @@ export default function Ingredientes() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      // Verificar se está em uso em pré-preparos
+      // Verificar se está em uso em receitas
       const { data: prePreparos } = await supabase
         .from('pre_preparos_ingredientes')
         .select('id')
@@ -536,7 +536,7 @@ export default function Ingredientes() {
       if (emUso) {
         toast({
           title: '❌ Não é possível excluir',
-          description: 'Este insumo está sendo utilizado em pré-preparos ou fichas técnicas. Remova-o antes de excluir.',
+          description: 'Este insumo está sendo utilizado em receitas ou fichas técnicas. Remova-o antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
@@ -572,9 +572,9 @@ export default function Ingredientes() {
   };
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
 
-  // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
+  // Filtrar tipos pelo termo de busca (excluindo receitas)
   const tiposFiltrados = tiposDisponiveis.filter((tipo: any) => {
-    // Não mostrar tipos que são pré-preparos
+    // Não mostrar tipos que são receitas
     if (tipo.pre_preparo_id) return false;
 
     // Filtrar pela busca
