@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ClienteAutocomplete } from '@/components/ClienteAutocomplete';
+import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
 import { PlanoContasAutocomplete } from '@/components/PlanoContasAutocomplete';
 import {
   Table,
@@ -372,15 +373,30 @@ export default function ContasReceberFormModal({
     setParcelasEditadas(true);
   };
 
-  const handleClienteSelect = (nome: string, clienteCompleto?: any) => {
-    setClienteNome(nome);
-    if (clienteCompleto) {
-      setClienteId(clienteCompleto.id);
+  const handleProdutoRevendaImportado = (insumo: any) => {
+    if (insumo.preco_venda > 0) {
+      setValorTotal(insumo.preco_venda.toFixed(2).replace('.', ','));
+      if (!descricao) {
+        setDescricao(`Venda: ${insumo.tipo_insumo.descricao}`);
+      }
+    } else {
+      toast({
+        title: "Atenção",
+        description: "Este produto está sem Preço de Venda cadastrado.",
+        variant: "destructive"
+      });
     }
   };
 
   return (
     <div className="space-y-6 max-h-[70vh] overflow-y-auto p-6">
+      <div className="rounded-lg border p-4 bg-sfb-baunilha/30">
+        <BuscarProdutoRevenda 
+          onImportado={handleProdutoRevendaImportado}
+          hint="Busque por código para preencher o Preço de Venda automaticamente."
+        />
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="data-emissao">Data de Emissão *</Label>
         <Input

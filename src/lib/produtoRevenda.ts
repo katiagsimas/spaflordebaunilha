@@ -6,6 +6,7 @@ export interface InsumoImportado {
   usuario_id: string;
   marca: string | null;
   preco: number;
+  preco_venda: number;
   tipo_insumo: {
     id: string;
     descricao: string;
@@ -100,6 +101,7 @@ export async function importarProdutoRevendaComoInsumo(
   const marcaLabel = LABEL_MARCA[produto.marca] || produto.marca;
   const descricao = String(produto.descricao).slice(0, 255);
   const preco = Number(produto.preco) || 0;
+  const precoVenda = Number(produto.preco_venda) || 0;
 
   if (preco <= 0) {
     throw new ProdutoSemPrecoError(descricao, String(produto.marca), String(produto.codigo ?? codigo).trim());
@@ -140,7 +142,7 @@ export async function importarProdutoRevendaComoInsumo(
   // ingrediente vinculado (marca = Natura/Avon)
   const { data: ingExistente } = await supabase
     .from('ingredientes')
-    .select('id, usuario_id, marca, preco')
+    .select('id, usuario_id, marca, preco, preco_venda')
     .eq('usuario_id', userId)
     .eq('tipo_insumo_id', tipoInsumo.id)
     .eq('marca', marcaLabel)
@@ -150,12 +152,16 @@ export async function importarProdutoRevendaComoInsumo(
   let ingrediente: any = ingExistente;
 
   if (ingrediente) {
-    if (preco > 0 && Number(ingrediente.preco) !== preco) {
+    if ((preco > 0 && Number(ingrediente.preco) !== preco) || (precoVenda > 0 && Number(ingrediente.preco_venda) !== precoVenda)) {
       const { data, error } = await supabase
         .from('ingredientes')
-        .update({ preco, data_atualizacao: new Date().toISOString().split('T')[0] })
+        .update({ 
+          preco, 
+          preco_venda: precoVenda,
+          data_atualizacao: new Date().toISOString().split('T')[0] 
+        })
         .eq('id', ingrediente.id)
-        .select('id, usuario_id, marca, preco')
+        .select('id, usuario_id, marca, preco, preco_venda')
         .single();
       if (error) throw error;
       ingrediente = data;
@@ -169,9 +175,10 @@ export async function importarProdutoRevendaComoInsumo(
         tipo_insumo_id: tipoInsumo.id,
         marca: marcaLabel,
         preco,
+        preco_venda: precoVenda,
         data_atualizacao: new Date().toISOString().split('T')[0],
       })
-      .select('id, usuario_id, marca, preco')
+      .select('id, usuario_id, marca, preco, preco_venda')
       .single();
     if (error) throw error;
     ingrediente = data;
@@ -182,6 +189,7 @@ export async function importarProdutoRevendaComoInsumo(
     usuario_id: ingrediente.usuario_id,
     marca: ingrediente.marca,
     preco: Number(ingrediente.preco) || 0,
+    preco_venda: Number(ingrediente.preco_venda) || 0,
     tipo_insumo: {
       id: tipoInsumo.id,
       descricao: tipoInsumo.descricao,

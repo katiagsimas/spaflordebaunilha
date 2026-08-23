@@ -36,6 +36,7 @@ import { FornecedorAutocomplete } from '@/components/FornecedorAutocomplete';
 import { LoadingMascote } from '@/components/LoadingMascote';
 import { Info, Check, ChevronsUpDown, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
 
 interface ContasPagarFormViewProps {
   contaId?: string;
@@ -391,6 +392,15 @@ export default function ContasPagarFormView({
     }
   };
 
+  const handleProdutoRevendaImportado = (insumo: any) => {
+    if (insumo.preco > 0) {
+      setValorTotal(insumo.preco.toFixed(2).replace('.', ','));
+      if (!descricao) {
+        setDescricao(`Compra: ${insumo.tipo_insumo.descricao}`);
+      }
+    }
+  };
+
   if (loadingConta) {
     return (
       <div className="container mx-auto p-6 space-y-6 max-w-4xl">
@@ -446,6 +456,13 @@ export default function ContasPagarFormView({
           <CardTitle>Informações da Conta</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="rounded-lg border p-4 bg-sfb-baunilha/30 mb-2">
+            <BuscarProdutoRevenda 
+              onImportado={handleProdutoRevendaImportado}
+              hint="Busque por código para preencher o Preço de Custo automaticamente."
+            />
+          </div>
+          
           {/* Data de Emissão */}
           <div className="space-y-2">
             <Label htmlFor="data-emissao">Data de Emissão *</Label>
