@@ -1394,47 +1394,51 @@ const Encomendas = () => {
                           </CardContent>
                         </Card>
 
-                        {/* Topo de Bolo */}
-                        <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
-                              Acessórios / Outros
-                            </h4>
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={formData.topo_bolo || ""}
-                                onChange={(e) => setFormData({ ...formData, topo_bolo: Number(e.target.value) })}
-                                className="h-9 text-sm"
-                                placeholder="0.00"
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
+                        {formMode === "servico" && (
+                          <>
+                            {/* Topo de Bolo */}
+                            <Card className="border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20">
+                              <CardContent className="p-4">
+                                <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-3">
+                                  Acessórios / Outros
+                                </h4>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">R$</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={formData.topo_bolo || ""}
+                                    onChange={(e) => setFormData({ ...formData, topo_bolo: Number(e.target.value) })}
+                                    className="h-9 text-sm"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                              </CardContent>
+                            </Card>
 
-                        {/* Outros */}
-                        <Card className="border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20">
-                          <CardContent className="p-4">
-                            <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3">
-                              Outros
-                            </h4>
-                            <div className="flex items-center gap-1">
-                              <span className="text-sm font-medium text-purple-800 dark:text-purple-200">R$</span>
-                              <Input
-                                type="number"
-                                step="0.01"
-                                min="0"
-                                value={formData.outros || ""}
-                                onChange={(e) => setFormData({ ...formData, outros: Number(e.target.value) })}
-                                className="h-9 text-sm"
-                                placeholder="0.00"
-                              />
-                            </div>
-                          </CardContent>
-                        </Card>
+                            {/* Outros */}
+                            <Card className="border-l-4 border-l-purple-500 bg-purple-50/50 dark:bg-purple-950/20">
+                              <CardContent className="p-4">
+                                <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-3">
+                                  Outros
+                                </h4>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium text-purple-800 dark:text-purple-200">R$</span>
+                                  <Input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    value={formData.outros || ""}
+                                    onChange={(e) => setFormData({ ...formData, outros: Number(e.target.value) })}
+                                    className="h-9 text-sm"
+                                    placeholder="0.00"
+                                  />
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </>
+                        )}
                       </div>
 
                       {/* Cards sempre visíveis - Informações do Topo e Upload de Imagens */}
