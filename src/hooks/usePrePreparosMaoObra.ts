@@ -62,7 +62,7 @@ export function usePrePreparosMaoObra(prePreparoId?: string) {
     },
     onError: (error) => {
       console.error("Erro ao salvar mãos de obra:", error);
-      toast.error("Erro ao salvar mãos de obra do pré-preparo");
+      toast.error("Erro ao salvar mãos de obra da receita");
     },
   });
 

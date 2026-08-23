@@ -407,7 +407,7 @@ export default function EstoqueEntrada() {
                 className="h-4 w-4 rounded border-sfb-cacau/20 text-sfb-terracota focus:ring-sfb-terracota"
               />
               <Label htmlFor="atualizarGlobal" className="text-sm cursor-pointer text-sfb-cacau">
-                Atualizar preço em Insumos, Pré-Preparo e Ficha Técnica?
+                Atualizar preço em Insumos, Receita e Ficha Técnica?
               </Label>
             </div>
 

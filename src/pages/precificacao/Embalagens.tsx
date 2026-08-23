@@ -276,7 +276,7 @@ export default function Embalagens() {
       if (eReceitaBase) {
         toast({
           title: 'Não editável',
-          description: 'Este item é vinculado a um pré-preparo.',
+          description: 'Este item é vinculado a uma receita.',
           variant: 'destructive',
         });
         return;

@@ -269,7 +269,7 @@ const App = () => (
           <Route path="/precificacao/embalagens" element={<Navigate to="/cadastros/embalagens" replace />} />
 
           
-          {/* Receitas (antigo Pré-Preparos) */}
+          {/* Receitas (antigo Receitas) */}
           <Route path="/cadastros/receitas" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/receitas/novo" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/receitas/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
@@ -277,7 +277,7 @@ const App = () => (
           <Route path="/precificacao/receitas/novo" element={<Navigate to="/cadastros/receitas/novo" replace />} />
           <Route path="/precificacao/receitas/:id" element={<Navigate to="/cadastros/receitas/:id" replace />} />
           
-          {/* Redirecionamentos de Pré-Preparos */}
+          {/* Redirecionamentos de Antigas Receitas */}
           <Route path="/cadastros/pre-preparos" element={<Navigate to="/cadastros/receitas" replace />} />
           <Route path="/cadastros/pre-preparos/novo" element={<Navigate to="/cadastros/receitas/novo" replace />} />
           <Route path="/cadastros/pre-preparos/:id" element={<Navigate to="/cadastros/receitas/:id" replace />} />
