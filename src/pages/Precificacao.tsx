@@ -21,7 +21,7 @@ export default function Precificacao() {
     },
     {
       title: "Insumos",
-      description: "Gerencie seu banco de insumos e ingredientes",
+      description: "Gerencie seu banco de insumos",
       icon: Utensils,
       to: "/precificacao/ingredientes",
     },

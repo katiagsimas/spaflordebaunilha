@@ -261,7 +261,7 @@ const App = () => (
           <Route path="/cadastros/produtos-revenda" element={<Navigate to="/precificacao/produtos-revenda" replace />} />
           <Route path="/cadastros/produtos-revenda/:marca" element={<Navigate to="/precificacao/produtos-revenda" replace />} />
           
-          {/* Precificação - Ingredientes e Embalagens */}
+          {/* Precificação - Insumos e Embalagens */}
           <Route path="/precificacao/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
           

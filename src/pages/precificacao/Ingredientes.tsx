@@ -229,7 +229,7 @@ export default function Ingredientes() {
   const handleExportarExcel = () => {
     try {
       const dadosExport = ingredientesFiltrados.map((ingrediente: any) => ({
-        'Ingrediente': ingrediente.tipo_insumo?.descricao || 'N/A',
+        'Insumo': ingrediente.tipo_insumo?.descricao || 'N/A',
         'Marca': ingrediente.marca || 'Sem marca',
         'Quantidade': ingrediente.tipo_insumo?.quantidade_embalagem || 0,
         'Unidade': ingrediente.tipo_insumo?.unidade_medida?.sigla || 'N/A',
@@ -325,7 +325,7 @@ export default function Ingredientes() {
       if (!tipoSelecionado) {
         toast({
           title: 'Erro',
-          description: 'Selecione o tipo de ingrediente!',
+          description: 'Selecione o tipo de insumo!',
           variant: 'destructive'
         });
         return;
@@ -356,7 +356,7 @@ export default function Ingredientes() {
         if (error) throw error;
         toast({
           title: '✅ Atualizado',
-          description: 'Ingrediente atualizado com sucesso!'
+          description: 'Insumo atualizado com sucesso!'
         });
       } else {
         const {
@@ -371,13 +371,13 @@ export default function Ingredientes() {
         });
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Este tipo já foi cadastrado em ingredientes!');
+            throw new Error('Este tipo já foi cadastrado em insumos!');
           }
           throw error;
         }
         toast({
           title: '✅ Cadastrado',
-          description: 'Ingrediente cadastrado com sucesso!'
+          description: 'Insumo cadastrado com sucesso!'
         });
       }
       setModalAberto(false);

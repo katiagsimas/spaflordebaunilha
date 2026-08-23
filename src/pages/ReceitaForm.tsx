@@ -150,7 +150,7 @@ export default function ReceitaForm() {
       try {
         if (!user) return;
 
-        // Buscar ingredientes normais
+        // Buscar insumos normais
         const { data: ingredientesData, error: ingredientesError } = await supabase
           .from('ingredientes')
           .select(`
@@ -203,7 +203,7 @@ export default function ReceitaForm() {
           };
         });
         
-        // Combinar ingredientes e receitas combo
+        // Combinar insumos e receitas combo
         const todosItens = [...(ingredientesData || []), ...receitasComboFormatadas];
         setIngredientesCadastrados(todosItens);
 
