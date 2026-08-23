@@ -146,97 +146,97 @@ export default function ReceitaForm() {
   const { profile } = useUserProfile();
   const { perfis } = useMaoObraPerfis();
 
-  // Buscar ingredientes e embalagens do Supabase
+  const fetchDados = async () => {
+    try {
+      if (!user) return;
+
+      // Buscar insumos normais
+      const { data: ingredientesData, error: ingredientesError } = await supabase
+        .from('ingredientes')
+        .select(`
+          *,
+          tipo_insumo:tipos_insumos (
+            id,
+            descricao,
+            quantidade_embalagem,
+            pre_preparo_id,
+            unidade_medida:unidades_medida (
+              nome,
+              sigla
+            )
+          )
+        `)
+        .eq('usuario_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (ingredientesError) throw ingredientesError;
+      
+      // Buscar receitas do tipo "Produto para Combo" do Supabase
+      const { data: receitasCombo, error: receitasError } = await supabase
+        .from('receitas')
+        .select('*')
+        .eq('usuario_id', user.id)
+        .eq('tipo', 'produto_combo');
+
+      if (receitasError) throw receitasError;
+
+      const receitasComboFormatadas = (receitasCombo || []).map((r: any) => {
+        // Buscar a sigla correta da unidade de medida
+        const unidade = unidades.find(u => u.id === r.unidade_rendimento);
+        const siglaNome = unidade?.sigla || unidade?.nome || 'un';
+        
+        return {
+          id: `receita_${r.id}`,
+          preco: r.custo_total || 0,
+          marca: 'Receita',
+          tipo_insumo: {
+            id: `tipo_receita_${r.id}`,
+            descricao: r.nome,
+            quantidade_embalagem: r.rendimento || 1,
+            pre_preparo_id: null,
+            unidade_medida: {
+              nome: siglaNome,
+              sigla: siglaNome
+            }
+          },
+          e_receita_combo: true
+        };
+      });
+      
+      // Combinar insumos e receitas combo
+      const todosItens = [...(ingredientesData || []), ...receitasComboFormatadas];
+      setIngredientesCadastrados(todosItens);
+
+      // Buscar embalagens
+      const { data: embalagensData, error: embalagensError } = await supabase
+        .from('embalagens')
+        .select(`
+          *,
+          tipo_insumo:tipos_insumos (
+            id,
+            descricao,
+            quantidade_embalagem,
+            unidade_medida:unidades_medida (
+              nome,
+              sigla
+            )
+          )
+        `)
+        .eq('usuario_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (embalagensError) throw embalagensError;
+      setEmbalagensCadastradas(embalagensData || []);
+
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchDados = async () => {
-      try {
-        if (!user) return;
-
-        // Buscar insumos normais
-        const { data: ingredientesData, error: ingredientesError } = await supabase
-          .from('ingredientes')
-          .select(`
-            *,
-            tipo_insumo:tipos_insumos (
-              id,
-              descricao,
-              quantidade_embalagem,
-              pre_preparo_id,
-              unidade_medida:unidades_medida (
-                nome,
-                sigla
-              )
-            )
-          `)
-          .eq('usuario_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (ingredientesError) throw ingredientesError;
-        
-        // Buscar receitas do tipo "Produto para Combo" do Supabase
-        const { data: receitasCombo, error: receitasError } = await supabase
-          .from('receitas')
-          .select('*')
-          .eq('usuario_id', user.id)
-          .eq('tipo', 'produto_combo');
-
-        if (receitasError) throw receitasError;
-
-        const receitasComboFormatadas = (receitasCombo || []).map((r: any) => {
-          // Buscar a sigla correta da unidade de medida
-          const unidade = unidades.find(u => u.id === r.unidade_rendimento);
-          const siglaNome = unidade?.sigla || unidade?.nome || 'un';
-          
-          return {
-            id: `receita_${r.id}`,
-            preco: r.custo_total || 0,
-            marca: 'Receita',
-            tipo_insumo: {
-              id: `tipo_receita_${r.id}`,
-              descricao: r.nome,
-              quantidade_embalagem: r.rendimento || 1,
-              pre_preparo_id: null,
-              unidade_medida: {
-                nome: siglaNome,
-                sigla: siglaNome
-              }
-            },
-            e_receita_combo: true
-          };
-        });
-        
-        // Combinar insumos e receitas combo
-        const todosItens = [...(ingredientesData || []), ...receitasComboFormatadas];
-        setIngredientesCadastrados(todosItens);
-
-        // Buscar embalagens
-        const { data: embalagensData, error: embalagensError } = await supabase
-          .from('embalagens')
-          .select(`
-            *,
-            tipo_insumo:tipos_insumos (
-              id,
-              descricao,
-              quantidade_embalagem,
-              unidade_medida:unidades_medida (
-                nome,
-                sigla
-              )
-            )
-          `)
-          .eq('usuario_id', user.id)
-          .order('created_at', { ascending: false });
-
-        if (embalagensError) throw embalagensError;
-        setEmbalagensCadastradas(embalagensData || []);
-
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error);
-      }
-    };
-
     fetchDados();
-  }, []);
+  }, [user, unidades]);
+
 
   const [maosObra, setMaosObra] = useState<MaoObraLinha[]>([]);
   
@@ -1106,11 +1106,12 @@ export default function ReceitaForm() {
     // Invalida o cache global para que outros componentes vejam o novo produto
     await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
     
-    // Evita duplicados na listagem local
-    setIngredientesCadastrados(prev => {
-      if (prev.find(i => i.id === data.id)) return prev;
-      return [...prev, data];
-    });
+    // Atualiza a lista de ingredientes cadastrados para o popover
+    await fetchDados();
+
+    // Notificar sucesso (específico para cadastro via modal legado)
+    toast.success("Insumo cadastrado com sucesso!");
+
 
     const novoIngrediente: IngredienteReceita = {
       id: `ing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -1131,15 +1132,17 @@ export default function ReceitaForm() {
 
 
 
+
   const handleEmbalagemCriada = async (data: any) => {
     // Invalida o cache global para que outros componentes vejam o novo produto
     await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
     
-    // Evita duplicados na listagem local
-    setEmbalagensCadastradas(prev => {
-      if (prev.find(e => e.id === data.id)) return prev;
-      return [...prev, data];
-    });
+    // Atualiza a lista de embalagens cadastradas para o popover
+    await fetchDados();
+
+    // Notificar sucesso (específico para cadastro via modal legado)
+    toast.success("Embalagem cadastrada com sucesso!");
+
 
     const novaEmbalagem: EmbalagemReceita = {
       id: `emb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -1157,6 +1160,7 @@ export default function ReceitaForm() {
     setEmbalagens(prev => [...prev, novaEmbalagem]);
     setTermoBuscaEmbalagem('');
   };
+
 
 
 
