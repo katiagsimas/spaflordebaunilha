@@ -299,11 +299,11 @@ export default function Ingredientes() {
       }
 
       // Verificar se é pré-preparo
-      const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
-      if (ePrePreparo) {
+      const eReceitaBase = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
+      if (eReceitaBase) {
         toast({
           title: 'Não editável',
-          description: 'Pré-preparos só podem ser editados na página de Pré-Preparos.',
+          description: 'Receitas só podem ser editados na página de Receitas.',
           variant: 'destructive'
         });
         return;
@@ -495,7 +495,7 @@ export default function Ingredientes() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
 
-      // Verificar se está em uso em pré-preparos
+      // Verificar se está em uso em receitas
       const { data: prePreparos } = await supabase
         .from('pre_preparos_ingredientes')
         .select('id')
@@ -536,7 +536,7 @@ export default function Ingredientes() {
       if (emUso) {
         toast({
           title: '❌ Não é possível excluir',
-          description: 'Este insumo está sendo utilizado em pré-preparos ou fichas técnicas. Remova-o antes de excluir.',
+          description: 'Este insumo está sendo utilizado em receitas ou fichas técnicas. Remova-o antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
@@ -572,9 +572,9 @@ export default function Ingredientes() {
   };
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
 
-  // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
+  // Filtrar tipos pelo termo de busca (excluindo receitas)
   const tiposFiltrados = tiposDisponiveis.filter((tipo: any) => {
-    // Não mostrar tipos que são pré-preparos
+    // Não mostrar tipos que são receitas
     if (tipo.pre_preparo_id) return false;
 
     // Filtrar pela busca
@@ -673,31 +673,31 @@ export default function Ingredientes() {
                 </TableCell>
               </TableRow> : ingredientesFiltrados.map((ingrediente: any) => {
             const desatualizado = verificarDesatualizado(ingrediente.data_atualizacao);
-            const ePrePreparo = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
+            const eReceitaBase = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
             const eReceita = ingrediente.e_receita;
-            return <TableRow key={ingrediente.id} className={eReceita ? 'bg-pink-50/70 dark:bg-pink-950/30' : ePrePreparo ? 'bg-purple-50/50 dark:bg-purple-950/20' : desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
-                    <TableCell className={cn("font-medium", eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
+            return <TableRow key={ingrediente.id} className={eReceita ? 'bg-pink-50/70 dark:bg-pink-950/30' : eReceitaBase ? 'bg-purple-50/50 dark:bg-purple-950/20' : desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
+                    <TableCell className={cn("font-medium", eReceita && "text-pink-700 dark:text-pink-400", eReceitaBase && "text-purple-700 dark:text-purple-400")}>
                       <div className="flex items-center gap-2">
                         {ingrediente.tipo_insumo?.descricao || 'N/A'}
-                        {desatualizado && !ePrePreparo && !eReceita && <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800">
+                        {desatualizado && !eReceitaBase && !eReceita && <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-800">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Desatualizado
                           </Badge>}
                       </div>
                     </TableCell>
-      <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400 font-semibold", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
-        {eReceita ? <span className="font-semibold">Ficha Técnica</span> : ePrePreparo ? <span className="font-semibold">Pré-Preparo</span> : ingrediente.marca || <span className="text-muted-foreground italic">Sem marca</span>}
+      <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400 font-semibold", eReceitaBase && "text-purple-700 dark:text-purple-400")}>
+        {eReceita ? <span className="font-semibold">Ficha Técnica</span> : eReceitaBase ? <span className="font-semibold">Receita</span> : ingrediente.marca || <span className="text-muted-foreground italic">Sem marca</span>}
       </TableCell>
-                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
+                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", eReceitaBase && "text-purple-700 dark:text-purple-400")}>
                       {ingrediente.tipo_insumo?.quantidade_embalagem?.toLocaleString('pt-BR')}
                     </TableCell>
-                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
+                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", eReceitaBase && "text-purple-700 dark:text-purple-400")}>
                       {ingrediente.tipo_insumo?.unidade_medida?.nome || 'N/A'}
                     </TableCell>
-                    <TableCell className={cn("font-medium", eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400")}>
+                    <TableCell className={cn("font-medium", eReceita && "text-pink-700 dark:text-pink-400", eReceitaBase && "text-purple-700 dark:text-purple-400")}>
                       {formatarPreco(ingrediente.preco)}
                     </TableCell>
-                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", ePrePreparo && "text-purple-700 dark:text-purple-400", !eReceita && !ePrePreparo && desatualizado && 'text-amber-700 font-medium dark:text-amber-400')}>
+                    <TableCell className={cn(eReceita && "text-pink-700 dark:text-pink-400", eReceitaBase && "text-purple-700 dark:text-purple-400", !eReceita && !eReceitaBase && desatualizado && 'text-amber-700 font-medium dark:text-amber-400')}>
                       {formatarData(ingrediente.data_atualizacao)}
                     </TableCell>
                     <TableCell className="text-right">
@@ -705,8 +705,8 @@ export default function Ingredientes() {
                         <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/ficha-tecnica/editar/${ingrediente.id}`)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                      ) : ePrePreparo ? (
-                        <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/pre-preparos/${ingrediente.tipo_insumo?.pre_preparo_id}`)}>
+                      ) : eReceitaBase ? (
+                        <Button variant="ghost" size="sm" onClick={() => navigate(`/precificacao/receitas/${ingrediente.tipo_insumo?.pre_preparo_id}`)}>
                           <Edit className="h-4 w-4" />
                         </Button>
                       ) : (

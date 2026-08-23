@@ -57,7 +57,7 @@ async function carregarImagemComoDataURL(
 }
 
 /**
- * Carrega os dados completos do pré-preparo e gera um PDF A4 retrato minimalista,
+ * Carrega os dados completos da receita e gera um PDF A4 retrato minimalista,
  * compactado em uma única página, com imagens (quando existentes).
  */
 export async function exportarPrePreparoPDF(prePreparoId: string) {
@@ -88,7 +88,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
     .single();
 
   if (error || !preparo) {
-    throw new Error(error?.message || "Pré-preparo não encontrado");
+    throw new Error(error?.message || "Receita não encontrada");
   }
 
   const { data: maosObra } = await supabase
@@ -144,7 +144,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
       : `${tempoPreparo}min`
     : "—";
 
-  // Carregar imagens do pré-preparo (até 2)
+  // Carregar imagens da receita (até 2)
   const imagensPaths = [
     (preparo as any).imagem_1_url,
     (preparo as any).imagem_2_url,
@@ -168,7 +168,7 @@ export async function exportarPrePreparoPDF(prePreparoId: string) {
   doc.setTextColor(...COR_PRETO);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
-  doc.text("Ficha de Pré-Preparo", marginX, 11.5);
+  doc.text("Ficha de Receita", marginX, 11.5);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);

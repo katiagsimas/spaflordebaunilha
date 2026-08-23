@@ -35,25 +35,25 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-export default function PrePreparos() {
+export default function Receitas() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [preparos, setPreparos] = useState([]);
+  const [receitas, setReceitas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [prepairoParaExcluir, setPreparoParaExcluir] = useState<any>(null);
+  const [receitaParaExcluir, setReceitaParaExcluir] = useState<any>(null);
   const [dialogExcluirAberto, setDialogExcluirAberto] = useState(false);
 
   useEffect(() => {
-    fetchPreparos();
+    fetchReceitas();
   }, []);
 
-  const fetchPreparos = async () => {
+  const fetchReceitas = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar pré-preparos com rendimento
-      const { data: preparosData, error: preparosError } = await supabase
+      // Buscar receitas com rendimento
+      const { data: receitasData, error: receitasError } = await supabase
         .from('pre_preparos')
         .select(`
           *,
@@ -65,9 +65,9 @@ export default function PrePreparos() {
         .eq('usuario_id', user.id)
         .order('nome');
 
-      if (preparosError) throw preparosError;
+      if (receitasError) throw receitasError;
 
-      // Buscar mão de obra de todos os pré-preparos
+      // Buscar mão de obra de todos os receitas
       const { data: maosObraData, error: maosObraError } = await supabase
         .from('pre_preparos_mao_obra')
         .select(`
@@ -87,13 +87,13 @@ export default function PrePreparos() {
         .maybeSingle();
 
       // Calcular custo total incluindo mão de obra
-      const preparosComCustoTotal = preparosData?.map((preparo) => {
-        const maosObraPreparo = maosObraData?.filter(
-          (mo) => mo.pre_preparo_id === preparo.id
+      const receitasComCustoTotal = receitasData?.map((receita) => {
+        const maosObraReceita = maosObraData?.filter(
+          (mo) => mo.pre_preparo_id === receita.id
         ) || [];
 
         let custoMaoObra = 0;
-        maosObraPreparo.forEach((mo) => {
+        maosObraReceita.forEach((mo) => {
           const valorHora = mo.usar_valor_padrao
             ? (perfilPadraoData?.valor_hora || 0)
             : (mo.perfil?.valor_hora || 0);
@@ -101,17 +101,17 @@ export default function PrePreparos() {
         });
 
         return {
-          ...preparo,
-          custo_total_com_mao_obra: preparo.custo_total + custoMaoObra,
+          ...receita,
+          custo_total_com_mao_obra: receita.custo_total + custoMaoObra,
         };
       });
 
-      setPreparos(preparosComCustoTotal || []);
+      setReceitas(receitasComCustoTotal || []);
     } catch (error) {
-      console.error('Erro ao buscar pré-preparos:', error);
+      console.error('Erro ao buscar receitas:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar os pré-preparos.',
+        description: 'Não foi possível carregar os receitas.',
         variant: 'destructive',
       });
     } finally {
@@ -130,9 +130,9 @@ export default function PrePreparos() {
     });
   };
 
-  const verificarPreparoEmUso = async (preparoId: string): Promise<boolean> => {
+  const verificarReceitaEmUso = async (receitaId: string): Promise<boolean> => {
     try {
-      // Verificar se o pré-preparo está sendo usado em receitas_ingredientes
+      // Verificar se o receita está sendo usado em receitas_ingredientes
       const { data: ingredientes } = await supabase
         .from('ingredientes')
         .select('tipo_insumo_id')
@@ -142,11 +142,11 @@ export default function PrePreparos() {
 
       const tiposInsumosIds = ingredientes.map(ing => ing.tipo_insumo_id);
 
-      // Verificar se algum tipo_insumo corresponde ao pré-preparo
+      // Verificar se algum tipo_insumo corresponde ao receita
       const { data: tiposInsumos } = await supabase
         .from('tipos_insumos')
         .select('id')
-        .eq('pre_preparo_id', preparoId)
+        .eq('pre_preparo_id', receitaId)
         .in('id', tiposInsumosIds);
 
       if (!tiposInsumos || tiposInsumos.length === 0) return false;
@@ -162,26 +162,26 @@ export default function PrePreparos() {
 
       return receitasUsando && receitasUsando.length > 0;
     } catch (error) {
-      console.error('Erro ao verificar uso do pré-preparo:', error);
+      console.error('Erro ao verificar uso do receita:', error);
       return true; // Em caso de erro, previne a exclusão por segurança
     }
   };
 
   const handleConfirmarExclusao = async () => {
-    if (!prepairoParaExcluir) return;
+    if (!receitaParaExcluir) return;
 
     try {
       // Verificar se está em uso
-      const emUso = await verificarPreparoEmUso(prepairoParaExcluir.id);
+      const emUso = await verificarReceitaEmUso(receitaParaExcluir.id);
 
       if (emUso) {
         toast({
           title: 'Não é possível excluir',
-          description: 'Este pré-preparo está sendo utilizado em uma ou mais fichas técnicas. Remova-o das receitas antes de excluir.',
+          description: 'Este receita está sendo utilizado em uma ou mais fichas técnicas. Remova-o das receitas antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
-        setPreparoParaExcluir(null);
+        setReceitaParaExcluir(null);
         return;
       }
 
@@ -195,7 +195,7 @@ export default function PrePreparos() {
         const { data: tiposInsumosParaExcluir } = await supabase
           .from('tipos_insumos')
           .select('id')
-          .eq('pre_preparo_id', prepairoParaExcluir.id);
+          .eq('pre_preparo_id', receitaParaExcluir.id);
 
         if (tiposInsumosParaExcluir && tiposInsumosParaExcluir.length > 0) {
           const idsParaExcluir = tiposInsumosParaExcluir.map(t => t.id);
@@ -207,51 +207,51 @@ export default function PrePreparos() {
         }
       }
 
-      // Excluir ingredientes do pré-preparo
+      // Excluir ingredientes do receita
       await supabase
         .from('pre_preparos_ingredientes')
         .delete()
-        .eq('pre_preparo_id', prepairoParaExcluir.id);
+        .eq('pre_preparo_id', receitaParaExcluir.id);
 
-      // Excluir mão de obra do pré-preparo
+      // Excluir mão de obra do receita
       await supabase
         .from('pre_preparos_mao_obra')
         .delete()
-        .eq('pre_preparo_id', prepairoParaExcluir.id);
+        .eq('pre_preparo_id', receitaParaExcluir.id);
 
-      // Excluir o pré-preparo
+      // Excluir o receita
       const { error: deleteError } = await supabase
         .from('pre_preparos')
         .delete()
-        .eq('id', prepairoParaExcluir.id);
+        .eq('id', receitaParaExcluir.id);
 
       if (deleteError) throw deleteError;
 
       toast({
-        title: 'Pré-preparo excluído',
-        description: 'O pré-preparo foi excluído com sucesso.',
+        title: 'Receita excluído',
+        description: 'O receita foi excluído com sucesso.',
       });
 
-      fetchPreparos();
+      fetchReceitas();
     } catch (error: any) {
-      console.error('Erro ao excluir pré-preparo:', error);
+      console.error('Erro ao excluir receita:', error);
       toast({
         title: 'Erro ao excluir',
-        description: error.message || 'Não foi possível excluir o pré-preparo.',
+        description: error.message || 'Não foi possível excluir o receita.',
         variant: 'destructive',
       });
     } finally {
       setDialogExcluirAberto(false);
-      setPreparoParaExcluir(null);
+      setReceitaParaExcluir(null);
     }
   };
 
-  const handleExcluir = (preparo: any) => {
-    setPreparoParaExcluir(preparo);
+  const handleExcluir = (receita: any) => {
+    setReceitaParaExcluir(receita);
     setDialogExcluirAberto(true);
   };
 
-  if (loading) return <LoadingState message="Carregando Pré-Preparos" submessage="Listando pré-preparos..." />;
+  if (loading) return <LoadingState message="Carregando Receitas" submessage="Listando receitas..." />;
 
   return (
     <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
@@ -280,12 +280,12 @@ export default function PrePreparos() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
             <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
-              Pré-Preparos
+              Receitas
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-12 bg-sfb-terracota" />
               <p className="text-sm font-body italic text-sfb-cacau/70">
-                Cadastre preparos intermediários para usar em receitas
+                Cadastre receitas intermediários para usar em receitas
               </p>
             </div>
           </div>
@@ -298,25 +298,25 @@ export default function PrePreparos() {
       <Alert className="bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800">
         <Info className="h-4 w-4 text-purple-600 dark:text-purple-400" />
         <AlertDescription>
-          Pré-preparos aparecem automaticamente na lista de Ingredientes e podem ser usados em receitas. 
+          Receitas aparecem automaticamente na lista de Ingredientes e podem ser usados em receitas. 
           Editações aqui atualizam automaticamente em Ingredientes.
         </AlertDescription>
       </Alert>
 
       <div className="flex justify-start">
-        <Button onClick={() => navigate('/cadastros/pre-preparos/novo')} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
+        <Button onClick={() => navigate('/cadastros/receitas/novo')} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
           <Plus className="mr-2 h-4 w-4" />
-          Criar Novo Pré-Preparo
+          Criar Novo Receita
         </Button>
       </div>
 
-      {preparos.length === 0 ? (
+      {receitas.length === 0 ? (
         <EmptyState
           icon={ChefHat}
-          title="Nenhum pré-preparo cadastrado"
-          description="Crie seus pré-preparos para otimizar a produção e calcular custos de forma precisa"
-          actionLabel="Criar novo Pré-Preparo"
-          onAction={() => navigate('/cadastros/pre-preparos/novo')}
+          title="Nenhum receita cadastrado"
+          description="Crie seus receitas para otimizar a produção e calcular custos de forma precisa"
+          actionLabel="Criar novo Receita"
+          onAction={() => navigate('/cadastros/receitas/novo')}
         />
       ) : (
         <div className="border rounded-lg">
@@ -324,31 +324,31 @@ export default function PrePreparos() {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
-                <TableHead>Tempo de Preparo</TableHead>
+                <TableHead>Tempo de Receita</TableHead>
                 <TableHead>Rendimento</TableHead>
                 <TableHead>Custo</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {preparos.map(preparo => (
-                <TableRow key={preparo.id}>
-                  <TableCell className="font-medium">{preparo.nome}</TableCell>
+              {receitas.map(receita => (
+                <TableRow key={receita.id}>
+                  <TableCell className="font-medium">{receita.nome}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      {formatarTempo(preparo.tempo_preparo, preparo.tempo_preparo_unidade)}
+                      {formatarTempo(receita.tempo_receita, receita.tempo_receita_unidade)}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Scale className="h-4 w-4 text-muted-foreground" />
-                      {preparo.rendimento_quantidade.toLocaleString('pt-BR')}{' '}
-                      {preparo.rendimento_unidade?.sigla}
+                      {receita.rendimento_quantidade.toLocaleString('pt-BR')}{' '}
+                      {receita.rendimento_unidade?.sigla}
                     </div>
                   </TableCell>
                   <TableCell className="font-medium">
-                    {formatarPreco(preparo.custo_total_com_mao_obra || preparo.custo_total || 0)}
+                    {formatarPreco(receita.custo_total_com_mao_obra || receita.custo_total || 0)}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -359,7 +359,7 @@ export default function PrePreparos() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => navigate(`/cadastros/pre-preparos/${preparo.id}`)}
+                          onClick={() => navigate(`/cadastros/receitas/${receita.id}`)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
@@ -367,7 +367,7 @@ export default function PrePreparos() {
                         <DropdownMenuItem
                           onClick={async () => {
                             try {
-                              await exportarPrePreparoPDF(preparo.id);
+                              await exportarPrePreparoPDF(receita.id);
                             } catch (e: any) {
                               toast({
                                 title: 'Erro ao exportar',
@@ -381,7 +381,7 @@ export default function PrePreparos() {
                           Exportar PDF
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => handleExcluir(preparo)}
+                          onClick={() => handleExcluir(receita)}
                           className="text-destructive focus:text-destructive"
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
@@ -402,7 +402,7 @@ export default function PrePreparos() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o pré-preparo "{prepairoParaExcluir?.nome}"?
+              Tem certeza que deseja excluir o receita "{receitaParaExcluir?.nome}"?
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>

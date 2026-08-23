@@ -271,12 +271,12 @@ export default function Embalagens() {
   const handleAbrirModal = (embalagem: any = null) => {
     if (embalagem) {
       // Verificar se é pré-preparo (embalagens não deveriam ter, mas por garantia)
-      const ePrePreparo = embalagem.tipo_insumo?.pre_preparo_id;
+      const eReceitaBase = embalagem.tipo_insumo?.pre_preparo_id;
       
-      if (ePrePreparo) {
+      if (eReceitaBase) {
         toast({
           title: 'Não editável',
-          description: 'Este item é vinculado a um pré-preparo.',
+          description: 'Este item é vinculado a uma receita.',
           variant: 'destructive',
         });
         return;
@@ -508,7 +508,7 @@ export default function Embalagens() {
       if (receitas && receitas.length > 0) return true;
 
       // Verificar se existe algum ingrediente que usa este tipo_insumo_id
-      // (pré-preparos usam a tabela ingredientes, e cada ingrediente tem um tipo_insumo_id)
+      // (receitas usam a tabela ingredientes, e cada ingrediente tem um tipo_insumo_id)
       const { data: ingredientes } = await supabase
         .from('ingredientes')
         .select('id')
@@ -516,7 +516,7 @@ export default function Embalagens() {
         .limit(1);
 
       if (ingredientes && ingredientes.length > 0) {
-        // Verificar se algum desses ingredientes está sendo usado em pré-preparos
+        // Verificar se algum desses ingredientes está sendo usado em receitas
         const ingredienteIds = ingredientes.map(ing => ing.id);
         const { data: prePreparos } = await supabase
           .from('pre_preparos_ingredientes')
@@ -543,7 +543,7 @@ export default function Embalagens() {
       if (emUso) {
         toast({
           title: '❌ Não é possível excluir',
-          description: 'Esta embalagem está sendo utilizada em pré-preparos ou fichas técnicas. Remova-a antes de excluir.',
+          description: 'Esta embalagem está sendo utilizada em receitas ou fichas técnicas. Remova-a antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
@@ -580,9 +580,9 @@ export default function Embalagens() {
 
   const tipoSelecionadoObj = tiposDisponiveis.find((t: any) => t.id === tipoSelecionado);
   
-  // Filtrar tipos pelo termo de busca (excluindo pré-preparos)
+  // Filtrar tipos pelo termo de busca (excluindo receitas)
   const tiposFiltrados = tiposDisponiveis.filter((tipo: any) => {
-    // Não mostrar tipos que são pré-preparos
+    // Não mostrar tipos que são receitas
     if (tipo.pre_preparo_id) return false;
     
     // Filtrar pela busca
@@ -612,11 +612,11 @@ export default function Embalagens() {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate('/precificacao/pre-preparos')}
+              onClick={() => navigate('/precificacao/receitas')}
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
               <ArrowRight className="h-4 w-4" />
-              Pré-Preparos
+              Receitas
             </Button>
           </div>
         </div>
@@ -708,7 +708,7 @@ export default function Embalagens() {
             ) : (
               embalagensFiltradas.map((embalagem: any) => {
                 const desatualizado = verificarDesatualizado(embalagem.data_atualizacao);
-                const ePrePreparo = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
+                const eReceitaBase = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
                 
                 return (
                   <TableRow key={embalagem.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
@@ -730,8 +730,8 @@ export default function Embalagens() {
                       {embalagem.medida || '—'}
                     </TableCell>
       <TableCell>
-        {ePrePreparo ? (
-          <span className="font-semibold text-purple-700">Pré-Preparo</span>
+        {eReceitaBase ? (
+          <span className="font-semibold text-purple-700">Receita</span>
         ) : (
           embalagem.marca || <span className="text-muted-foreground italic">Sem marca</span>
         )}

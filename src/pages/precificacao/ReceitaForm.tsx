@@ -48,15 +48,15 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useCategorias } from '@/hooks/useCategorias';
 import { Plus, Trash2, Upload, X, Info, ArrowLeft, FileDown } from 'lucide-react';
-import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
+import { exportarReceitaPDF } from '@/utils/exportarReceitaPDF';
 import { MaoObraSection, MaoObraLinha } from '@/components/MaoObraSection';
-import { usePrePreparosMaoObra } from '@/hooks/usePrePreparosMaoObra';
+import { useReceitasMaoObra } from '@/hooks/useReceitasMaoObra';
 import { useMaoObraPerfis } from '@/hooks/useMaoObraPerfis';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
 import { useQueryClient } from '@tanstack/react-query';
 
-export default function PrePreparoForm() {
+export default function ReceitaForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
@@ -74,11 +74,11 @@ export default function PrePreparoForm() {
   // Campos básicos
   const [nome, setNome] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
-  const [tempoPreparo, setTempoPreparo] = useState('');
+  const [tempoReceita, setTempoReceita] = useState('');
   const [tempoUnidade, setTempoUnidade] = useState('minutos');
   const [rendimentoQtd, setRendimentoQtd] = useState('');
   const [rendimentoUnidadeId, setRendimentoUnidadeId] = useState('');
-  const [modoPreparo, setModoPreparo] = useState('');
+  const [modoReceita, setModoReceita] = useState('');
 
   // Ingredientes
   const [ingredientesSelecionados, setIngredientesSelecionados] = useState<any[]>([]);
@@ -124,7 +124,7 @@ export default function PrePreparoForm() {
     loadData();
     
     if (isEditMode) {
-      fetchPrePreparo();
+      fetchReceita();
     }
   }, [id, unitsLoaded]); // Re-run if units load to ensure proper combo recipe formatting
 
@@ -221,13 +221,13 @@ export default function PrePreparoForm() {
     }
   };
 
-  const fetchPrePreparo = async () => {
+  const fetchReceita = async () => {
     try {
       const { data, error } = await supabase
         .from('pre_preparos')
         .select(`
           *,
-          ingredientes:pre_preparos_ingredientes (
+          ingredientes:pre_receitas_ingredientes (
             *,
             ingrediente:ingredientes (
               *,
@@ -249,11 +249,11 @@ export default function PrePreparoForm() {
 
       setNome(data.nome);
       setCategoriaId(data.categoria_id || '');
-      setTempoPreparo(data.tempo_preparo.toString());
-      setTempoUnidade(data.tempo_preparo_unidade);
+      setTempoReceita(data.tempo_receita.toString());
+      setTempoUnidade(data.tempo_receita_unidade);
       setRendimentoQtd(data.rendimento_quantidade.toString());
       setRendimentoUnidadeId(data.rendimento_unidade_id);
-      setModoPreparo(data.modo_preparo || '');
+      setModoReceita(data.modo_receita || '');
       setImagem1Preview(data.imagem_1_url || '');
       setImagem2Preview(data.imagem_2_url || '');
 
@@ -287,10 +287,10 @@ export default function PrePreparoForm() {
         setMaosObra(maosObraFormatadas);
       }
     } catch (error) {
-      console.error('Erro ao buscar pré-preparo:', error);
+      console.error('Erro ao buscar receita:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar o pré-preparo.',
+        description: 'Não foi possível carregar o receita.',
         variant: 'destructive',
       });
     }
@@ -436,13 +436,13 @@ export default function PrePreparoForm() {
       const fileName = `${user.id}/${Date.now()}_${numeroImagem}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('pre-preparos')
+        .from('receitas')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
       const { data } = supabase.storage
-        .from('pre-preparos')
+        .from('receitas')
         .getPublicUrl(fileName);
 
       return data.publicUrl;
@@ -452,14 +452,14 @@ export default function PrePreparoForm() {
     }
   };
 
-  const criarComoIngrediente = async (prePreparoId: string, nomePrePreparo: string, custoTotal: number) => {
+  const criarComoIngrediente = async (prePreparoId: string, nomeReceita: string, custoTotal: number) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
 
       // ✅ USAR NOME LIMPO (sem prefixo)
-      const nomeTipo = nomePrePreparo; // Nome limpo!
+      const nomeTipo = nomeReceita; // Nome limpo!
       
       // Buscar ou criar tipo
       let tipoId;
@@ -484,7 +484,7 @@ export default function PrePreparoForm() {
           
         
       } else {
-        // Criar novo tipo vinculado ao pré-preparo
+        // Criar novo tipo vinculado ao receita
         const { data: novoTipo, error: errorTipo } = await supabase
           .from('tipos_insumos')
           .insert({
@@ -494,7 +494,7 @@ export default function PrePreparoForm() {
             descricao: nomeTipo,
             quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
             unidade_medida_id: rendimentoUnidadeId,
-            pre_preparo_id: prePreparoId, // Vínculo com pré-preparo
+            pre_preparo_id: prePreparoId, // Vínculo com receita
           })
           .select()
           .single();
@@ -514,11 +514,11 @@ export default function PrePreparoForm() {
         .maybeSingle();
 
       if (ingredienteExistente) {
-        // Atualizar preço e marcar como pré-preparo (usar custo total)
+        // Atualizar preço e marcar como receita (usar custo total)
         await supabase
           .from('ingredientes')
           .update({
-            marca: 'Pré-Preparo',
+            marca: 'Receita',
             preco: custoTotal,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
@@ -534,7 +534,7 @@ export default function PrePreparoForm() {
             usuario_id: user.id,
         owner_group_id: await getActiveGroupId(user.id),
             tipo_insumo_id: tipoId,
-            marca: 'Pré-Preparo',
+            marca: 'Receita',
             preco: custoTotal,
             e_pre_preparo: true,
             data_atualizacao: new Date().toISOString().split('T')[0],
@@ -557,7 +557,7 @@ export default function PrePreparoForm() {
       if (!nome.trim()) {
         toast({
           title: 'Erro',
-          description: 'Informe o nome do pré-preparo!',
+          description: 'Informe o nome do receita!',
           variant: 'destructive',
         });
         return;
@@ -602,7 +602,7 @@ export default function PrePreparoForm() {
         return;
       }
 
-      showLoading(isEditMode ? 'Atualizando pré-preparo...' : 'Salvando pré-preparo...');
+      showLoading(isEditMode ? 'Atualizando receita...' : 'Salvando receita...');
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
@@ -621,17 +621,17 @@ export default function PrePreparoForm() {
 
       const totalHorasMaoObra = maosObra.reduce((sum, mo) => sum + Number(mo.horas || 0), 0);
 
-      // Salvar pré-preparo
-      const dadosPrePreparo = {
+      // Salvar receita
+      const dadosReceita = {
         usuario_id: user.id,
         owner_group_id: await getActiveGroupId(user.id),
         nome: nome.trim(),
         categoria_id: categoriaId || null,
-        tempo_preparo: Math.round(totalHorasMaoObra * 60),
-        tempo_preparo_unidade: 'minutos',
+        tempo_receita: Math.round(totalHorasMaoObra * 60),
+        tempo_receita_unidade: 'minutos',
         rendimento_quantidade: rendimento,
         rendimento_unidade_id: rendimentoUnidadeId,
-        modo_preparo: modoPreparo.trim() || null,
+        modo_receita: modoReceita.trim() || null,
         imagem_1_url: url1 || null,
         imagem_2_url: url2 || null,
         custo_total: custoTotal,
@@ -644,7 +644,7 @@ export default function PrePreparoForm() {
         // Atualizar
         const { error } = await supabase
           .from('pre_preparos')
-          .update(dadosPrePreparo)
+          .update(dadosReceita)
           .eq('id', id);
 
         if (error) throw error;
@@ -660,13 +660,13 @@ export default function PrePreparoForm() {
         // Criar
         const { data, error } = await supabase
           .from('pre_preparos')
-          .insert(dadosPrePreparo)
+          .insert(dadosReceita)
           .select()
           .single();
 
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Já existe um pré-preparo com este nome!');
+            throw new Error('Já existe um receita com este nome!');
           }
           throw error;
         }
@@ -682,7 +682,7 @@ export default function PrePreparoForm() {
       if (receitasCombo.length > 0 && ingredientesReais.length === 0) {
         toast({
           title: 'Aviso',
-          description: 'Pré-preparos precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
+          description: 'Receitas precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
           variant: 'destructive',
         });
         hideLoading();
@@ -733,10 +733,10 @@ export default function PrePreparoForm() {
 
       toast({
         title: 'Sucesso',
-        description: isEditMode ? 'Pré-preparo atualizado!' : 'Pré-preparo cadastrado!',
+        description: isEditMode ? 'Receita atualizado!' : 'Receita cadastrado!',
       });
 
-      navigate('/cadastros/pre-preparos');
+      navigate('/cadastros/receitas');
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       toast({
@@ -760,15 +760,15 @@ export default function PrePreparoForm() {
     <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/cadastros/pre-preparos')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/cadastros/receitas')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
           <h1 className="text-3xl font-bold">
-            {isEditMode ? 'Editar Pré-Preparo' : 'Novo Pré-Preparo'}
+            {isEditMode ? 'Editar Receita' : 'Novo Receita'}
           </h1>
           <p className="text-muted-foreground">
-            Cadastre preparos intermediários para usar em receitas
+            Cadastre receitas intermediários para usar em receitas
           </p>
         </div>
       </div>
@@ -783,7 +783,7 @@ export default function PrePreparoForm() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome do Pré-Preparo *</Label>
+                <Label htmlFor="nome">Nome do Receita *</Label>
                 <Input
                   id="nome"
                   placeholder="Ex: Massa de Bolo Base"
@@ -846,7 +846,7 @@ export default function PrePreparoForm() {
           <CardHeader>
             <CardTitle>Mão de Obra</CardTitle>
             <CardDescription>
-              Adicione os custos de mão de obra para este pré-preparo
+              Adicione os custos de mão de obra para este receita
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1021,17 +1021,17 @@ export default function PrePreparoForm() {
           </CardContent>
         </Card>
 
-        {/* Card Modo de Preparo */}
+        {/* Card Modo de Receita */}
         <Card>
           <CardHeader>
-            <CardTitle>Modo de Preparo</CardTitle>
+            <CardTitle>Modo de Receita</CardTitle>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder="Descreva o passo a passo do preparo..."
+              placeholder="Descreva o passo a passo do receita..."
               rows={6}
-              value={modoPreparo}
-              onChange={(e) => setModoPreparo(e.target.value)}
+              value={modoReceita}
+              onChange={(e) => setModoReceita(e.target.value)}
             />
           </CardContent>
         </Card>
@@ -1040,7 +1040,7 @@ export default function PrePreparoForm() {
         <Card>
           <CardHeader>
             <CardTitle>Imagens</CardTitle>
-            <CardDescription>Adicione até 2 imagens do pré-preparo</CardDescription>
+            <CardDescription>Adicione até 2 imagens do receita</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
@@ -1127,7 +1127,7 @@ export default function PrePreparoForm() {
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription>
-            Após salvar, este pré-preparo aparecerá automaticamente na lista de Insumos 
+            Após salvar, este receita aparecerá automaticamente na lista de Insumos 
             e poderá ser usado em receitas!
           </AlertDescription>
         </Alert>
@@ -1136,7 +1136,7 @@ export default function PrePreparoForm() {
         <div className="flex flex-wrap gap-4">
           <Button
             variant="outline"
-            onClick={() => navigate('/precificacao/pre-preparos')}
+            onClick={() => navigate('/precificacao/receitas')}
           >
             Cancelar
           </Button>
@@ -1146,7 +1146,7 @@ export default function PrePreparoForm() {
               variant="outline"
               onClick={async () => {
                 try {
-                  await exportarPrePreparoPDF(id);
+                  await exportarReceitaPDF(id);
                 } catch (e: any) {
                   toast({
                     title: 'Erro ao exportar',
@@ -1161,7 +1161,7 @@ export default function PrePreparoForm() {
             </Button>
           )}
           <Button onClick={handleSalvar} className="flex-1">
-            {isEditMode ? 'Atualizar Pré-Preparo' : 'Salvar Pré-Preparo'}
+            {isEditMode ? 'Atualizar Receita' : 'Salvar Receita'}
           </Button>
         </div>
       </div>
