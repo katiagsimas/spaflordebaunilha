@@ -563,8 +563,10 @@ export default function ReceitaForm() {
         return;
       }
 
-      const rendimento = parseFloat(rendimentoQtd.replace(',', '.'));
-      if (!rendimento || rendimento <= 0) {
+      const rendimentoStr = rendimentoQtd.replace(',', '.');
+      const rendimento = rendimentoStr ? parseFloat(rendimentoStr) : 0;
+      
+      if (rendimentoStr && (isNaN(rendimento) || rendimento < 0)) {
         toast({
           title: 'Erro',
           description: 'Informe um rendimento válido!',
@@ -573,6 +575,8 @@ export default function ReceitaForm() {
         return;
       }
 
+      // Unidade de medida agora é opcional na validação
+      /*
       if (!rendimentoUnidadeId) {
         toast({
           title: 'Erro',
@@ -581,6 +585,7 @@ export default function ReceitaForm() {
         });
         return;
       }
+      */
 
       if (ingredientesSelecionados.length === 0) {
         toast({
@@ -629,8 +634,8 @@ export default function ReceitaForm() {
         categoria_id: categoriaId || null,
         tempo_receita: Math.round(totalHorasMaoObra * 60),
         tempo_receita_unidade: 'minutos',
-        rendimento_quantidade: rendimento,
-        rendimento_unidade_id: rendimentoUnidadeId,
+        rendimento_quantidade: rendimentoStr ? parseFloat(rendimentoStr) : 0,
+        rendimento_unidade_id: rendimentoUnidadeId || null,
         modo_receita: modoReceita.trim() || null,
         imagem_1_url: url1 || null,
         imagem_2_url: url2 || null,
@@ -792,10 +797,10 @@ export default function ReceitaForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="categoria">Categoria de Receita</Label>
+                <Label htmlFor="categoria">Tipo de Serviço</Label>
                 <Select value={categoriaId} onValueChange={setCategoriaId}>
                   <SelectTrigger id="categoria">
-                    <SelectValue placeholder="Selecione..." />
+                    <SelectValue placeholder="Selecione o tipo de serviço..." />
                   </SelectTrigger>
                   <SelectContent>
                     {categorias.filter(c => c.ativo).map((categoria) => (
@@ -810,7 +815,7 @@ export default function ReceitaForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="rendimento">Rendimento *</Label>
+                <Label htmlFor="rendimento">Rendimento (opcional)</Label>
                 <Input
                   id="rendimento"
                   type="text"
@@ -823,7 +828,7 @@ export default function ReceitaForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Unidade de Medida</Label>
+                <Label>Unidade de Medida (opcional)</Label>
                 <Select value={rendimentoUnidadeId} onValueChange={setRendimentoUnidadeId}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione..." />
