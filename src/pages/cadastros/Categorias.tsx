@@ -27,6 +27,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { RelatorioCategorias } from "@/components/RelatorioCategorias";
+
 
 export default function Categorias() {
   const { showLoading, hideLoading } = useGlobalLoading();
