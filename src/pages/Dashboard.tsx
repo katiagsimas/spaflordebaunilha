@@ -447,10 +447,10 @@ export default function Dashboard() {
 
     const { data: encomendas } = await supabase
       .from("encomendas")
-      .select("id, data_entrega, hora_entrega, valor, status, cliente")
+      .select("id, data_entrega, data_pedido, hora_entrega, valor, status, cliente")
       .eq("usuario_id", user.id)
-      .gte("data_entrega", inicioStr)
-      .lte("data_entrega", fimStr)
+      .or(`data_entrega.gte.${inicioStr},data_pedido.gte.${inicioStr}`)
+      .or(`data_entrega.lte.${fimStr},data_pedido.lte.${fimStr}`)
       .neq("status", "cancelada")
       .order("data_entrega", { ascending: true });
 
@@ -458,7 +458,7 @@ export default function Dashboard() {
     
     const dadosCalendario = dias.map(dia => {
       const encomendasDia = encomendas?.filter(enc => 
-        isSameDay(new Date(enc.data_entrega!), dia)
+        isSameDay(new Date(enc.data_entrega || enc.data_pedido!), dia)
       ).map(enc => ({
         id: enc.id,
         cliente: enc.cliente || "Cliente",

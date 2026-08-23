@@ -189,12 +189,13 @@ const Encomendas = () => {
     }
   }, [encomendas, editingOrder]);
 
-  // Encomendas do mês selecionado (filtradas por data_entrega)
+  // Encomendas do mês selecionado (filtradas por data_entrega ou data_pedido)
   const encomendasMes = useMemo(() => {
     if (!encomendas) return [] as any[];
     return encomendas.filter((enc: any) => {
-      if (!enc.data_entrega) return false;
-      const d = parseISOToDate(enc.data_entrega);
+      const dataRef = enc.data_entrega || enc.data_pedido;
+      if (!dataRef) return false;
+      const d = parseISOToDate(dataRef);
       return d.getMonth() === mesSelecionado && d.getFullYear() === anoSelecionado;
     });
   }, [encomendas, mesSelecionado, anoSelecionado]);
@@ -211,10 +212,11 @@ const Encomendas = () => {
     const amanha = addDays(hoje, 1);
     const fimSemana = addDays(hoje, 7);
 
-    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA
+    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA ou DATA DO PEDIDO
     const encomendasMes = encomendas.filter((enc) => {
-      if (!enc.data_entrega) return false;
-      const dataEntrega = parseISOToDate(enc.data_entrega);
+      const dataRef = enc.data_entrega || enc.data_pedido;
+      if (!dataRef) return false;
+      const dataEntrega = parseISOToDate(dataRef);
       return (
         dataEntrega.getMonth() === mesSelecionado &&
         dataEntrega.getFullYear() === anoSelecionado
@@ -234,18 +236,21 @@ const Encomendas = () => {
     );
 
     const paraHoje = encomendasPendentes.filter((e) => {
-      if (!e.data_entrega) return false;
-      return isToday(parseISOToDate(e.data_entrega));
+      const dataRef = e.data_entrega || e.data_pedido;
+      if (!dataRef) return false;
+      return isToday(parseISOToDate(dataRef));
     }).length;
 
     const paraAmanha = encomendasPendentes.filter((e) => {
-      if (!e.data_entrega) return false;
-      return isTomorrow(parseISOToDate(e.data_entrega));
+      const dataRef = e.data_entrega || e.data_pedido;
+      if (!dataRef) return false;
+      return isTomorrow(parseISOToDate(dataRef));
     }).length;
 
     const paraEstaSemana = encomendasPendentes.filter((e) => {
-      if (!e.data_entrega) return false;
-      const dataEntrega = parseISOToDate(e.data_entrega);
+      const dataRef = e.data_entrega || e.data_pedido;
+      if (!dataRef) return false;
+      const dataEntrega = parseISOToDate(dataRef);
       return (
         !isToday(dataEntrega) &&
         !isTomorrow(dataEntrega) &&
@@ -353,7 +358,7 @@ const Encomendas = () => {
         const dadosParaSalvar = {
           ...dadosEncomenda,
           valor: valorFinal,
-          data_entrega: formData.data_entrega || null,
+          data_entrega: formData.data_entrega || formData.data_pedido,
           hora_entrega: formData.hora_entrega || null,
           conta_receber_id: contaReceberId || null,
         };
@@ -728,7 +733,7 @@ const Encomendas = () => {
       const dadosParaSalvar = {
         ...dadosEncomenda,
         valor: valorFinal,
-        data_entrega: formData.data_entrega || null,
+        data_entrega: formData.data_entrega || formData.data_pedido,
         hora_entrega: formData.hora_entrega || null,
         conta_receber_id: contaId,
       };
