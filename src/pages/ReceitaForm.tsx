@@ -16,8 +16,9 @@ import { CardAnalise } from "@/components/CardAnalise";
 import { useAuth } from "@/contexts/AuthContext";
 import { useGroup } from "@/contexts/GroupContext";
 import { getActiveGroupId } from "@/lib/activeGroup";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
@@ -130,14 +131,14 @@ interface UploadImagemItem {
 }
 
 export default function ReceitaForm() {
-
-
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuth();
   const { activeGroupId } = useGroup();
+  const queryClient = useQueryClient();
   const [ingredientesCadastrados, setIngredientesCadastrados] = useState<any[]>([]);
   const [embalagensCadastradas, setEmbalagensCadastradas] = useState<any[]>([]);
+
   const { categorias, categoriasAtivas } = useCategorias();
   const { unidades } = useUnidadesMedida();
   const { salvarMaosObra } = useReceitasMaoObra(id);
@@ -1100,7 +1101,10 @@ export default function ReceitaForm() {
     }
   };
 
-  const handleIngredienteCriado = (data: any) => {
+  const handleIngredienteCriado = async (data: any) => {
+    // Invalida o cache global para que outros componentes vejam o novo produto
+    await queryClient.invalidateQueries({ queryKey: ['produtos_revenda'] });
+    
     // Evita duplicados na listagem local
     setIngredientesCadastrados(prev => {
       if (prev.find(i => i.id === data.id)) return prev;
@@ -1123,6 +1127,7 @@ export default function ReceitaForm() {
     setIngredientes(prev => [...prev, novoIngrediente]);
     setTermoBuscaIngrediente('');
   };
+
 
 
   const handleEmbalagemCriada = (data: any) => {
