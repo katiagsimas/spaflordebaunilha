@@ -1,4 +1,4 @@
-/* Duplique o botão e seu respectivo formulário e nomeie o mesmo para "Venda de Produtos" */
+/* Vamos refinar o formulário "Venda de Produtos": Para o botão "Adicionar Produtos" remova a lista de Serviços. Implemente a digitação de código para produtos Natura e Avon e, caso a usuária digite um código inexistente, abra o formulário de cadastro destes produtos de revenda para que ela possa realizar o cadastro diretamente nesta tela. Persista nno banco de dados e garanta que não haja quebras em outras funcionalidades. Esta implementação deverá sser realizada somente no formulário "Venda de Produtos". */
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";

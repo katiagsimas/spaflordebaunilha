@@ -1,4 +1,4 @@
-/* Refine o formulário "Novo Serviço" alterando a regra de 30% do CMV ideal para 20%, tal regra deverá ser aplicada somente para Tipos de serviço Spa dos Pés e Spa Facial, garanta persistência e principalmente, garanta que não haja quebras de outras funcionalidades. Os produtos de Revenda a serem cadastrados nos módulos "Receitas" e "Serviços" deverão utilizar para a base de cálculo a "Qtd/ml" e o valor/preço de custo. Módulo "Vendas" refinado para "Serviços e Venda de Produtos". */
+/* Módulo de Vendas refinado: no formulário "Venda de Produtos", a busca de serviços foi removida e substituída pela busca de produtos Natura/Avon via código (BuscarProdutoRevenda), permitindo o cadastro imediato de novos itens. As nomenclaturas foram adaptadas para o contexto de venda e serviço. */
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { getTodayISO, formatDateBR, parseISOToDate } from "@/lib/dateUtils";
@@ -45,6 +45,7 @@ import { supabase } from "@/integrations/supabase/client";
 import * as XLSX from '@/lib/xlsxShim';
 import { z } from 'zod';
 import { executarBaixaEstoqueEncomenda } from '@/hooks/useBaixaEstoqueEncomenda';
+import { BuscarProdutoRevenda } from "@/components/BuscarProdutoRevenda";
 
 const statusColors = {
   pendente: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -1183,31 +1184,49 @@ const Encomendas = () => {
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>Adicionar Produto</DialogTitle>
+                          <DialogTitle>{formMode === "servico" ? "Adicionar Serviço" : "Adicionar Produto"}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="produto-select">Produto *</Label>
-                            <Select
-                              value={produtoForm.receita_id}
-                              onValueChange={handleProdutoSelect}
-                            >
-                              <SelectTrigger className="bg-popover">
-                                <SelectValue placeholder="Selecione um produto..." />
-                              </SelectTrigger>
-                              <SelectContent className="bg-popover z-50">
-                                {receitas.filter(r => r.id && r.id.trim() !== "").map((receita) => (
-                                  <SelectItem key={receita.id} value={receita.id}>
-                                    {receita.nome}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            {formMode === "servico" ? (
+                              <>
+                                <Label htmlFor="produto-select">Serviço *</Label>
+                                <Select
+                                  value={produtoForm.receita_id}
+                                  onValueChange={handleProdutoSelect}
+                                >
+                                  <SelectTrigger className="bg-popover">
+                                    <SelectValue placeholder="Selecione um serviço..." />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-popover z-50">
+                                    {receitas.filter(r => r.id && r.id.trim() !== "").map((receita) => (
+                                      <SelectItem key={receita.id} value={receita.id}>
+                                        {receita.nome}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            ) : (
+                              <BuscarProdutoRevenda 
+                                label="Produto de Revenda (Natura / Avon) * — digite o código"
+                                onImportado={(insumo) => {
+                                  // Ao importar, preenchemos o formulário de produto
+                                  setProdutoForm({
+                                    receita_id: insumo.id, // Usamos o ID do ingrediente criado/encontrado
+                                    produto: insumo.tipo_insumo.descricao,
+                                    quantidade: "1",
+                                    unidade_medida: insumo.tipo_insumo.unidade_medida.sigla,
+                                    valor_unitario: insumo.preco_venda || 0,
+                                  });
+                                }}
+                              />
+                            )}
                           </div>
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="quantidade">Quantidade *</Label>
+                              <Label htmlFor="quantidade">{formMode === "servico" ? "Quantidade *" : "Quantidade na Venda *"}</Label>
                               <Input
                                 id="quantidade"
                                 type="number"
@@ -1225,7 +1244,7 @@ const Encomendas = () => {
                                 id="unidade-medida"
                                 type="text"
                                 disabled
-                                value={produtoForm.unidade_medida || "Selecione um produto"}
+                                value={produtoForm.unidade_medida || (formMode === "servico" ? "Selecione um serviço" : "Digite o código")}
                                 className="bg-muted"
                               />
                             </div>
@@ -1233,7 +1252,7 @@ const Encomendas = () => {
 
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                              <Label htmlFor="valor-unitario">Valor Unitário (R$)</Label>
+                              <Label htmlFor="valor-unitario">{formMode === "servico" ? "Valor Unitário (R$)" : "Preço de Venda (R$)"}</Label>
                               <Input
                                 id="valor-unitario"
                                 type="number"
