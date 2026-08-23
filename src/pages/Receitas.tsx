@@ -121,15 +121,23 @@ export default function Receitas() {
         </div>
       </div>
 
-      <div className="flex justify-start">
+      <div className="flex justify-between items-center">
         <Button
           onClick={() => {
             navigate("/precificacao/ficha-tecnica/nova");
           }}
           className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
         >
-
           <Plus className="mr-2 h-4 w-4" />Novo Serviço
+        </Button>
+
+        <Button
+          variant="outline"
+          onClick={() => navigate("/precificacao/tipos")}
+          className="border-sfb-terracota text-sfb-terracota hover:bg-sfb-terracota/10"
+        >
+          <ListChecks className="mr-2 h-4 w-4" />
+          Tipo de Serviço
         </Button>
       </div>
 

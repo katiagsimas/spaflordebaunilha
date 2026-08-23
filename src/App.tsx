@@ -83,6 +83,7 @@ import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
 import EstoqueMovimentacoes from "./pages/estoque/EstoqueMovimentacoes";
+import TiposServico from "./pages/TiposServico";
 import MeuSalario from "./pages/meu-salario/MeuSalario";
 
 import Propostas from "./pages/comercial/Propostas";
@@ -234,6 +235,7 @@ const App = () => (
           <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><ReceitasFicha /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/tipos" element={<ProtectedRoute><Layout><TiposServico /></Layout></ProtectedRoute>} />
           
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/cadastros" element={<ProtectedRoute><Layout><CadastrosHub /></Layout></ProtectedRoute>} />
