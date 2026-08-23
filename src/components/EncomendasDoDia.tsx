@@ -55,9 +55,9 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
     if (!user) return;
     const { data } = await supabase
       .from("encomendas")
-      .select("id, data_entrega, hora_entrega, valor, status, cliente")
+      .select("id, data_entrega, data_pedido, hora_entrega, valor, status, cliente")
       .eq("usuario_id", user.id)
-      .eq("data_entrega", hojeStr)
+      .or(`data_entrega.eq.${hojeStr},and(data_entrega.is.null,data_pedido.eq.${hojeStr})`)
       .neq("status", "cancelado")
       .order("hora_entrega", { ascending: true });
     setEncomendasDia(

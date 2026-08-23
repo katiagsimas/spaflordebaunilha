@@ -24,7 +24,7 @@ export function useEncomendasHoje() {
       .from("encomendas")
       .select("id", { count: "exact", head: true })
       .eq("usuario_id", user.id)
-      .eq("data_entrega", hoje)
+      .or(`data_entrega.eq.${hoje},and(data_entrega.is.null,data_pedido.eq.${hoje})`)
       .neq("status", "cancelado");
 
     setQuantidade(count || 0);
