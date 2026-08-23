@@ -10,7 +10,7 @@ interface Categoria {
   nome: string;
   ativo: boolean;
   padrao_sistema: boolean;
-  tipo: 'geral' | 'servico';
+  tipo: 'geral' | 'servico' | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -35,7 +35,7 @@ export function useCategorias(tipo: 'geral' | 'servico' = 'geral') {
 
 
       if (error) throw error;
-      return (data || []) as Categoria[];
+      return (data || []) as any[];
     },
     enabled: !!userId,
   });
