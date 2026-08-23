@@ -56,6 +56,11 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-4">
+      <div className="bg-sfb-baunilha p-3 rounded-lg border border-sfb-areia/50 mb-2">
+        <p className="text-xs text-sfb-cacau leading-relaxed">
+          Este produto será destinado ao catálogo da marca <strong>{marca.toUpperCase()}</strong>.
+        </p>
+      </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="codigo">Código</Label>

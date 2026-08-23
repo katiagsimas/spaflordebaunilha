@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Search, Tag } from "lucide-react";
+import { Search, Tag, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -11,6 +11,8 @@ import {
   ProdutoSemPrecoError,
   type InsumoImportado,
 } from "@/lib/produtoRevenda";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ProdutoRevendaForm } from "@/components/ProdutoRevendaForm";
 
 interface BuscarProdutoRevendaProps {
   onImportado: (insumo: InsumoImportado) => void;
@@ -28,6 +30,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
   const [codigo, setCodigo] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [semPreco, setSemPreco] = useState<{ marca: string; codigo: string; descricao: string } | null>(null);
+  const [modalNovoAberto, setModalNovoAberto] = useState(false);
 
   const buscar = async () => {
     if (!codigo.trim()) {
@@ -46,8 +49,12 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
     } catch (error: any) {
       if (error instanceof ProdutoSemPrecoError) {
         setSemPreco({ marca: error.marca, codigo: error.codigo, descricao: error.descricao });
+        toast.error(error.message);
+      } else if (error.message?.includes("não encontrado")) {
+        setModalNovoAberto(true);
+      } else {
+        toast.error(error.message || "Erro ao buscar produto de revenda");
       }
-      toast.error(error.message || "Erro ao buscar produto de revenda");
     } finally {
       setCarregando(false);
     }
@@ -96,6 +103,51 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
           </Button>
         </div>
       )}
+
+      <Dialog open={modalNovoAberto} onOpenChange={setModalNovoAberto}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Produto não encontrado</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-sfb-cacau">
+              O código <strong>{codigo}</strong> não foi localizado. Deseja cadastrá-lo agora?
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button 
+                variant="outline" 
+                className="border-sfb-areia text-sfb-cacau"
+                onClick={() => {
+                  setModalNovoAberto(false);
+                  navigate(`/precificacao/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}`);
+                }}
+              >
+                Cadastrar Natura
+              </Button>
+              <Button 
+                variant="outline" 
+                className="border-sfb-areia text-sfb-cacau"
+                onClick={() => {
+                  setModalNovoAberto(false);
+                  navigate(`/precificacao/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}`);
+                }}
+              >
+                Cadastrar Avon
+              </Button>
+            </div>
+            <div className="pt-2 border-t border-sfb-areia/30">
+              <ProdutoRevendaForm 
+                marca="natura" 
+                produto={{ codigo } as any} 
+                onSuccess={() => {
+                  setModalNovoAberto(false);
+                  buscar();
+                }} 
+              />
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <p className="text-xs text-muted-foreground">
         {hint || "Digite o código cadastrado em Serviços › Produtos para Revenda para trazer descrição, marca e valor automaticamente."}
