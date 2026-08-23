@@ -37,8 +37,8 @@ import Fornecedores from "./pages/cadastros/Fornecedores";
 import UnidadesMedida from "./pages/cadastros/UnidadesMedida";
 import Categorias from "./pages/cadastros/Categorias";
 
-import Receitas from "./pages/Receitas";
-import ReceitaForm from "./pages/ReceitaForm";
+import ReceitasFicha from "./pages/Receitas";
+import ReceitaFichaForm from "./pages/ReceitaForm";
 import Configuracoes from "./pages/Configuracoes";
 import ClientesFornecedores from "./pages/ClientesFornecedores";
 import TiposInsumos from "./pages/configuracoes/TiposInsumos";
@@ -51,8 +51,8 @@ import TagsEncomendasPage from "./pages/configuracoes/TagsEncomendas";
 import BackupPage from "./pages/configuracoes/Backup";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
-import PrePreparos from "./pages/precificacao/PrePreparos";
-import PrePreparoForm from "./pages/precificacao/PrePreparoForm";
+import Receitas from "./pages/precificacao/Receitas";
+import ReceitaForm from "./pages/precificacao/ReceitaForm";
 import Financeiro from "./pages/financeiro/Financeiro";
 import DashboardFinanceiro from "./pages/financeiro/DashboardFinanceiro";
 import ContasReceber from "./pages/financeiro/ContasReceber";
@@ -231,9 +231,9 @@ const App = () => (
           
           {/* Precificação - Página Container + Sub-rotas */}
           <Route path="/precificacao" element={<ProtectedRoute><Layout><Precificacao /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica" element={<ProtectedRoute><Layout><ReceitasFicha /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica/nova" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/ficha-tecnica/editar/:id" element={<ProtectedRoute><Layout><ReceitaFichaForm /></Layout></ProtectedRoute>} />
           
           {/* Configurações - Página Container + Sub-rotas */}
           <Route path="/cadastros" element={<ProtectedRoute><Layout><CadastrosHub /></Layout></ProtectedRoute>} />
@@ -269,13 +269,21 @@ const App = () => (
           <Route path="/precificacao/embalagens" element={<Navigate to="/cadastros/embalagens" replace />} />
 
           
-          {/* Pré-Preparos */}
-          <Route path="/cadastros/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
-          <Route path="/cadastros/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparos" element={<Navigate to="/cadastros/pre-preparos" replace />} />
-          <Route path="/precificacao/pre-preparos/novo" element={<Navigate to="/cadastros/pre-preparos/novo" replace />} />
-          <Route path="/precificacao/pre-preparos/:id" element={<Navigate to="/cadastros/pre-preparos/:id" replace />} />
+          {/* Receitas (antigo Pré-Preparos) */}
+          <Route path="/cadastros/receitas" element={<ProtectedRoute><Layout><Receitas /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/receitas/novo" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/receitas/:id" element={<ProtectedRoute><Layout><ReceitaForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/receitas" element={<Navigate to="/cadastros/receitas" replace />} />
+          <Route path="/precificacao/receitas/novo" element={<Navigate to="/cadastros/receitas/novo" replace />} />
+          <Route path="/precificacao/receitas/:id" element={<Navigate to="/cadastros/receitas/:id" replace />} />
+          
+          {/* Redirecionamentos de Pré-Preparos */}
+          <Route path="/cadastros/pre-preparos" element={<Navigate to="/cadastros/receitas" replace />} />
+          <Route path="/cadastros/pre-preparos/novo" element={<Navigate to="/cadastros/receitas/novo" replace />} />
+          <Route path="/cadastros/pre-preparos/:id" element={<Navigate to="/cadastros/receitas/:id" replace />} />
+          <Route path="/precificacao/pre-preparos" element={<Navigate to="/cadastros/receitas" replace />} />
+          <Route path="/precificacao/pre-preparos/novo" element={<Navigate to="/cadastros/receitas/novo" replace />} />
+          <Route path="/precificacao/pre-preparos/:id" element={<Navigate to="/cadastros/receitas/:id" replace />} />
           
           {/* Financeiro - Página Principal */}
           <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />

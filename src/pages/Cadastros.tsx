@@ -43,10 +43,10 @@ export default function Cadastros() {
       to: "/cadastros/produtos-revenda",
     },
     {
-      title: "Pré-Preparos",
-      description: "Bases e preparos usados em várias fichas técnicas",
+      title: "Receitas",
+      description: "Bases e receitas usadas em várias fichas técnicas",
       icon: FlaskConical,
-      to: "/cadastros/pre-preparos",
+      to: "/cadastros/receitas",
     },
   ];
 
