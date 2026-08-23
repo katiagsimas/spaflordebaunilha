@@ -24,12 +24,12 @@ export default function Receitas() {
   const { resumos, isLoading } = useCalculosReceita();
   const [dialogAberto, setDialogAberto] = useState(false);
   const [receitaParaDeletar, setReceitaParaDeletar] = useState<string | null>(null);
-  const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "fora">("todos");
+  const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "pausado">("todos");
 
   const resumosFiltrados = resumos.filter((resumo) => {
     if (filtroAtivo === "todos") return true;
     if (filtroAtivo === "ativos") return resumo.cardapio === "ativo";
-    if (filtroAtivo === "fora") return resumo.cardapio === "fora";
+    if (filtroAtivo === "pausado") return resumo.cardapio === "fora";
     return true;
   });
 
@@ -147,11 +147,11 @@ export default function Receitas() {
           className={filtroAtivo === "ativos" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
         >Ativos ({resumos.filter(r => r.cardapio === "ativo").length})</Button>
         <Button
-          variant={filtroAtivo === "fora" ? "default" : "outline"}
+          variant={filtroAtivo === "pausado" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFiltroAtivo("fora")}
-          className={filtroAtivo === "fora" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
-        >Fora do Cardápio ({resumos.filter(r => r.cardapio === "fora").length})</Button>
+          onClick={() => setFiltroAtivo("pausado")}
+          className={filtroAtivo === "pausado" ? "bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90" : "border-sfb-areia text-sfb-cacau hover:border-sfb-terracota hover:bg-sfb-baunilha"}
+        >Pausado ({resumos.filter(r => r.cardapio === "fora").length})</Button>
       </div>
 
       {resumosOrdenados.length === 0 ? (
@@ -182,7 +182,7 @@ export default function Receitas() {
                   <TableRow key={r.receitaId}>
                     <TableCell className="font-medium">{r.nome}</TableCell>
                     <TableCell>{r.categoria || "-"}</TableCell>
-                    <TableCell><Badge variant={r.cardapio === "ativo" ? "default" : "secondary"}>{r.cardapio === "ativo" ? "Ativo" : "Fora"}</Badge></TableCell>
+                    <TableCell><Badge variant={r.cardapio === "ativo" ? "default" : "secondary"}>{r.cardapio === "ativo" ? "Ativo" : "Pausado"}</Badge></TableCell>
                     <TableCell className="text-right">R$ {r.valorVenda.toFixed(2)}</TableCell>
                     <TableCell className="text-right">R$ {r.custosProducao.toFixed(2)}</TableCell>
                     <TableCell className={cn("text-right font-medium", r.cmvRealPercent <= 35 && "text-green-600", r.cmvRealPercent > 35 && r.cmvRealPercent <= 45 && "text-blue-600", r.cmvRealPercent > 45 && r.cmvRealPercent <= 55 && "text-yellow-600", r.cmvRealPercent > 55 && "text-red-600")}>{r.cmvRealPercent.toFixed(1)}%</TableCell>
