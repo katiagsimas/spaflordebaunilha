@@ -1,3 +1,4 @@
+/* Os produtos de Revenda a serem cadastrados nos módulos "Receitas" e "Serviços" deverão utilizar para a basede cálcullo a "Qtd/ml e o valor/preço de custo */
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
