@@ -1167,7 +1167,7 @@ export default function ReceitaForm() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
+        title={id ? "Editar Serviço" : "Novo Serviço"}
         description="Calcule Custos e Preços de Venda"
         backButton={<div />}
       />
@@ -1177,7 +1177,7 @@ export default function ReceitaForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="nome">Nome da Receita *</Label>
+              <Label htmlFor="nome">Nome do Serviço *</Label>
               <Input
                 id="nome"
                 value={formData.nome}
@@ -1202,7 +1202,7 @@ export default function ReceitaForm() {
                       <Button
                         variant="link"
                         className="p-0 h-auto"
-                        onClick={() => navigate("/configuracoes/categorias")}
+                        onClick={() => navigate("/precificacao/tipos")}
                       >
                         Habilitar agora
                       </Button>
@@ -1219,7 +1219,7 @@ export default function ReceitaForm() {
 
             <div className="flex items-end gap-2">
               <div className="flex-1">
-                <Label htmlFor="cardapio">Serviço</Label>
+                <Label htmlFor="cardapio">Status do Serviço</Label>
                 <Select
                   value={formData.cardapio}
                   onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
