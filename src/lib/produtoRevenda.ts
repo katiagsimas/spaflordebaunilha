@@ -98,10 +98,12 @@ export async function importarProdutoRevendaComoInsumo(
   }
 
 
-  // Tentar extrair valor numérico e unidade da string quantidade_ml (ex: "100ml", "500g", "1kg")
-  const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)\s*([a-zA-Záàâãéèêíïóôõöúç]+)/i);
-  const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[1].replace(',', '.')) : 1;
-  const siglaUnidade = qtdMatch ? qtdMatch[3].toLowerCase() : 'un';
+  // Tentar extrair valor numérico e unidade da string quantidade_ml (ex: "100ml", "500g", "1kg", "100")
+  const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)/);
+  const unitMatch = produto.quantidade_ml?.match(/([a-zA-Záàâãéèêíïóôõöúç]+)/);
+  
+  const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[0].replace(',', '.')) : 1;
+  const siglaUnidade = unitMatch ? unitMatch[0].toLowerCase() : 'un';
   const nomeUnidade = siglaUnidade === 'ml' ? 'Mililitros' : 
                       siglaUnidade === 'g' ? 'Gramas' : 
                       siglaUnidade === 'kg' ? 'Quilos' : 'Unidades';
