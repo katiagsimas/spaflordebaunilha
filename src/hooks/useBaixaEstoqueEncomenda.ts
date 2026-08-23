@@ -6,8 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
  *
  * Estratégia em batch:
  * 1. Busca itens da encomenda;
- * 2. Busca em paralelo receitas_ingredientes e receitas_embalagens (in receita_ids);
- * 3. Busca em paralelo estoque de todos os ingrediente_ids e embalagem_ids únicos;
+ * 2. Busca em paralelo receitas_insumos e receitas_embalagens (in receita_ids);
+ * 3. Busca em paralelo estoque de todos os insumo_ids e embalagem_ids únicos;
  * 4. Calcula deduções em memória, acumulando updates e movimentações;
  * 5. Persiste updates e insert de movimentações em batch.
  */
@@ -110,7 +110,7 @@ export async function executarBaixaEstoqueEncomenda(
     });
     const nomePorIngrediente = new Map<string, string>();
     (nomesIngRes.data || []).forEach((i: any) => {
-      nomePorIngrediente.set(i.id, i?.tipos_insumos?.descricao || 'Ingrediente');
+      nomePorIngrediente.set(i.id, i?.tipos_insumos?.descricao || 'Insumo');
     });
     const nomePorEmbalagem = new Map<string, string>();
     (nomesEmbRes.data || []).forEach((e: any) => {
@@ -145,7 +145,7 @@ export async function executarBaixaEstoqueEncomenda(
         ? estoquePorIngrediente.get(insumoId)
         : estoquePorEmbalagem.get(insumoId);
       const nome = tipo === 'ingrediente'
-        ? (nomePorIngrediente.get(insumoId) || 'Ingrediente')
+        ? (nomePorIngrediente.get(insumoId) || 'Insumo')
         : (nomePorEmbalagem.get(insumoId) || 'Embalagem');
 
       if (!estoqueItem) {
