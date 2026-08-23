@@ -205,7 +205,7 @@ export function useEstoque() {
         const { error } = await (supabase.from('estoque' as any) as any)
           .update({
             quantidade_atual: novaQtd,
-            custo_medio: Math.round(novoCustoMedio * 100) / 100,
+            custo_medio: novoCustoMedio,
           })
           .eq('id', existing.id);
 
@@ -219,7 +219,7 @@ export function useEstoque() {
           ingrediente_id: params.ingrediente_id || null,
           embalagem_id: params.embalagem_id || null,
           quantidade_atual: params.quantidade,
-          custo_medio: Math.round(custoUnitario * 100) / 100,
+          custo_medio: custoUnitario,
         };
 
         const { data: created, error } = await (supabase.from('estoque' as any) as any)
@@ -238,7 +238,7 @@ export function useEstoque() {
           owner_group_id: activeGroupId,
           tipo_movimentacao: 'entrada',
           quantidade: params.quantidade,
-          custo_unitario: Math.round(custoUnitario * 100) / 100,
+          custo_unitario: custoUnitario,
           custo_total: Math.round(params.custo_total * 100) / 100,
           observacao: params.observacao || null,
         });
