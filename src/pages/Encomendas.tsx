@@ -1183,26 +1183,44 @@ const Encomendas = () => {
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
                         <DialogHeader>
-                          <DialogTitle>Adicionar Produto</DialogTitle>
+                          <DialogTitle>{formMode === "servico" ? "Adicionar Serviço" : "Adicionar Produto"}</DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="produto-select">Produto *</Label>
-                            <Select
-                              value={produtoForm.receita_id}
-                              onValueChange={handleProdutoSelect}
-                            >
-                              <SelectTrigger className="bg-popover">
-                                <SelectValue placeholder="Selecione um produto..." />
-                              </SelectTrigger>
-                              <SelectContent className="bg-popover z-50">
-                                {receitas.filter(r => r.id && r.id.trim() !== "").map((receita) => (
-                                  <SelectItem key={receita.id} value={receita.id}>
-                                    {receita.nome}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            {formMode === "servico" ? (
+                              <>
+                                <Label htmlFor="produto-select">Serviço *</Label>
+                                <Select
+                                  value={produtoForm.receita_id}
+                                  onValueChange={handleProdutoSelect}
+                                >
+                                  <SelectTrigger className="bg-popover">
+                                    <SelectValue placeholder="Selecione um serviço..." />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-popover z-50">
+                                    {receitas.filter(r => r.id && r.id.trim() !== "").map((receita) => (
+                                      <SelectItem key={receita.id} value={receita.id}>
+                                        {receita.nome}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            ) : (
+                              <BuscarProdutoRevenda 
+                                label="Produto de Revenda (Natura / Avon) * — digite o código"
+                                onImportado={(insumo) => {
+                                  // Ao importar, preenchemos o formulário de produto
+                                  setProdutoForm({
+                                    receita_id: insumo.id, // Usamos o ID do ingrediente criado/encontrado
+                                    produto: insumo.tipo_insumo.descricao,
+                                    quantidade: "1",
+                                    unidade_medida: insumo.tipo_insumo.unidade_medida.sigla,
+                                    valor_unitario: insumo.preco_venda || 0,
+                                  });
+                                }}
+                              />
+                            )}
                           </div>
 
                           <div className="grid gap-4 md:grid-cols-2">
