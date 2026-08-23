@@ -587,10 +587,10 @@ export default function Ingredientes() {
   return <div className="space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <BackButton to="/precificacao" />
+          <BackButton to="/cadastros" />
           <Button
             variant="ghost"
-            onClick={() => navigate('/precificacao/embalagens')}
+            onClick={() => navigate('/cadastros/embalagens')}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
             Embalagens
