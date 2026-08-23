@@ -2090,6 +2090,7 @@ export type Database = {
           marca: string | null
           owner_group_id: string | null
           preco: number
+          preco_venda: number | null
           tipo_insumo_id: string
           updated_at: string | null
           usuario_id: string
@@ -2103,6 +2104,7 @@ export type Database = {
           marca?: string | null
           owner_group_id?: string | null
           preco: number
+          preco_venda?: number | null
           tipo_insumo_id: string
           updated_at?: string | null
           usuario_id: string
@@ -2116,6 +2118,7 @@ export type Database = {
           marca?: string | null
           owner_group_id?: string | null
           preco?: number
+          preco_venda?: number | null
           tipo_insumo_id?: string
           updated_at?: string | null
           usuario_id?: string
@@ -2590,6 +2593,7 @@ export type Database = {
           marca: string
           owner_group_id: string | null
           preco: number
+          preco_venda: number | null
           quantidade_ml: string | null
           quantidade_pontos: number | null
           status: string | null
@@ -2606,6 +2610,7 @@ export type Database = {
           marca: string
           owner_group_id?: string | null
           preco?: number
+          preco_venda?: number | null
           quantidade_ml?: string | null
           quantidade_pontos?: number | null
           status?: string | null
@@ -2622,6 +2627,7 @@ export type Database = {
           marca?: string
           owner_group_id?: string | null
           preco?: number
+          preco_venda?: number | null
           quantidade_ml?: string | null
           quantidade_pontos?: number | null
           status?: string | null
@@ -2912,6 +2918,7 @@ export type Database = {
           modo_preparo: string | null
           nome: string
           owner_group_id: string | null
+          preco_venda: number | null
           rendimento: number
           tempo_preparo: number
           tipo: string | null
@@ -2930,6 +2937,7 @@ export type Database = {
           modo_preparo?: string | null
           nome: string
           owner_group_id?: string | null
+          preco_venda?: number | null
           rendimento: number
           tempo_preparo: number
           tipo?: string | null
@@ -2948,6 +2956,7 @@ export type Database = {
           modo_preparo?: string | null
           nome?: string
           owner_group_id?: string | null
+          preco_venda?: number | null
           rendimento?: number
           tempo_preparo?: number
           tipo?: string | null
