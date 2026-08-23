@@ -82,7 +82,6 @@ export default function PlanoContas() {
       const { data: dataCategorias, error: errorCat } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .eq('user_id', user.id)
         .eq('ativo', true)
         .order('ordem');
 
