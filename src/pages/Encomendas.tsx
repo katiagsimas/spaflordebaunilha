@@ -1540,19 +1540,6 @@ const Encomendas = () => {
                     />
                   </div>
 
-                  {/* Seção de Tags */}
-                  <EncomendaTagsSection 
-                    tagsDisponiveis={tagsDisponiveis}
-                    tagsSelecionadas={tagsSelecionadas}
-                    onTagToggle={(tag) => {
-                      const selecionada = tagsSelecionadas.find(t => t.id === tag.id);
-                      if (selecionada) {
-                        setTagsSelecionadas(tagsSelecionadas.filter(t => t.id !== tag.id));
-                      } else {
-                        setTagsSelecionadas([...tagsSelecionadas, tag]);
-                      }
-                    }}
-                  />
 
                   <div className="flex gap-2 justify-end">
                   <Button
