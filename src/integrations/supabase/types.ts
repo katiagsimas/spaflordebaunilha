@@ -2422,13 +2422,13 @@ export type Database = {
           id: string
           imagem_1_url: string | null
           imagem_2_url: string | null
-          modo_preparo: string | null
+          modo_receita: string | null
           nome: string
           owner_group_id: string | null
           rendimento_quantidade: number
           rendimento_unidade_id: string
-          tempo_preparo: number
-          tempo_preparo_unidade: string
+          tempo_receita: number
+          tempo_receita_unidade: string
           updated_at: string | null
           usuario_id: string
         }
@@ -2440,13 +2440,13 @@ export type Database = {
           id?: string
           imagem_1_url?: string | null
           imagem_2_url?: string | null
-          modo_preparo?: string | null
+          modo_receita?: string | null
           nome: string
           owner_group_id?: string | null
           rendimento_quantidade: number
           rendimento_unidade_id: string
-          tempo_preparo: number
-          tempo_preparo_unidade: string
+          tempo_receita: number
+          tempo_receita_unidade: string
           updated_at?: string | null
           usuario_id: string
         }
@@ -2458,13 +2458,13 @@ export type Database = {
           id?: string
           imagem_1_url?: string | null
           imagem_2_url?: string | null
-          modo_preparo?: string | null
+          modo_receita?: string | null
           nome?: string
           owner_group_id?: string | null
           rendimento_quantidade?: number
           rendimento_unidade_id?: string
-          tempo_preparo?: number
-          tempo_preparo_unidade?: string
+          tempo_receita?: number
+          tempo_receita_unidade?: string
           updated_at?: string | null
           usuario_id?: string
         }

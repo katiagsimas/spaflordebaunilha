@@ -119,8 +119,10 @@ export default function Receitas() {
     }
   };
 
-  const formatarTempo = (tempo: number, unidade: string) => {
-    return `${tempo} ${unidade}`;
+  const formatarTempo = (tempo: any, unidade: any) => {
+    if (tempo === undefined || tempo === null) return "—";
+    const unit = unidade || "minutos";
+    return `${tempo} ${unit}`;
   };
 
   const formatarPreco = (preco: number) => {
