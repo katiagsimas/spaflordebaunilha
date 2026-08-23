@@ -819,15 +819,20 @@ export default function ReceitaForm() {
   const percentualCMV = valorVenda > 0 ? (cmv / valorVenda) * 100 : 0;
   
   // Sugestões de venda com diferentes CMVs
-  const sugestoesCMV = [
-    { cmv: 30, valorVenda: custoTotal > 0 ? custoTotal / 0.30 : 0 },
-    { cmv: 40, valorVenda: custoTotal > 0 ? custoTotal / 0.40 : 0 },
-    { cmv: 50, valorVenda: custoTotal > 0 ? custoTotal / 0.50 : 0 },
-  ].map(sugestao => ({
-    ...sugestao,
-    margemContribuicao: sugestao.valorVenda - custoTotal,
-    percentualMargem: sugestao.valorVenda > 0 ? ((sugestao.valorVenda - custoTotal) / sugestao.valorVenda) * 100 : 0,
-  }));
+    const sugestoesCMV = (() => {
+      const isServicoEspecial = formData.categoria === "Spa dos Pés" || formData.categoria === "Spa Facial";
+      const cmvIdeal = isServicoEspecial ? 20 : 30;
+      
+      return [
+        { cmv: cmvIdeal, valorVenda: custoTotal > 0 ? custoTotal / (cmvIdeal / 100) : 0 },
+        { cmv: 40, valorVenda: custoTotal > 0 ? custoTotal / 0.40 : 0 },
+        { cmv: 50, valorVenda: custoTotal > 0 ? custoTotal / 0.50 : 0 },
+      ].map(sugestao => ({
+        ...sugestao,
+        margemContribuicao: sugestao.valorVenda - custoTotal,
+        percentualMargem: sugestao.valorVenda > 0 ? ((sugestao.valorVenda - custoTotal) / sugestao.valorVenda) * 100 : 0,
+      }));
+    })();
   
   // Margem de contribuição
   const margemContribuicao = valorVenda - cmv;
@@ -1874,7 +1879,7 @@ export default function ReceitaForm() {
                     <CardAnalise
                       valor={percentualCMV}
                       tipo="percentual"
-                      thresholds={{ bom: 35, ok: 45 }}
+                      thresholds={formData.categoria === "Spa dos Pés" || formData.categoria === "Spa Facial" ? { bom: 25, ok: 35 } : { bom: 35, ok: 45 }}
                       direcao="abaixo_e_melhor"
                       titulo="📊 CMV Real"
                       mensagens={{
@@ -1892,7 +1897,9 @@ export default function ReceitaForm() {
                       descricoes={{
                         bom: 'Sua margem de lucro está ótima. Com esse CMV, você terá uma boa margem para cobrir despesas operacionais e ainda gerar lucro.',
                         ok: 'Seu CMV está na faixa aceitável, mas há espaço para otimização. Considere revisar custos de ingredientes ou ajustar o preço de venda para aumentar sua margem.',
-                        ruim: 'CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.',
+                        ruim: (formData.categoria === "Spa dos Pés" || formData.categoria === "Spa Facial") 
+                          ? 'CMV acima de 35% pode comprometer sua lucratividade em serviços premium! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.'
+                          : 'CMV acima de 45% pode comprometer sua lucratividade! Riscos: pouca margem para despesas operacionais, dificuldade em cobrir custos fixos, vulnerabilidade a variações de preço. Recomenda-se: renegociar preços com fornecedores, otimizar receita ou aumentar preço de venda.',
                       }}
                     />
 
@@ -1900,7 +1907,7 @@ export default function ReceitaForm() {
                       valor={percentualMargemContribuicao}
                       tipo="reais"
                       valorDisplay={margemContribuicao}
-                      thresholds={{ bom: 65, ok: 55 }}
+                      thresholds={formData.categoria === "Spa dos Pés" || formData.categoria === "Spa Facial" ? { bom: 75, ok: 65 } : { bom: 65, ok: 55 }}
                       direcao="acima_e_melhor"
                       titulo="💵 Margem de Contribuição"
                       mensagens={{
