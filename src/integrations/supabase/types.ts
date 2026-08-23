@@ -289,6 +289,7 @@ export type Database = {
           nome: string
           owner_group_id: string | null
           padrao_sistema: boolean | null
+          tipo: string | null
           updated_at: string
           usuario_id: string
         }
@@ -299,6 +300,7 @@ export type Database = {
           nome: string
           owner_group_id?: string | null
           padrao_sistema?: boolean | null
+          tipo?: string | null
           updated_at?: string
           usuario_id: string
         }
@@ -309,6 +311,7 @@ export type Database = {
           nome?: string
           owner_group_id?: string | null
           padrao_sistema?: boolean | null
+          tipo?: string | null
           updated_at?: string
           usuario_id?: string
         }
