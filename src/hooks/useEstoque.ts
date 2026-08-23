@@ -62,7 +62,7 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
       .in('id', ingredienteIds) as any;
     (ingredientes || []).forEach((ing: any) => {
       ingredientesMap[ing.id] = {
-        nome: ing.tipos_insumos?.descricao || 'Ingrediente',
+        nome: ing.tipos_insumos?.descricao || 'Insumo',
         unidade: ing.tipos_insumos?.unidades_medida?.sigla || '',
         unidade_medida_id: ing.tipos_insumos?.unidade_medida_id || '',
         tipo_insumo_id: ing.tipo_insumo_id || '',
@@ -93,7 +93,7 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
   return items.map(item => ({
     ...item,
     nome_insumo: item.tipo === 'ingrediente'
-      ? ingredientesMap[item.ingrediente_id]?.nome || 'Ingrediente'
+      ? ingredientesMap[item.ingrediente_id]?.nome || 'Insumo'
       : embalagensMap[item.embalagem_id]?.nome || 'Embalagem',
     unidade: item.tipo === 'ingrediente'
       ? ingredientesMap[item.ingrediente_id]?.unidade || ''
