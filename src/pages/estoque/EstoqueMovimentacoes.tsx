@@ -72,7 +72,7 @@ export default function EstoqueMovimentacoes() {
         title="Movimentações de Estoque"
         description="Histórico completo de entradas, saídas e ajustes"
         backButton={<BackButton to="/estoque" />}
-        action={
+        actions={
           <div className="flex gap-2">
             <Button
               onClick={() => navigate('/estoque/entrada')}
