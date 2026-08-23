@@ -736,7 +736,7 @@ export default function PrePreparoForm() {
         description: isEditMode ? 'Pré-preparo atualizado!' : 'Pré-preparo cadastrado!',
       });
 
-      navigate('/precificacao/pre-preparos');
+      navigate('/cadastros/pre-preparos');
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       toast({
@@ -760,7 +760,7 @@ export default function PrePreparoForm() {
     <div className="container mx-auto px-6 pt-1 pb-6 space-y-6 max-w-5xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/precificacao/pre-preparos')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/cadastros/pre-preparos')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>

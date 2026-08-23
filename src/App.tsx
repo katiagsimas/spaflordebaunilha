@@ -270,9 +270,12 @@ const App = () => (
 
           
           {/* Pré-Preparos */}
-          <Route path="/precificacao/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
-          <Route path="/precificacao/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/pre-preparos" element={<ProtectedRoute><Layout><PrePreparos /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/pre-preparos/novo" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/pre-preparos/:id" element={<ProtectedRoute><Layout><PrePreparoForm /></Layout></ProtectedRoute>} />
+          <Route path="/precificacao/pre-preparos" element={<Navigate to="/cadastros/pre-preparos" replace />} />
+          <Route path="/precificacao/pre-preparos/novo" element={<Navigate to="/cadastros/pre-preparos/novo" replace />} />
+          <Route path="/precificacao/pre-preparos/:id" element={<Navigate to="/cadastros/pre-preparos/:id" replace />} />
           
           {/* Financeiro - Página Principal */}
           <Route path="/financeiro" element={<ProtectedRoute><Layout><Financeiro /></Layout></ProtectedRoute>} />

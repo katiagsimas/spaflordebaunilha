@@ -257,7 +257,7 @@ export default function PrePreparos() {
     <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
-          <BackButton to="/precificacao" />
+          <BackButton to="/cadastros" />
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -304,7 +304,7 @@ export default function PrePreparos() {
       </Alert>
 
       <div className="flex justify-start">
-        <Button onClick={() => navigate('/precificacao/pre-preparos/novo')} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
+        <Button onClick={() => navigate('/cadastros/pre-preparos/novo')} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
           <Plus className="mr-2 h-4 w-4" />
           Criar Novo Pré-Preparo
         </Button>
@@ -316,7 +316,7 @@ export default function PrePreparos() {
           title="Nenhum pré-preparo cadastrado"
           description="Crie seus pré-preparos para otimizar a produção e calcular custos de forma precisa"
           actionLabel="Criar novo Pré-Preparo"
-          onAction={() => navigate('/precificacao/pre-preparos/novo')}
+          onAction={() => navigate('/cadastros/pre-preparos/novo')}
         />
       ) : (
         <div className="border rounded-lg">
@@ -359,7 +359,7 @@ export default function PrePreparos() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                          onClick={() => navigate(`/precificacao/pre-preparos/${preparo.id}`)}
+                          onClick={() => navigate(`/cadastros/pre-preparos/${preparo.id}`)}
                         >
                           <Edit className="mr-2 h-4 w-4" />
                           Editar
