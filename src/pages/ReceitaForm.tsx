@@ -1209,20 +1209,22 @@ export default function ReceitaForm() {
                   </SelectContent>
                 </Select>
               </div>
-              
-              {ingredientes.length === 1 && ingredientes[0].quantidadeUtilizada === Number(formData.rendimento) && (
-                <div className="flex items-center space-x-2 pb-3">
-                  <Checkbox 
-                    id="sincronizarGlobal" 
-                    checked={(formData as any).sincronizarGlobal}
-                    onCheckedChange={(checked) => setFormData({ ...formData, sincronizarGlobal: !!checked } as any)}
-                  />
-                  <Label htmlFor="sincronizarGlobal" className="text-xs cursor-pointer text-sfb-cacau/70 leading-none">
-                    Sincronizar preço global?
-                  </Label>
-                </div>
-              )}
+              <div className="flex items-center space-x-2 pt-1 min-h-[40px]">
+                {ingredientes.length === 1 && ingredientes[0].quantidadeUtilizada === Number(formData.rendimento) && (
+                  <>
+                    <Checkbox 
+                      id="sincronizarGlobal" 
+                      checked={(formData as any).sincronizarGlobal}
+                      onCheckedChange={(checked) => setFormData({ ...formData, sincronizarGlobal: !!checked } as any)}
+                    />
+                    <Label htmlFor="sincronizarGlobal" className="text-xs cursor-pointer text-sfb-cacau/70 leading-none">
+                      Sincronizar preço global?
+                    </Label>
+                  </>
+                )}
+              </div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="rendimento">Rendimento *</Label>
