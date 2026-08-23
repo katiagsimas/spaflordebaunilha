@@ -29,9 +29,10 @@ export function useCategorias(tipo: 'geral' | 'servico' = 'geral') {
       const { data, error } = await supabase
         .from('categorias')
         .select('*')
-        .eq('usuario_id', userId)
+        .eq('usuario_id', userId as string)
         .eq('tipo', tipo)
         .order('nome');
+
 
 
       if (error) throw error;
