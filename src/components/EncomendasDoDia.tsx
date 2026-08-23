@@ -198,7 +198,7 @@ export function EncomendasDoDia({ onNovaEncomenda }: { onNovaEncomenda?: () => v
                   className="mt-5 gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha shadow-md transition hover:bg-sfb-terracota/90 tracking-[0.16em] text-xs uppercase"
                 >
                   <Plus className="h-4 w-4" />
-                  Nova Encomenda
+                  Novo Serviço
                 </Button>
               )}
             </div>
