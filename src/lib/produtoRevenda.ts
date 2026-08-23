@@ -60,14 +60,14 @@ export async function buscarProdutoRevendaPorCodigo(codigo: string, userId: stri
 }
 
 /**
- * Garante que exista uma unidade de medida "un" para o usuário e retorna seu id.
+ * Garante que exista uma unidade de medida específica para o usuário e retorna seu id.
  */
-async function garantirUnidadeUn(userId: string, groupId: string) {
+async function garantirUnidade(sigla: string, nome: string, userId: string, groupId: string) {
   const { data: existente } = await supabase
     .from('unidades_medida')
     .select('id, nome, sigla')
     .eq('usuario_id', userId)
-    .eq('sigla', 'un')
+    .eq('sigla', sigla.toLowerCase())
     .limit(1)
     .maybeSingle();
 
@@ -75,7 +75,7 @@ async function garantirUnidadeUn(userId: string, groupId: string) {
 
   const { data, error } = await supabase
     .from('unidades_medida')
-    .insert({ usuario_id: userId, owner_group_id: groupId, nome: 'Unidades', sigla: 'un', ativo: true })
+    .insert({ usuario_id: userId, owner_group_id: groupId, nome, sigla: sigla.toLowerCase(), ativo: true })
     .select('id, nome, sigla')
     .single();
 
