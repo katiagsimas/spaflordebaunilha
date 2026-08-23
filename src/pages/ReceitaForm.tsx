@@ -2032,3 +2032,4 @@ export default function ReceitaForm() {
     </div>
   );
 }
+
