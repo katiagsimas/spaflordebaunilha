@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCategorias } from "@/hooks/useCategorias";
-import { Tag, Search, Filter, Download, Plus, MoreVertical, Edit2, Trash2 } from "lucide-react";
+import { Tag, Search, Filter, Download, Plus, MoreVertical, Edit2, Trash2, ChevronLeft, ChevronRight, ArrowUpDown, LayoutList } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from '@/lib/xlsxShim';
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
@@ -35,7 +35,11 @@ export default function Categorias() {
   // Filtros
   const [termoBusca, setTermoBusca] = useState('');
   const [filtroStatus, setFiltroStatus] = useState('todos');
-  const [resultadosPorPagina, setResultadosPorPagina] = useState('todos');
+  const [resultadosPorPagina, setResultadosPorPagina] = useState('10');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [ordenacao, setOrdenacao] = useState<{ campo: 'nome' | 'ativo'; direcao: 'asc' | 'desc' }>({ campo: 'nome', direcao: 'asc' });
+  const [isRelatorioOpen, setIsRelatorioOpen] = useState(false);
+
 
   // Estado do Modal
   const [modalAberto, setModalAberto] = useState(false);
@@ -78,25 +82,44 @@ export default function Categorias() {
       resultado = resultado.filter(c => c.ativo === ativo);
     }
 
-    // Ordenar: habilitadas primeiro, depois por nome
+    // Ordenar
     resultado.sort((a, b) => {
-      if (a.ativo === b.ativo) {
-        return a.nome.localeCompare(b.nome);
+      let comparacao = 0;
+      if (ordenacao.campo === 'nome') {
+        comparacao = a.nome.localeCompare(b.nome);
+      } else if (ordenacao.campo === 'ativo') {
+        comparacao = a.ativo === b.ativo ? 0 : a.ativo ? -1 : 1;
       }
-      return a.ativo ? -1 : 1;
+      return ordenacao.direcao === 'asc' ? comparacao : -comparacao;
     });
 
     return resultado;
-  }, [categorias, termoBusca, filtroStatus]);
+  }, [categorias, termoBusca, filtroStatus, ordenacao]);
 
   // Aplicar paginação
+  const totalItems = categoriasFiltradas.length;
+  const itemsPerPage = resultadosPorPagina === 'todos' ? totalItems : parseInt(resultadosPorPagina);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  
   const categoriasPaginadas = useMemo(() => {
     if (resultadosPorPagina === 'todos') {
       return categoriasFiltradas;
     }
-    const limite = parseInt(resultadosPorPagina);
-    return categoriasFiltradas.slice(0, limite);
-  }, [categoriasFiltradas, resultadosPorPagina]);
+    const start = (currentPage - 1) * itemsPerPage;
+    return categoriasFiltradas.slice(start, start + itemsPerPage);
+  }, [categoriasFiltradas, currentPage, itemsPerPage, resultadosPorPagina]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [termoBusca, filtroStatus, resultadosPorPagina]);
+
+  const toggleOrdenacao = (campo: 'nome' | 'ativo') => {
+    setOrdenacao(prev => ({
+      campo,
+      direcao: prev.campo === campo && prev.direcao === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
 
   const handleExportar = () => {
     try {
@@ -182,10 +205,20 @@ export default function Categorias() {
         description="Gerencie as categorias dos seus itens e produtos"
         backButton={<BackButton to="/cadastros" />}
         actions={
-          <Button onClick={() => handleAbrirModal()} className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-white gap-2">
-            <Plus className="h-4 w-4" />
-            Nova Categoria
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsRelatorioOpen(true)}
+              className="border-sfb-terracota text-sfb-terracota hover:bg-sfb-terracota/10 gap-2"
+            >
+              <LayoutList className="h-4 w-4" />
+              Relatório
+            </Button>
+            <Button onClick={() => handleAbrirModal()} className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-white gap-2">
+              <Plus className="h-4 w-4" />
+              Nova Categoria
+            </Button>
+          </div>
         }
       />
 
@@ -281,8 +314,24 @@ export default function Categorias() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Categoria</TableHead>
-                    <TableHead className="w-[150px] text-center">Status</TableHead>
+                    <TableHead 
+                      className="cursor-pointer hover:text-sfb-terracota transition-colors"
+                      onClick={() => toggleOrdenacao('nome')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Categoria
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </TableHead>
+                    <TableHead 
+                      className="w-[150px] text-center cursor-pointer hover:text-sfb-terracota transition-colors"
+                      onClick={() => toggleOrdenacao('ativo')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Status
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </TableHead>
                     <TableHead className="w-[80px] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -336,8 +385,41 @@ export default function Categorias() {
                 </TableBody>
               </Table>
             )}
+
+            {/* Paginação */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm text-muted-foreground">
+                  Página <strong>{currentPage}</strong> de <strong>{totalPages}</strong>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronLeft className="h-4 w-4 mr-1" /> Anterior
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Próximo <ChevronRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
+
+        {/* Modal Relatório Consolidação */}
+        <RelatorioCategorias 
+          open={isRelatorioOpen} 
+          onOpenChange={setIsRelatorioOpen} 
+        />
 
         {/* Modal de Cadastro/Edição */}
         <Dialog open={modalAberto} onOpenChange={setModalAberto}>
