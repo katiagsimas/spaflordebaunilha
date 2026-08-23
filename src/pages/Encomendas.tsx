@@ -242,8 +242,9 @@ const Encomendas = () => {
     }).length;
 
     const paraAmanha = encomendasPendentes.filter((e) => {
-      if (!e.data_entrega) return false;
-      return isTomorrow(parseISOToDate(e.data_entrega));
+      const dataRef = e.data_entrega || e.data_pedido;
+      if (!dataRef) return false;
+      return isTomorrow(parseISOToDate(dataRef));
     }).length;
 
     const paraEstaSemana = encomendasPendentes.filter((e) => {
