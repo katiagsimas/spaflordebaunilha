@@ -11,6 +11,7 @@ import {
   AlertTriangle, 
   Plus, 
   SlidersHorizontal, 
+  ArrowDownUp, 
   Search, 
   CalendarDays, 
   Coins, 
@@ -136,7 +137,7 @@ export default function EstoqueDashboard() {
           onClick={() => navigate('/estoque/movimentacoes')}
           className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
-          <Search className="h-4 w-4" /> Movimentações
+          <ArrowDownUp className="h-4 w-4" /> Ver Histórico
         </Button>
       </div>
 
