@@ -249,11 +249,11 @@ export default function ReceitaForm() {
 
       setNome(data.nome);
       setCategoriaId(data.categoria_id || '');
-      setTempoReceita((data as any).tempo_receita?.toString() || '0');
-      setTempoUnidade((data as any).tempo_receita_unidade || 'minutos');
+      setTempoReceita((data as any).tempo_receita?.toString() || (data as any).tempo_preparo?.toString() || '0');
+      setTempoUnidade((data as any).tempo_receita_unidade || (data as any).tempo_preparo_unidade || 'minutos');
       setRendimentoQtd(data.rendimento_quantidade?.toString() || '1');
       setRendimentoUnidadeId(data.rendimento_unidade_id);
-      setModoReceita((data as any).modo_receita || '');
+      setModoReceita((data as any).modo_receita || (data as any).modo_preparo || '');
       setImagem1Preview(data.imagem_1_url || '');
       setImagem2Preview(data.imagem_2_url || '');
 
