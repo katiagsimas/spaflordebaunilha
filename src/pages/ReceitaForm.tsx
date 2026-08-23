@@ -1109,6 +1109,10 @@ export default function ReceitaForm() {
     // Atualiza a lista de ingredientes cadastrados para o popover
     await fetchDados();
 
+    // Notificar sucesso (específico para cadastro via modal legado)
+    toast.success("Insumo cadastrado com sucesso!");
+
+
     const novoIngrediente: IngredienteReceita = {
       id: `ing-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       ingredienteId: data.id,
@@ -1135,6 +1139,10 @@ export default function ReceitaForm() {
     
     // Atualiza a lista de embalagens cadastradas para o popover
     await fetchDados();
+
+    // Notificar sucesso (específico para cadastro via modal legado)
+    toast.success("Embalagem cadastrada com sucesso!");
+
 
     const novaEmbalagem: EmbalagemReceita = {
       id: `emb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
