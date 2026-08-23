@@ -1190,7 +1190,8 @@ export default function ReceitaForm() {
               )}
             </div>
 
-            <div></div>
+            <div>
+
 
                 <Label htmlFor="rendimento">Rendimento *</Label>
                 <Input
