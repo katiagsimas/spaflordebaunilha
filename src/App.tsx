@@ -1,4 +1,4 @@
-<div>Refine o formulário "Novo Serviço" alterando a regra de 30% do CMV ideal para 20%, tal regra deverá ser aplicada somente para Tipos de serviço Spa dos Pés e Spa Facial, garanta persistência e principalmente, garanta que não haja quebras de outras funcionalidades</div>
+<div>Altere a quantidade da embalagem "Protetor de Bacia" para 100, no sub=módulo "Embalagens" do módulo "Cadastros", garanta persistência e garanta principalmente que não haja quebras nas demais funcionalidades</div>
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
