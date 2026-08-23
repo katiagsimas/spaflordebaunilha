@@ -24,6 +24,7 @@ export interface ResumoReceita {
   margemReais: number;
   margemPercent: number;
   lucro: number;
+  precoVendaManual: number;
   alertas: string;
 }
 
@@ -188,6 +189,7 @@ export function useCalculosReceita() {
           margemReais,
           margemPercent,
           lucro,
+          precoVendaManual: receita.preco_venda || 0,
           alertas: alertas.join(" | "),
         };
       });
