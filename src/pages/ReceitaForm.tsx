@@ -1626,7 +1626,7 @@ export default function ReceitaForm() {
                   <Textarea
                     value={modoPreparo}
                     onChange={(e) => setModoPreparo(e.target.value)}
-                    placeholder="Descreva o passo a passo do preparo e montagem do produto...&#10;&#10;Exemplo:&#10;1. Pré-aqueça o forno a 180°C&#10;2. Misture os ingredientes secos em uma tigela&#10;3. Adicione os ingredientes líquidos..."
+                    placeholder="Descreva o passo a passo do protocolo do serviço..."
                     className="min-h-[200px] resize-y"
                   />
                 </AccordionContent>
