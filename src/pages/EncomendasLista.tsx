@@ -39,7 +39,7 @@ export default function EncomendasLista() {
   const { status = "total" } = useParams<{ status: string }>();
   const navigate = useNavigate();
   const { encomendas, deleteEncomenda } = useEncomendas();
-  const [tagsDisponiveis, setTagsDisponiveis] = useState<any[]>([]);
+  
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [anoSelecionado, setAnoSelecionado] = useState(new Date().getFullYear());
 
