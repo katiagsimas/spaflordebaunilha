@@ -119,7 +119,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/natura`);
+                  navigate(`/precificacao/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}`);
                 }}
               >
                 Cadastrar Natura
@@ -129,7 +129,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/avon`);
+                  navigate(`/precificacao/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}`);
                 }}
               >
                 Cadastrar Avon
