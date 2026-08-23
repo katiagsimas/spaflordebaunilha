@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowLeft, ArrowRight } from 'lucide-react';
-import { exportarPreReceitaPDF } from '@/utils/exportarPreReceitaPDF';
+import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -54,7 +54,7 @@ export default function Receitas() {
 
       // Buscar receitas com rendimento
       const { data: receitasData, error: receitasError } = await supabase
-        .from('pre_receitas')
+        .from('pre_preparos')
         .select(`
           *,
           rendimento_unidade:unidades_medida!rendimento_unidade_id (
@@ -69,7 +69,7 @@ export default function Receitas() {
 
       // Buscar mão de obra de todos os receitas
       const { data: maosObraData, error: maosObraError } = await supabase
-        .from('pre_receitas_mao_obra')
+        .from('pre_preparos_mao_obra')
         .select(`
           *,
           perfil:mao_obra_perfis(valor_hora)
@@ -89,7 +89,7 @@ export default function Receitas() {
       // Calcular custo total incluindo mão de obra
       const receitasComCustoTotal = receitasData?.map((receita) => {
         const maosObraReceita = maosObraData?.filter(
-          (mo) => mo.pre_receita_id === receita.id
+          (mo) => mo.pre_preparo_id === receita.id
         ) || [];
 
         let custoMaoObra = 0;
@@ -136,7 +136,7 @@ export default function Receitas() {
       const { data: ingredientes } = await supabase
         .from('ingredientes')
         .select('tipo_insumo_id')
-        .eq('e_pre_receita', true);
+        .eq('e_pre_preparo', true);
 
       if (!ingredientes || ingredientes.length === 0) return false;
 
@@ -146,7 +146,7 @@ export default function Receitas() {
       const { data: tiposInsumos } = await supabase
         .from('tipos_insumos')
         .select('id')
-        .eq('pre_receita_id', receitaId)
+        .eq('pre_preparo_id', receitaId)
         .in('id', tiposInsumosIds);
 
       if (!tiposInsumos || tiposInsumos.length === 0) return false;
@@ -189,13 +189,13 @@ export default function Receitas() {
       const { data: ingredientesRelacionados } = await supabase
         .from('ingredientes')
         .select('tipo_insumo_id')
-        .eq('e_pre_receita', true);
+        .eq('e_pre_preparo', true);
 
       if (ingredientesRelacionados) {
         const { data: tiposInsumosParaExcluir } = await supabase
           .from('tipos_insumos')
           .select('id')
-          .eq('pre_receita_id', receitaParaExcluir.id);
+          .eq('pre_preparo_id', receitaParaExcluir.id);
 
         if (tiposInsumosParaExcluir && tiposInsumosParaExcluir.length > 0) {
           const idsParaExcluir = tiposInsumosParaExcluir.map(t => t.id);
@@ -209,19 +209,19 @@ export default function Receitas() {
 
       // Excluir ingredientes do receita
       await supabase
-        .from('pre_receitas_ingredientes')
+        .from('pre_preparos_ingredientes')
         .delete()
-        .eq('pre_receita_id', receitaParaExcluir.id);
+        .eq('pre_preparo_id', receitaParaExcluir.id);
 
       // Excluir mão de obra do receita
       await supabase
-        .from('pre_receitas_mao_obra')
+        .from('pre_preparos_mao_obra')
         .delete()
-        .eq('pre_receita_id', receitaParaExcluir.id);
+        .eq('pre_preparo_id', receitaParaExcluir.id);
 
       // Excluir o receita
       const { error: deleteError } = await supabase
-        .from('pre_receitas')
+        .from('pre_preparos')
         .delete()
         .eq('id', receitaParaExcluir.id);
 
@@ -367,7 +367,7 @@ export default function Receitas() {
                         <DropdownMenuItem
                           onClick={async () => {
                             try {
-                              await exportarPreReceitaPDF(receita.id);
+                              await exportarPrePreparoPDF(receita.id);
                             } catch (e: any) {
                               toast({
                                 title: 'Erro ao exportar',
