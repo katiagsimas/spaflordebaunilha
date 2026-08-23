@@ -98,7 +98,15 @@ export async function importarProdutoRevendaComoInsumo(
   }
 
 
-  const unidade = await garantirUnidadeUn(userId, groupId);
+  // Tentar extrair valor numérico e unidade da string quantidade_ml (ex: "100ml", "500g", "1kg")
+  const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)\s*([a-zA-Záàâãéèêíïóôõöúç]+)/i);
+  const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[1].replace(',', '.')) : 1;
+  const siglaUnidade = qtdMatch ? qtdMatch[3].toLowerCase() : 'un';
+  const nomeUnidade = siglaUnidade === 'ml' ? 'Mililitros' : 
+                      siglaUnidade === 'g' ? 'Gramas' : 
+                      siglaUnidade === 'kg' ? 'Quilos' : 'Unidades';
+
+  const unidade = await garantirUnidade(siglaUnidade, nomeUnidade, userId, groupId);
   const marcaLabel = LABEL_MARCA[produto.marca] || produto.marca;
   const descricao = String(produto.descricao).slice(0, 255);
   const preco = Number(produto.preco) || 0;
@@ -124,10 +132,6 @@ export async function importarProdutoRevendaComoInsumo(
   let tipoInsumo: any = tipoExistente;
 
   if (!tipoInsumo) {
-    // Extrair apenas o número da string quantidade_ml (ex: "100ml" -> 100)
-    const qtdMatch = produto.quantidade_ml?.match(/(\d+([.,]\d+)?)/);
-    const quantidadeCalculo = qtdMatch ? parseFloat(qtdMatch[0].replace(',', '.')) : 1;
-
     const { data, error } = await supabase
       .from('tipos_insumos')
       .insert({
