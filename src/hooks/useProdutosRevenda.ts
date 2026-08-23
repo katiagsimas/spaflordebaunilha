@@ -51,19 +51,26 @@ export function useProdutosRevenda(marca?: 'natura' | 'avon') {
 
   const createMutation = useMutation({
     mutationFn: async (produto: Omit<ProdutoRevenda, 'id' | 'usuario_id' | 'owner_group_id'>) => {
-      if (!activeGroupId || !userId) throw new Error('Sem contexto de grupo ou usuário');
+      if (!activeGroupId || !userId) throw new Error('Sem contexto de grupo ou usuário para cadastrar o produto');
       
+      const payload = { 
+        ...produto,
+        usuario_id: userId,
+        owner_group_id: activeGroupId
+      };
+
+      console.log('Criando produto revenda:', payload);
+
       const { data, error } = await supabase
         .from('produtos_revenda')
-        .insert({ 
-          ...produto,
-          usuario_id: userId,
-          owner_group_id: activeGroupId
-        })
+        .insert(payload)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao inserir produto revenda:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
@@ -74,14 +81,23 @@ export function useProdutosRevenda(marca?: 'natura' | 'avon') {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<ProdutoRevenda> }) => {
+      if (!activeGroupId) throw new Error('Sem contexto de grupo ativo');
+
+      // Garantir que não estamos tentando atualizar campos sensíveis ou IDs incorretos
+      const { id: _, created_at: __, updated_at: ___, ...cleanUpdates } = updates as any;
+
       const { data, error } = await supabase
         .from('produtos_revenda')
-        .update(updates)
+        .update(cleanUpdates)
         .eq('id', id)
+        .eq('owner_group_id', activeGroupId)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro ao atualizar produto revenda:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {

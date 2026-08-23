@@ -44,17 +44,34 @@ export function ProdutoRevendaForm({ produto, marca, onSuccess }: ProdutoRevenda
   const onSubmit = async (data: Partial<ProdutoRevenda>) => {
     setLoading(true);
     try {
-      console.log("Enviando dados do produto:", { ...data, marca });
+      // Limpar campos opcionais vazios para evitar erros de tipo UUID ou strings vazias no banco
+      const payload: any = { 
+        ...data, 
+        marca,
+        preco: Number(data.preco || 0),
+        preco_venda: Number(data.preco_venda || 0),
+        quantidade_pontos: Number(data.quantidade_pontos || 0),
+        categoria_id: data.categoria_id === "" ? null : data.categoria_id,
+        codigo: data.codigo || null,
+        linha: data.linha || null,
+        quantidade_ml: data.quantidade_ml || null
+      };
+
+      // Remover IDs temporários e campos de data para inserção
+      if (payload.id === 'temp-id') delete payload.id;
+      delete payload.created_at;
+      delete payload.updated_at;
+
+      console.log("Enviando dados do produto:", payload);
+
       if (produto?.id && produto.id !== 'temp-id') {
-        await updateProduto(produto.id, data);
+        await updateProduto(produto.id, payload);
       } else {
-        // Garantir que a marca e o código estejam presentes
-        const payload = { ...data, marca };
-        await createProduto(payload as any);
+        await createProduto(payload);
       }
       onSuccess();
     } catch (error: any) {
-
+      console.error("Erro no formulário de produto:", error);
       toast.error(error.message || "Erro ao salvar produto");
     } finally {
       setLoading(false);
