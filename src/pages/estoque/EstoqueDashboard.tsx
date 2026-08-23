@@ -115,7 +115,7 @@ export default function EstoqueDashboard() {
       {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
       <HeroBanner
         title="Estoque"
-        subtitle="Controle o estoque de ingredientes e embalagens da sua confeitaria"
+        subtitle="Controle o estoque de insumos e embalagens da sua confeitaria"
       />
 
       {/* AÇÕES */}
@@ -185,7 +185,7 @@ export default function EstoqueDashboard() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="ingrediente">Ingredientes</SelectItem>
+            <SelectItem value="ingrediente">Insumos</SelectItem>
             <SelectItem value="embalagem">Embalagens</SelectItem>
           </SelectContent>
         </Select>
@@ -260,7 +260,7 @@ export default function EstoqueDashboard() {
                                   maximumFractionDigits: 2,
                                 })}{' '}
                                 {item.unidade} ·{' '}
-                                {item.tipo === 'ingrediente' ? 'Ingrediente' : 'Embalagem'}
+                                {item.tipo === 'ingrediente' ? 'Insumo' : 'Embalagem'}
                               </p>
                             </div>
                           </div>
