@@ -1060,7 +1060,40 @@ export default function ReceitaForm() {
         toast.success("Receita criada com sucesso!");
       }
 
+      // Sincronizar preço global se solicitado
+      if ((formData as any).sincronizarGlobal && ingredientes.length === 1 && valorVenda > 0) {
+        const ingredientePrincipal = ingredientes[0];
+        // Buscar o produto de revenda original pelo ingredienteId
+        const { data: ingredienteInfo } = await supabase
+          .from('ingredientes')
+          .select('marca, preco_venda')
+          .eq('id', ingredientePrincipal.ingredienteId)
+          .single();
+
+        if (ingredienteInfo) {
+          // Atualizar o preço de venda no cadastro global de produtos de revenda
+          const { error: syncError } = await supabase
+            .from('produtos_revenda')
+            .update({ preco_venda: valorVenda })
+            .eq('usuario_id', user.id)
+            .eq('codigo', ingredientePrincipal.marca) // Marca armazena o código para produtos Natura/Avon
+            .eq('marca', ingredienteInfo.marca);
+
+          if (syncError) {
+            console.error('Erro ao sincronizar preço global:', syncError);
+            toast.error("Receita salva, mas erro ao sincronizar preço global.");
+          } else {
+            // Também atualizar no cadastro de ingredientes para manter paridade
+            await supabase
+              .from('ingredientes')
+              .update({ preco_venda: valorVenda })
+              .eq('id', ingredientePrincipal.ingredienteId);
+          }
+        }
+      }
+
       navigate("/precificacao/ficha-tecnica");
+
     } catch (error: any) {
       console.error('Erro ao salvar receita:', error);
       toast.error(error.message || 'Erro ao salvar receita');
@@ -1117,6 +1150,7 @@ export default function ReceitaForm() {
 
       <Card>
         <CardContent className="pt-6 space-y-6">
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="nome">Nome da Receita *</Label>
@@ -1159,27 +1193,43 @@ export default function ReceitaForm() {
               </Select>
             </div>
 
-            <div>
-              <Label htmlFor="cardapio">Serviço</Label>
-              <Select
-                value={formData.cardapio}
-                onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
-              >
-                <SelectTrigger id="cardapio">
-                  <SelectValue placeholder="Status do serviço" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ativo">Ativo</SelectItem>
-                  <SelectItem value="fora">Fora</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-end gap-2">
+              <div className="flex-1">
+                <Label htmlFor="cardapio">Serviço</Label>
+                <Select
+                  value={formData.cardapio}
+                  onValueChange={(value: "ativo" | "fora") => setFormData({ ...formData, cardapio: value })}
+                >
+                  <SelectTrigger id="cardapio">
+                    <SelectValue placeholder="Status do serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ativo">Ativo</SelectItem>
+                    <SelectItem value="fora">Fora</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center space-x-2 pt-1 min-h-[40px]">
+                {ingredientes.length === 1 && ingredientes[0].quantidadeUtilizada === Number(formData.rendimento) && (
+                  <>
+                    <Checkbox 
+                      id="sincronizarGlobal" 
+                      checked={(formData as any).sincronizarGlobal}
+                      onCheckedChange={(checked) => setFormData({ ...formData, sincronizarGlobal: !!checked } as any)}
+                    />
+                    <Label htmlFor="sincronizarGlobal" className="text-xs cursor-pointer text-sfb-cacau/70 leading-none">
+                      Sincronizar preço global?
+                    </Label>
+                  </>
+                )}
+              </div>
             </div>
 
-
-
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="rendimento">Rendimento *</Label>
+
+
                 <Input
                   id="rendimento"
                   type="number"
@@ -1209,9 +1259,9 @@ export default function ReceitaForm() {
               </div>
             </div>
           </div>
-
           {/* Seção de Mão de Obra */}
           <MaoObraSection maosObra={maosObra} onChange={setMaosObra} />
+
 
           <div className="space-y-4">
             <div className="rounded-lg border border-sfb-areia/60 bg-white p-4">
@@ -1984,3 +2034,4 @@ export default function ReceitaForm() {
     </div>
   );
 }
+
