@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { Leaf, Sparkles, ChevronLeft } from "lucide-react";
+import { Leaf, Sparkles } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
+import { BackButton } from "@/components/BackButton";
 
 export default function ProdutosRevenda() {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ export default function ProdutosRevenda() {
       />
 
       <div className="container mx-auto px-6 pt-4 space-y-8">
+        <div className="flex justify-start -mt-4 mb-4">
+          <BackButton to="/precificacao" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {marcas.map((m) => (
             <button
@@ -43,13 +47,6 @@ export default function ProdutosRevenda() {
         </div>
       </div>
 
-      <button
-        onClick={() => navigate("/precificacao")}
-        className="fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-sfb-cacau text-sfb-baunilha flex items-center justify-center shadow-lg hover:opacity-90 transition"
-        aria-label="Voltar"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </button>
     </div>
   );
 }
