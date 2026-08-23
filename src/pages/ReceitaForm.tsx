@@ -1060,7 +1060,40 @@ export default function ReceitaForm() {
         toast.success("Receita criada com sucesso!");
       }
 
+      // Sincronizar preço global se solicitado
+      if ((formData as any).sincronizarGlobal && ingredientes.length === 1 && valorVenda > 0) {
+        const ingredientePrincipal = ingredientes[0];
+        // Buscar o produto de revenda original pelo ingredienteId
+        const { data: ingredienteInfo } = await supabase
+          .from('ingredientes')
+          .select('marca, preco_venda')
+          .eq('id', ingredientePrincipal.ingredienteId)
+          .single();
+
+        if (ingredienteInfo) {
+          // Atualizar o preço de venda no cadastro global de produtos de revenda
+          const { error: syncError } = await supabase
+            .from('produtos_revenda')
+            .update({ preco_venda: valorVenda })
+            .eq('usuario_id', user.id)
+            .eq('codigo', ingredientePrincipal.marca) // Marca armazena o código para produtos Natura/Avon
+            .eq('marca', ingredienteInfo.marca);
+
+          if (syncError) {
+            console.error('Erro ao sincronizar preço global:', syncError);
+            toast.error("Receita salva, mas erro ao sincronizar preço global.");
+          } else {
+            // Também atualizar no cadastro de ingredientes para manter paridade
+            await supabase
+              .from('ingredientes')
+              .update({ preco_venda: valorVenda })
+              .eq('id', ingredientePrincipal.ingredienteId);
+          }
+        }
+      }
+
       navigate("/precificacao/ficha-tecnica");
+
     } catch (error: any) {
       console.error('Erro ao salvar receita:', error);
       toast.error(error.message || 'Erro ao salvar receita');
