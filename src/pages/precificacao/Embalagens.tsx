@@ -271,9 +271,9 @@ export default function Embalagens() {
   const handleAbrirModal = (embalagem: any = null) => {
     if (embalagem) {
       // Verificar se é pré-preparo (embalagens não deveriam ter, mas por garantia)
-      const ePrePreparo = embalagem.tipo_insumo?.pre_preparo_id;
+      const eReceitaBase = embalagem.tipo_insumo?.pre_preparo_id;
       
-      if (ePrePreparo) {
+      if (eReceitaBase) {
         toast({
           title: 'Não editável',
           description: 'Este item é vinculado a um pré-preparo.',
@@ -612,11 +612,11 @@ export default function Embalagens() {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => navigate('/precificacao/pre-preparos')}
+              onClick={() => navigate('/precificacao/receitas')}
               className="gap-2 text-muted-foreground hover:text-foreground font-body"
             >
               <ArrowRight className="h-4 w-4" />
-              Pré-Preparos
+              Receitas
             </Button>
           </div>
         </div>
@@ -708,7 +708,7 @@ export default function Embalagens() {
             ) : (
               embalagensFiltradas.map((embalagem: any) => {
                 const desatualizado = verificarDesatualizado(embalagem.data_atualizacao);
-                const ePrePreparo = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
+                const eReceitaBase = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
                 
                 return (
                   <TableRow key={embalagem.id} className={desatualizado ? 'bg-amber-50/50 dark:bg-amber-950/20' : ''}>
@@ -730,8 +730,8 @@ export default function Embalagens() {
                       {embalagem.medida || '—'}
                     </TableCell>
       <TableCell>
-        {ePrePreparo ? (
-          <span className="font-semibold text-purple-700">Pré-Preparo</span>
+        {eReceitaBase ? (
+          <span className="font-semibold text-purple-700">Receita</span>
         ) : (
           embalagem.marca || <span className="text-muted-foreground italic">Sem marca</span>
         )}

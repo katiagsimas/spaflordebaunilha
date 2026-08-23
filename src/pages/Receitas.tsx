@@ -99,7 +99,7 @@ export default function Receitas() {
           <BackButton to="/precificacao" />
           <Button
             variant="ghost"
-            onClick={() => navigate("/precificacao/pre-preparos")}
+            onClick={() => navigate("/cadastros/receitas")}
             className="gap-2 text-muted-foreground hover:text-foreground font-body"
           >
             <ArrowLeft className="h-4 w-4" />
