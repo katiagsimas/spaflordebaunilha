@@ -1126,10 +1126,14 @@ export default function ReceitaForm() {
 
 
   const handleEmbalagemCriada = (data: any) => {
-    setEmbalagensCadastradas([...embalagensCadastradas, data]);
+    // Evita duplicados na listagem local
+    setEmbalagensCadastradas(prev => {
+      if (prev.find(e => e.id === data.id)) return prev;
+      return [...prev, data];
+    });
 
     const novaEmbalagem: EmbalagemReceita = {
-      id: `emb-${Date.now()}`,
+      id: `emb-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       embalagemId: data.id,
       embalagem: data.tipo_insumo.descricao,
       marca: data.marca || '',
@@ -1141,9 +1145,10 @@ export default function ReceitaForm() {
       custoReceita: 0,
     };
 
-    setEmbalagens([...embalagens, novaEmbalagem]);
+    setEmbalagens(prev => [...prev, novaEmbalagem]);
     setTermoBuscaEmbalagem('');
   };
+
 
   return (
     <div className="space-y-6">
