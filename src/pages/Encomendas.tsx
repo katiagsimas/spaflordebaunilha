@@ -1699,7 +1699,7 @@ const Encomendas = () => {
                   Calendários de Encomendas
                 </CardTitle>
                 <CardDescription className="mt-0.5 font-body text-sm text-sfb-vinho/80">
-                  Visualize e organize suas encomendas por mês
+                  Visualize e organize seus serviços e vendas por mês
                 </CardDescription>
               </div>
             </div>
@@ -1708,16 +1708,16 @@ const Encomendas = () => {
             <button
               type="button"
               onClick={() => navigate('/encomendas/calendarios')}
-              aria-label="Abrir Calendários de Encomendas"
+              aria-label="Abrir Agenda de Serviços e Vendas"
               className="group flex flex-col items-center gap-3 transition hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3D2F28]/40 rounded-xl p-4"
             >
               <img
                 src={calendarioEncomendasIcon}
-                alt="Calendários de Encomendas"
+                alt="Agenda de Serviços e Vendas"
                 className="h-32 w-32 object-contain drop-shadow-sm md:h-40 md:w-40"
               />
-              <span className="rounded-lg bg-sfb-vinho px-4 py-2 text-sm font-semibold text-sfb-creme shadow-md transition group-hover:bg-sfb-vinho-escuro">
-                Abrir Calendários
+              <span className="rounded-lg bg-sfb-terracota px-4 py-2 text-sm font-semibold text-sfb-baunilha shadow-md transition hover:bg-sfb-terracota/90">
+                Abrir Agenda
               </span>
             </button>
           </CardContent>
@@ -1746,7 +1746,7 @@ const Encomendas = () => {
           onClick={() => navigate(-1)}
           aria-label="Voltar"
           title="Voltar"
-          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-vinho text-sfb-creme shadow-[0_8px_24px_-8px_rgba(91,26,43,0.6)] ring-1 ring-sfb-vinho-escuro/60 transition hover:scale-105 hover:bg-sfb-vinho-escuro active:scale-95"
+          className="flex h-12 w-12 items-center justify-center rounded-full bg-sfb-terracota text-sfb-baunilha shadow-[0_8px_24px_-8px_rgba(201,138,117,0.6)] ring-1 ring-sfb-terracota/60 transition hover:scale-105 hover:bg-sfb-terracota/90 active:scale-95"
         >
           <ArrowLeft className="h-5 w-5" strokeWidth={2.5} />
         </button>
