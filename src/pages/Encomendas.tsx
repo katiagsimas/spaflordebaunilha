@@ -752,7 +752,7 @@ const Encomendas = () => {
   const handleAbrirPagamento = () => {
     // Verificar se já existe conta vinculada
     if (contaReceberId) {
-      toast.error('Esta encomenda já possui uma conta a receber. Alterações devem ser feitas no Módulo de Contas a Receber.');
+      toast.error('Este serviço/venda já possui uma conta a receber. Alterações devem ser feitas no Módulo de Contas a Receber.');
       return;
     }
 
@@ -828,9 +828,9 @@ const Encomendas = () => {
 
       setDialogOpen(false);
       resetForm();
-      toast.success('Encomenda criada com sucesso!');
+      toast.success('Serviço/Venda criado com sucesso!');
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar encomenda");
+      toast.error(error.message || "Erro ao criar serviço/venda");
     }
   };
 
@@ -847,14 +847,14 @@ const Encomendas = () => {
 
   // Gerar descrição dos produtos
   const getDescricaoProdutos = () => {
-    if (produtosExibidos.length === 0) return 'Encomenda';
-    return `Encomenda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
+    if (produtosExibidos.length === 0) return 'Serviço/Venda';
+    return `Serviço/Venda: ${produtosExibidos.map(p => p.produto).join(', ')}`;
   };
 
   const handleDarBaixa = async (encomenda: any) => {
     // Verificar se tem conta a receber vinculada
     if (!encomenda.conta_receber_id) {
-      toast.error('Esta encomenda não possui conta a receber vinculada. Configure o pagamento primeiro.');
+      toast.error('Este serviço/venda não possui conta a receber vinculada. Configure o pagamento primeiro.');
       return;
     }
 
