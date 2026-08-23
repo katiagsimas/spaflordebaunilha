@@ -588,14 +588,6 @@ export default function Ingredientes() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <BackButton to="/cadastros" />
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/cadastros/embalagens')}
-            className="gap-2 text-muted-foreground hover:text-foreground font-body"
-          >
-            Embalagens
-            <ArrowRight className="h-4 w-4" />
-          </Button>
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
