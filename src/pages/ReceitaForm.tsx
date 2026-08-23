@@ -1169,7 +1169,7 @@ export default function ReceitaForm() {
       <PageHeader
         title={id ? "Editar Ficha Técnica" : "Nova Ficha Técnica"}
         description="Calcule Custos e Preços de Venda"
-        backButton={<BackButton to="/precificacao/ficha-tecnica" />}
+        backButton={<div />}
       />
 
       <Card>
