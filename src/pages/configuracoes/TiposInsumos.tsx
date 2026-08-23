@@ -63,7 +63,7 @@ export default function TiposInsumos() {
 
       <Tabs defaultValue="ingredientes" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="ingredientes">Ingredientes</TabsTrigger>
+          <TabsTrigger value="ingredientes">Insumos</TabsTrigger>
           <TabsTrigger value="embalagens">Embalagens</TabsTrigger>
           <TabsTrigger value="outros">Outros</TabsTrigger>
         </TabsList>
@@ -71,9 +71,9 @@ export default function TiposInsumos() {
         <TabsContent value="ingredientes">
           <Card>
             <CardHeader>
-              <CardTitle>Tipos de Ingredientes</CardTitle>
+              <CardTitle>Tipos de Insumos</CardTitle>
               <CardDescription>
-                Cadastre os tipos base de ingredientes (ex: Farinha de Trigo 1kg, Açúcar 5kg)
+                Cadastre os tipos base de insumos (ex: Farinha de Trigo 1kg, Açúcar 5kg)
               </CardDescription>
             </CardHeader>
             <CardContent>

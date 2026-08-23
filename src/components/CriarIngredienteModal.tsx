@@ -26,14 +26,14 @@ interface Unidade {
   sigla: string;
 }
 
-interface CriarIngredienteModalProps {
+interface CriarInsumoModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   descricaoInicial: string;
   unidades: Unidade[];
   userId: string | undefined;
   activeGroupId: string | null;
-  onIngredienteCriado: (data: any) => void;
+  onInsumoCriado: (data: any) => void;
 }
 
 export function CriarIngredienteModal({
@@ -43,8 +43,8 @@ export function CriarIngredienteModal({
   unidades,
   userId,
   activeGroupId,
-  onIngredienteCriado,
-}: CriarIngredienteModalProps) {
+  onInsumoCriado,
+}: CriarInsumoModalProps) {
   const [step, setStep] = useState<"tipo" | "detalhe">("tipo");
   const [novoTipoDescricao, setNovoTipoDescricao] = useState("");
   const [novoTipoQuantidade, setNovoTipoQuantidade] = useState("");
@@ -111,7 +111,7 @@ export function CriarIngredienteModal({
         throw error;
       }
 
-      toast.success("Tipo cadastrado! Agora vamos cadastrar o ingrediente.");
+      toast.success("Tipo cadastrado! Agora vamos cadastrar o insumo.");
       setTipoRecemCriado(data);
       setNovoMarca("");
       setNovoPreco("");
@@ -122,7 +122,7 @@ export function CriarIngredienteModal({
     }
   };
 
-  const handleCriarIngrediente = async () => {
+  const handleCriarInsumo = async () => {
     try {
       if (!tipoRecemCriado) {
         throw new Error("Tipo não encontrado");
@@ -164,16 +164,16 @@ export function CriarIngredienteModal({
 
       if (error) {
         if (error.code === "23505") {
-          throw new Error("Este ingrediente já foi cadastrado!");
+          throw new Error("Este insumo já foi cadastrado!");
         }
         throw error;
       }
 
-      toast.success("Ingrediente cadastrado e adicionado!");
-      onIngredienteCriado(data);
+      toast.success("Insumo cadastrado e adicionado!");
+      onInsumoCriado(data);
       onOpenChange(false);
     } catch (error: any) {
-      console.error("Erro ao criar ingrediente:", error);
+      console.error("Erro ao criar insumo:", error);
       toast.error(error.message);
     }
   };
@@ -183,15 +183,15 @@ export function CriarIngredienteModal({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Novo Ingrediente</DialogTitle>
+            <DialogTitle>Novo Insumo</DialogTitle>
             <DialogDescription>
-              Cadastre o tipo base do ingrediente com sua quantidade padrão
+              Cadastre o tipo base do insumo com sua quantidade padrão
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="descricao-ing">Nome do Ingrediente *</Label>
+              <Label htmlFor="descricao-ing">Nome do Insumo *</Label>
               <Input
                 id="descricao-ing"
                 placeholder="Ex: Farinha de Trigo"
@@ -238,7 +238,7 @@ export function CriarIngredienteModal({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleCriarTipo}>Próximo: Cadastrar Ingrediente</Button>
+            <Button onClick={handleCriarTipo}>Próximo: Cadastrar Insumo</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -249,7 +249,7 @@ export function CriarIngredienteModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo Ingrediente</DialogTitle>
+          <DialogTitle>Novo Insumo</DialogTitle>
           {tipoRecemCriado && (
             <p className="text-sm text-muted-foreground">
               Tipo: {tipoRecemCriado.descricao} - {tipoRecemCriado.quantidade_embalagem}{" "}
@@ -284,7 +284,7 @@ export function CriarIngredienteModal({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleCriarIngrediente}>Cadastrar e Adicionar</Button>
+          <Button onClick={handleCriarInsumo}>Cadastrar e Adicionar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -14,7 +14,7 @@ export interface ResumoReceita {
   unidadeRendimento: string;
   tempoPreparo: number;
   unidadeTempo: string;
-  custoIngredientes: number;
+  custoInsumos: number;
   custoEmbalagens: number;
   custoMaoObra: number;
   despesasVenda: number;
@@ -48,7 +48,7 @@ export function useCalculosReceita() {
       if (receitasError) throw receitasError;
       if (!receitas) return [];
 
-      // Buscar ingredientes, embalagens, despesas e mãos de obra de todas as receitas
+      // Buscar insumos, embalagens, despesas e mãos de obra de todas as receitas
       const receitasIds = receitas.map((r) => r.id);
 
       const [ingredientesRes, embalagensRes, despesasRes, maosObraRes] = await Promise.all([
@@ -77,11 +77,11 @@ export function useCalculosReceita() {
 
       // Calcular resumo para cada receita
       const resumos: ResumoReceita[] = receitas.map((receita) => {
-        // 3.1 Custo de Ingredientes
+        // 3.1 Custo de Insumos
         const ingredientes = ingredientesRes.data?.filter(
           (i) => i.receita_id === receita.id
         ) || [];
-        const custoIngredientes = ingredientes.reduce(
+        const custoInsumos = ingredientes.reduce(
           (sum, i) => sum + (i.custo_receita || 0),
           0
         );
@@ -126,7 +126,7 @@ export function useCalculosReceita() {
         }, 0);
 
         // 3.5 Custos de Produção
-        const custosProducao = custoIngredientes + custoEmbalagens + custoMaoObra;
+        const custosProducao = custoInsumos + custoEmbalagens + custoMaoObra;
 
         // 3.6 CMV Real (R$)
         const cmvReal = custosProducao + despesasVenda;
@@ -178,7 +178,7 @@ export function useCalculosReceita() {
           unidadeRendimento: receita.unidade_rendimento,
           tempoPreparo: receita.tempo_preparo,
           unidadeTempo: receita.unidade_tempo,
-          custoIngredientes,
+          custoInsumos,
           custoEmbalagens,
           custoMaoObra,
           despesasVenda,

@@ -173,7 +173,7 @@ export default function TiposInsumosIngredientes() {
 
         toast({
           title: '✅ Atualizado',
-          description: 'Ingrediente atualizado com sucesso!',
+          description: 'Insumo atualizado com sucesso!',
         });
       } else {
         const { error } = await supabase
@@ -187,14 +187,14 @@ export default function TiposInsumosIngredientes() {
 
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Este ingrediente já foi cadastrado!');
+            throw new Error('Este insumo já foi cadastrado!');
           }
           throw error;
         }
 
         toast({
           title: '✅ Cadastrado',
-          description: 'Ingrediente cadastrado com sucesso!',
+          description: 'Insumo cadastrado com sucesso!',
         });
       }
 
@@ -222,9 +222,9 @@ export default function TiposInsumosIngredientes() {
       if (emUso && emUso.length > 0) {
         alert(
           `⚠️ EXCLUSÃO BLOQUEADA!\n\n` +
-          `O tipo "${descricao}" está sendo usado em ${emUso.length} ingrediente(s).\n\n` +
-          `Para excluir, primeiro remova todos os ingredientes que usam este tipo em:\n` +
-          `Precificação > Ingredientes`
+          `O tipo "${descricao}" está sendo usado em ${emUso.length} insumo(s).\n\n` +
+          `Para excluir, primeiro remova todos os insumos que usam este tipo em:\n` +
+          `Precificação > Insumos`
         );
         return;
       }
@@ -279,8 +279,8 @@ export default function TiposInsumosIngredientes() {
 
     const ws = XLSX.utils.json_to_sheet(dadosExport);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Ingredientes');
-    XLSX.writeFile(wb, `tipos_ingredientes_${new Date().toISOString().split('T')[0]}.xlsx`);
+    XLSX.utils.book_append_sheet(wb, ws, 'Insumos');
+    XLSX.writeFile(wb, `tipos_insumos_${new Date().toISOString().split('T')[0]}.xlsx`);
 
     toast({
       title: '✅ Exportado',
@@ -288,7 +288,7 @@ export default function TiposInsumosIngredientes() {
     });
   };
 
-  if (loading) return <LoadingState message="Carregando Tipos de Ingredientes" submessage="Organizando categorias..." />;
+  if (loading) return <LoadingState message="Carregando Tipos de Insumos" submessage="Organizando categorias..." />;
 
   const tiposFiltrados = tipos.filter((tipo) =>
     tipo.descricao.toLowerCase().includes(busca.toLowerCase())
@@ -317,7 +317,7 @@ export default function TiposInsumosIngredientes() {
         </div>
         <Button onClick={() => handleAbrirModal()}>
           <Plus className="mr-2 h-4 w-4" />
-          Novo Ingrediente
+          Novo Insumo
         </Button>
         <Button variant="outline" onClick={handleExportarExcel}>
           <Download className="mr-2 h-4 w-4" />
@@ -376,15 +376,15 @@ export default function TiposInsumosIngredientes() {
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editando ? 'Editar Ingrediente' : 'Novo Ingrediente'}</DialogTitle>
+            <DialogTitle>{editando ? 'Editar Insumo' : 'Novo Insumo'}</DialogTitle>
             <DialogDescription>
-              Cadastre o tipo base do ingrediente com sua quantidade padrão
+              Cadastre o tipo base do insumo com sua quantidade padrão
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="descricao">Nome do Ingrediente *</Label>
+              <Label htmlFor="descricao">Nome do Insumo *</Label>
               <Input
                 id="descricao"
                 placeholder="Ex: Farinha de Trigo"

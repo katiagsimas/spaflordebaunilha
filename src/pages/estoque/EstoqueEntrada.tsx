@@ -34,7 +34,7 @@ export default function EstoqueEntrada() {
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
 
-  // Load ingredientes/embalagens — mesma fonte usada por Meu Cardápio
+  // Load insumos/embalagens — mesma fonte usada por Meu Cardápio
   const { data: ingredientes = [] } = useQuery({
     queryKey: ['ingredientes-estoque', activeGroup?.id],
     queryFn: async () => {
@@ -188,7 +188,7 @@ export default function EstoqueEntrada() {
     <div className="space-y-6">
       <PageHeader
         title="Nova Entrada de Estoque"
-        description="Registre uma compra de ingrediente ou embalagem"
+        description="Registre uma compra de insumo ou embalagem"
         backButton={<BackButton to="/estoque" />}
       />
 
@@ -212,7 +212,7 @@ export default function EstoqueEntrada() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ingrediente">Ingrediente</SelectItem>
+                  <SelectItem value="ingrediente">Insumo</SelectItem>
                   <SelectItem value="embalagem">Embalagem</SelectItem>
                 </SelectContent>
               </Select>
