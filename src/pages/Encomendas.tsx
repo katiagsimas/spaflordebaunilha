@@ -87,6 +87,7 @@ const Encomendas = () => {
   const [porPagina, setPorPagina] = useState(10);
   const [buscaNome, setBuscaNome] = useState("");
   const [filtrosAbertos, setFiltrosAbertos] = useState(true);
+  const [formMode, setFormMode] = useState<"servico" | "venda">("servico");
   
   // Estados para Dashboard
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
@@ -342,6 +343,7 @@ const Encomendas = () => {
       topo_obs: "",
       topo_imagens: [],
     });
+    setFormMode("servico");
     setEditingOrder(null);
     setTempProdutos([]);
     setContaReceberId(null);
@@ -1022,16 +1024,31 @@ const Encomendas = () => {
           setDialogOpen(open);
           if (!open) resetForm();
         }}>
-          <DialogTrigger asChild>
-            <Button className="shrink-0 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Serviço
-            </Button>
-          </DialogTrigger>
+          <div className="flex items-center gap-3">
+            <DialogTrigger asChild>
+              <Button 
+                onClick={() => setFormMode("servico")}
+                className="shrink-0 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Serviço
+              </Button>
+            </DialogTrigger>
+            
+            <DialogTrigger asChild>
+              <Button 
+                onClick={() => setFormMode("venda")}
+                className="shrink-0 rounded-lg bg-sfb-baunilha text-sfb-cacau border border-sfb-terracota hover:bg-sfb-baunilha/90"
+              >
+                <ShoppingBag className="h-4 w-4 mr-2" />
+                Venda de Produtos
+              </Button>
+            </DialogTrigger>
+          </div>
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingOrder ? "Editar Serviço" : "Novo Serviço"}
+                  {editingOrder ? (formMode === "servico" ? "Editar Serviço" : "Editar Venda") : (formMode === "servico" ? "Novo Serviço" : "Venda de Produtos")}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -1156,7 +1173,7 @@ const Encomendas = () => {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label>Itens do Serviço/Venda</Label>
+                    <Label>{formMode === "servico" ? "Itens do Serviço" : "Itens da Venda"}</Label>
                     <Dialog open={produtoDialogOpen} onOpenChange={setProdutoDialogOpen}>
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
@@ -1686,7 +1703,10 @@ const Encomendas = () => {
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         {/* Encomendas do Dia - Esquerda */}
-        <EncomendasDoDia onNovaEncomenda={() => setDialogOpen(true)} />
+        <EncomendasDoDia onNovaEncomenda={() => {
+          setFormMode("servico");
+          setDialogOpen(true);
+        }} />
 
         {/* Calendários de Encomendas - Direita */}
         <Card className="overflow-hidden rounded-2xl border-2 border-[#C98A75]/60 bg-sfb-creme/40 shadow-[0_8px_30px_-18px_rgba(91,26,43,0.3)]">
