@@ -64,7 +64,6 @@ export default function CategoriasPlanoContas() {
       const { data: categoriasExistentes, error: erroVerificacao } = await supabase
         .from('categorias_plano_contas')
         .select('id')
-        .eq('user_id', user.id)
         .limit(1);
 
       if (erroVerificacao) throw erroVerificacao;
@@ -81,11 +80,10 @@ export default function CategoriasPlanoContas() {
         }
       }
 
-      // Buscar todas as categorias
+      // Buscar todas as categorias injetando o contexto do grupo ativo
       const { data, error } = await supabase
         .from('categorias_plano_contas')
         .select('*')
-        .eq('user_id', user.id)
         .order('codigo');
 
       if (error) throw error;
