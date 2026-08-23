@@ -260,7 +260,7 @@ const App = () => (
           <Route path="/cadastros/produtos-revenda" element={<ProtectedRoute><Layout><ProdutosRevenda /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/produtos-revenda/:marca" element={<ProtectedRoute><Layout><MarcaRevendaPage /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/produtos-revenda" element={<Navigate to="/cadastros/produtos-revenda" replace />} />
-          <Route path="/precificacao/produtos-revenda/:marca" element={<Navigate to="/cadastros/produtos-revenda" replace />} />
+          <Route path="/precificacao/produtos-revenda/:marca" element={<Navigate to="/cadastros/produtos-revenda/:marca" replace />} />
           
           {/* Cadastros - Insumos e Embalagens */}
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
