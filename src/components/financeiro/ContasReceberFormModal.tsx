@@ -373,6 +373,13 @@ export default function ContasReceberFormModal({
     setParcelasEditadas(true);
   };
 
+  const handleClienteSelect = (nome: string, clienteCompleto?: any) => {
+    setClienteNome(nome);
+    if (clienteCompleto) {
+      setClienteId(clienteCompleto.id);
+    }
+  };
+
   const handleProdutoRevendaImportado = (insumo: any) => {
     if (insumo.preco_venda > 0) {
       setValorTotal(insumo.preco_venda.toFixed(2).replace('.', ','));
