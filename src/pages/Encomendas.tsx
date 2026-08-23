@@ -1,3 +1,4 @@
+/* Refine o formulário "Novo Serviço" alterando a regra de 30% do CMV ideal para 20%, tal regra deverá ser aplicada somente para Tipos de serviço Spa dos Pés e Spa Facial, garanta persistência e principalmente, garanta que não haja quebras de outras funcionalidades. Os produtos de Revenda a serem cadastrados nos módulos "Receitas" e "Serviços" deverão utilizar para a base de cálculo a "Qtd/ml" e o valor/preço de custo. Módulo "Vendas" refinado para "Serviços e Venda de Produtos". */
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { getTodayISO, formatDateBR, parseISOToDate } from "@/lib/dateUtils";
