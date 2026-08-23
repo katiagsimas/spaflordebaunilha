@@ -202,6 +202,7 @@ export default function EstoqueEntrada() {
               <BuscarProdutoRevenda
                 onImportado={handleProdutoRevendaImportado}
                 hint="Informe o código do produto Natura/Avon para trazer descrição e valor automaticamente para a entrada."
+                origem="estoque"
               />
             </div>
 

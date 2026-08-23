@@ -18,13 +18,14 @@ interface BuscarProdutoRevendaProps {
   onImportado: (insumo: InsumoImportado) => void;
   label?: string;
   hint?: string;
+  origem?: "servicos" | "estoque";
 }
 
 /**
  * Campo de busca por código de produto Natura/Avon.
  * Ao localizar, converte o produto em insumo (persistido no banco) e devolve o item.
  */
-export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProdutoRevendaProps) {
+export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servicos" }: BuscarProdutoRevendaProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [codigo, setCodigo] = useState("");
@@ -119,7 +120,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}`);
+                  navigate(`/precificacao/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
                 }}
               >
                 Cadastrar Natura
@@ -129,7 +130,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint }: BuscarProduto
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}`);
+                  navigate(`/precificacao/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
                 }}
               >
                 Cadastrar Avon
