@@ -260,24 +260,6 @@ export default function Receitas() {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between gap-3">
           <BackButton to="/cadastros" />
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/precificacao/embalagens')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Embalagens
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/precificacao/ficha-tecnica')}
-              className="gap-2 text-muted-foreground hover:text-foreground font-body"
-            >
-              <ArrowRight className="h-4 w-4" />
-              Ficha Técnica
-            </Button>
-          </div>
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
