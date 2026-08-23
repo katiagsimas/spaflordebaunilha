@@ -4,11 +4,38 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useEstoque } from '@/hooks/useEstoque';
+import { useEstoque, type EstoqueItem } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
-import { Package, AlertTriangle, Plus, SlidersHorizontal, Search, CalendarDays, Coins, PackageOpen } from 'lucide-react';
-
+import { 
+  Package, 
+  AlertTriangle, 
+  Plus, 
+  SlidersHorizontal, 
+  Search, 
+  CalendarDays, 
+  Coins, 
+  PackageOpen,
+  MoreVertical,
+  Edit2,
+  Trash,
+  Copy
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { HeroBanner } from '@/components/HeroBanner';
+import { toast } from 'sonner';
 import emptyPrateleira from '@/assets/estoque-empty-prateleira.png';
 import valorEstoqueImg from '@/assets/estoque-valor-total.png';
 import itensCadastradosImg from '@/assets/estoque-itens-cadastrados.png';
@@ -16,10 +43,24 @@ import abaixoMinimoImg from '@/assets/estoque-abaixo-minimo.png';
 
 export default function EstoqueDashboard() {
   const navigate = useNavigate();
-  const { itens, loading, valorTotal, itensAbaixoMinimo } = useEstoque();
+  const { 
+    itens, 
+    loading, 
+    valorTotal, 
+    itensAbaixoMinimo,
+    updateEstoqueItem,
+    deleteEstoqueItem,
+    duplicateEstoqueItem 
+  } = useEstoque();
   const [busca, setBusca] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
+
+  // Estados para edição
+  const [itemParaEditar, setItemParaEditar] = useState<EstoqueItem | null>(null);
+  const [novaQuantidade, setNovaQuantidade] = useState('');
+  const [novoMinimo, setNovoMinimo] = useState('');
+  const [editando, setEditando] = useState(false);
 
   if (loading) return <LoadingState />;
 
@@ -187,9 +228,12 @@ export default function EstoqueDashboard() {
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Valor no Estoque
                     </th>
-                    <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
-                      Ajuste do Mínimo
-                    </th>
+                      <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                        Status / Mínimo
+                      </th>
+                      <th className="px-5 py-3 text-center font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                        Ações
+                      </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -230,8 +274,47 @@ export default function EstoqueDashboard() {
                               <AlertTriangle className="h-3 w-3" /> Abaixo
                             </Badge>
                           ) : (
-                            <span className="font-body text-sm text-sfb-cacau/70">— Ajustado</span>
+                            <span className="font-body text-sm text-sfb-cacau/70">
+                              {item.estoque_minimo ? `Min: ${item.estoque_minimo}` : '—'}
+                            </span>
                           )}
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-sfb-cacau/50 hover:text-sfb-cacau">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-40">
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => {
+                                  setItemParaEditar(item);
+                                  setNovaQuantidade(item.quantidade_atual.toString());
+                                  setNovoMinimo(item.estoque_minimo?.toString() || '');
+                                }}
+                              >
+                                <Edit2 className="h-4 w-4" /> Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 cursor-pointer"
+                                onClick={() => duplicateEstoqueItem(item)}
+                              >
+                                <Copy className="h-4 w-4" /> Duplicar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="flex items-center gap-2 text-red-600 focus:text-red-600 cursor-pointer"
+                                onClick={() => {
+                                  if (confirm('Deseja realmente excluir este item do estoque?')) {
+                                    deleteEstoqueItem(item.id);
+                                  }
+                                }}
+                              >
+                                <Trash className="h-4 w-4" /> Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </td>
                       </tr>
                     );
@@ -323,6 +406,69 @@ export default function EstoqueDashboard() {
           )}
         </aside>
       </div>
+
+      {/* Modal de Edição */}
+      <Dialog open={!!itemParaEditar} onOpenChange={(open) => !open && setItemParaEditar(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display">Editar Item: {itemParaEditar?.nome_insumo}</DialogTitle>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>Quantidade Atual ({itemParaEditar?.unidade})</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={novaQuantidade}
+                onChange={(e) => setNovaQuantidade(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Estoque Mínimo ({itemParaEditar?.unidade})</Label>
+              <Input
+                type="number"
+                step="0.01"
+                value={novoMinimo}
+                onChange={(e) => setNovoMinimo(e.target.value)}
+                placeholder="Ex: 5"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setItemParaEditar(null)}
+              className="rounded-lg border-sfb-cacau/30 text-sfb-cacau"
+            >
+              Cancelar
+            </Button>
+            <Button
+              disabled={editando}
+              onClick={async () => {
+                if (!itemParaEditar) return;
+                try {
+                  setEditando(true);
+                  await updateEstoqueItem({
+                    estoqueId: itemParaEditar.id,
+                    quantidade: Number(novaQuantidade),
+                    estoqueMinimo: novoMinimo ? Number(novoMinimo) : null,
+                  });
+                  setItemParaEditar(null);
+                } catch (err) {
+                  // Erro já tratado no hook
+                } finally {
+                  setEditando(false);
+                }
+              }}
+              className="rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
+            >
+              {editando ? 'Salvando...' : 'Salvar Alterações'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
