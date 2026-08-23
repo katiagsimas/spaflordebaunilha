@@ -26,7 +26,7 @@ interface RelatorioCategoriasProps {
 export function RelatorioCategorias({ open, onOpenChange }: RelatorioCategoriasProps) {
   const { categorias } = useCategorias();
   const { produtos } = useProdutosRevenda();
-  const { estoque } = useEstoque();
+  const { itens: estoque } = useEstoque();
 
   const metricas = useMemo(() => {
     return categorias.map((cat) => {
