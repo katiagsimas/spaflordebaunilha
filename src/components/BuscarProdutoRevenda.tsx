@@ -96,7 +96,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
             type="button"
             size="sm"
             onClick={() =>
-              navigate(`/precificacao/produtos-revenda/${semPreco.marca}?codigo=${encodeURIComponent(semPreco.codigo)}`)
+              navigate(`/cadastros/produtos-revenda/${semPreco.marca}?codigo=${encodeURIComponent(semPreco.codigo)}`)
             }
             className="bg-sfb-terracota hover:bg-sfb-terracota/90 text-sfb-baunilha gap-2"
           >
@@ -120,7 +120,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
+                  navigate(`/cadastros/produtos-revenda/natura?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
                 }}
               >
                 Cadastrar Natura
@@ -130,7 +130,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
                 className="border-sfb-areia text-sfb-cacau"
                 onClick={() => {
                   setModalNovoAberto(false);
-                  navigate(`/precificacao/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
+                  navigate(`/cadastros/produtos-revenda/avon?codigo=${encodeURIComponent(codigo)}&origem=${origem}`);
                 }}
               >
                 Cadastrar Avon
@@ -151,7 +151,7 @@ export function BuscarProdutoRevenda({ onImportado, label, hint, origem = "servi
       </Dialog>
 
       <p className="text-xs text-muted-foreground">
-        {hint || "Digite o código cadastrado em Serviços › Produtos para Revenda para trazer descrição, marca e valor automaticamente."}
+        {hint || "Digite o código cadastrado em Cadastros › Produtos para Revenda para trazer descrição, marca e valor automaticamente."}
       </p>
     </div>
   );
