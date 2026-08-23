@@ -1190,12 +1190,7 @@ export default function ReceitaForm() {
               )}
             </div>
 
-            <div>
-
-
-
-            <div className="grid grid-cols-2 gap-2">
-              <div>
+            <div></div>
                 <Label htmlFor="rendimento">Rendimento *</Label>
                 <Input
                   id="rendimento"
