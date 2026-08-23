@@ -131,8 +131,7 @@ export default function Categorias() {
       }));
 
       const ws = XLSX.utils.json_to_sheet(dados);
-      ws['!cols'] = [{ wch: 40 }, { wch: 15 }];
-
+      
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Categorias');
       
@@ -145,6 +144,38 @@ export default function Categorias() {
       toast.error('Não foi possível exportar.');
     }
   };
+
+  const handleExportarPDF = () => {
+    try {
+      const { jsPDF } = require('jspdf');
+      const autoTable = require('jspdf-autotable').default;
+
+      const doc = new jsPDF();
+      const tableColumn = ["Categoria", "Status"];
+      const tableRows = categoriasFiltradas.map(c => [
+        c.nome,
+        c.ativo ? 'Habilitada' : 'Desabilitada'
+      ]);
+
+      doc.setFontSize(18);
+      doc.text("Relatório de Categorias", 14, 22);
+      
+      autoTable(doc, {
+        head: [tableColumn],
+        body: tableRows,
+        startY: 30,
+        headStyles: { fillColor: [201, 138, 117] },
+      });
+
+      const hoje = new Date().toISOString().split('T')[0];
+      doc.save(`Categorias_${hoje}.pdf`);
+      toast.success('PDF exportado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar PDF:', error);
+      toast.error('Não foi possível exportar PDF.');
+    }
+  };
+
 
   const handleAbrirModal = (categoria?: { id: string; nome: string }) => {
     if (categoria) {
