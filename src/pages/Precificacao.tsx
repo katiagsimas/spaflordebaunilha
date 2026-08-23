@@ -1,6 +1,6 @@
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { BookOpen, FlaskConical } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function Precificacao() {
