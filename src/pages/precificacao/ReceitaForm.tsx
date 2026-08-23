@@ -287,10 +287,10 @@ export default function ReceitaForm() {
         setMaosObra(maosObraFormatadas);
       }
     } catch (error) {
-      console.error('Erro ao buscar pré-receita:', error);
+      console.error('Erro ao buscar receita:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar o pré-receita.',
+        description: 'Não foi possível carregar o receita.',
         variant: 'destructive',
       });
     }
@@ -484,7 +484,7 @@ export default function ReceitaForm() {
           
         
       } else {
-        // Criar novo tipo vinculado ao pré-receita
+        // Criar novo tipo vinculado ao receita
         const { data: novoTipo, error: errorTipo } = await supabase
           .from('tipos_insumos')
           .insert({
@@ -494,7 +494,7 @@ export default function ReceitaForm() {
             descricao: nomeTipo,
             quantidade_embalagem: parseFloat(rendimentoQtd.replace(',', '.')),
             unidade_medida_id: rendimentoUnidadeId,
-            pre_preparo_id: preReceitaId, // Vínculo com pré-receita
+            pre_preparo_id: preReceitaId, // Vínculo com receita
           })
           .select()
           .single();
@@ -514,7 +514,7 @@ export default function ReceitaForm() {
         .maybeSingle();
 
       if (ingredienteExistente) {
-        // Atualizar preço e marcar como pré-receita (usar custo total)
+        // Atualizar preço e marcar como receita (usar custo total)
         await supabase
           .from('ingredientes')
           .update({
@@ -557,7 +557,7 @@ export default function ReceitaForm() {
       if (!nome.trim()) {
         toast({
           title: 'Erro',
-          description: 'Informe o nome do pré-receita!',
+          description: 'Informe o nome do receita!',
           variant: 'destructive',
         });
         return;
@@ -602,7 +602,7 @@ export default function ReceitaForm() {
         return;
       }
 
-      showLoading(isEditMode ? 'Atualizando pré-receita...' : 'Salvando pré-receita...');
+      showLoading(isEditMode ? 'Atualizando receita...' : 'Salvando receita...');
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Não autenticado');
@@ -621,7 +621,7 @@ export default function ReceitaForm() {
 
       const totalHorasMaoObra = maosObra.reduce((sum, mo) => sum + Number(mo.horas || 0), 0);
 
-      // Salvar pré-receita
+      // Salvar receita
       const dadosReceita = {
         usuario_id: user.id,
         owner_group_id: await getActiveGroupId(user.id),
@@ -666,7 +666,7 @@ export default function ReceitaForm() {
 
         if (error) {
           if (error.code === '23505') {
-            throw new Error('Já existe um pré-receita com este nome!');
+            throw new Error('Já existe um receita com este nome!');
           }
           throw error;
         }
@@ -682,7 +682,7 @@ export default function ReceitaForm() {
       if (receitasCombo.length > 0 && ingredientesReais.length === 0) {
         toast({
           title: 'Aviso',
-          description: 'Pré-receitas precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
+          description: 'Receitas precisam ter pelo menos um ingrediente cadastrado. Fichas técnicas são usadas apenas para cálculo de custo.',
           variant: 'destructive',
         });
         hideLoading();
@@ -733,7 +733,7 @@ export default function ReceitaForm() {
 
       toast({
         title: 'Sucesso',
-        description: isEditMode ? 'Pré-receita atualizado!' : 'Pré-receita cadastrado!',
+        description: isEditMode ? 'Receita atualizado!' : 'Receita cadastrado!',
       });
 
       navigate('/cadastros/receitas');
@@ -846,7 +846,7 @@ export default function ReceitaForm() {
           <CardHeader>
             <CardTitle>Mão de Obra</CardTitle>
             <CardDescription>
-              Adicione os custos de mão de obra para este pré-receita
+              Adicione os custos de mão de obra para este receita
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -1040,7 +1040,7 @@ export default function ReceitaForm() {
         <Card>
           <CardHeader>
             <CardTitle>Imagens</CardTitle>
-            <CardDescription>Adicione até 2 imagens do pré-receita</CardDescription>
+            <CardDescription>Adicione até 2 imagens do receita</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
@@ -1127,7 +1127,7 @@ export default function ReceitaForm() {
         <Alert className="bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription>
-            Após salvar, este pré-receita aparecerá automaticamente na lista de Insumos 
+            Após salvar, este receita aparecerá automaticamente na lista de Insumos 
             e poderá ser usado em receitas!
           </AlertDescription>
         </Alert>

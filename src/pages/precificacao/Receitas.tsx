@@ -52,7 +52,7 @@ export default function Receitas() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Buscar pré-receitas com rendimento
+      // Buscar receitas com rendimento
       const { data: receitasData, error: receitasError } = await supabase
         .from('pre_preparos')
         .select(`
@@ -67,7 +67,7 @@ export default function Receitas() {
 
       if (receitasError) throw receitasError;
 
-      // Buscar mão de obra de todos os pré-receitas
+      // Buscar mão de obra de todos os receitas
       const { data: maosObraData, error: maosObraError } = await supabase
         .from('pre_preparos_mao_obra')
         .select(`
@@ -108,10 +108,10 @@ export default function Receitas() {
 
       setReceitas(receitasComCustoTotal || []);
     } catch (error) {
-      console.error('Erro ao buscar pré-receitas:', error);
+      console.error('Erro ao buscar receitas:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar os pré-receitas.',
+        description: 'Não foi possível carregar os receitas.',
         variant: 'destructive',
       });
     } finally {
@@ -132,7 +132,7 @@ export default function Receitas() {
 
   const verificarReceitaEmUso = async (receitaId: string): Promise<boolean> => {
     try {
-      // Verificar se o pré-receita está sendo usado em receitas_ingredientes
+      // Verificar se o receita está sendo usado em receitas_ingredientes
       const { data: ingredientes } = await supabase
         .from('ingredientes')
         .select('tipo_insumo_id')
@@ -142,7 +142,7 @@ export default function Receitas() {
 
       const tiposInsumosIds = ingredientes.map(ing => ing.tipo_insumo_id);
 
-      // Verificar se algum tipo_insumo corresponde ao pré-receita
+      // Verificar se algum tipo_insumo corresponde ao receita
       const { data: tiposInsumos } = await supabase
         .from('tipos_insumos')
         .select('id')
@@ -162,7 +162,7 @@ export default function Receitas() {
 
       return receitasUsando && receitasUsando.length > 0;
     } catch (error) {
-      console.error('Erro ao verificar uso do pré-receita:', error);
+      console.error('Erro ao verificar uso do receita:', error);
       return true; // Em caso de erro, previne a exclusão por segurança
     }
   };
@@ -177,7 +177,7 @@ export default function Receitas() {
       if (emUso) {
         toast({
           title: 'Não é possível excluir',
-          description: 'Este pré-receita está sendo utilizado em uma ou mais fichas técnicas. Remova-o das receitas antes de excluir.',
+          description: 'Este receita está sendo utilizado em uma ou mais fichas técnicas. Remova-o das receitas antes de excluir.',
           variant: 'destructive',
         });
         setDialogExcluirAberto(false);
@@ -207,19 +207,19 @@ export default function Receitas() {
         }
       }
 
-      // Excluir ingredientes do pré-receita
+      // Excluir ingredientes do receita
       await supabase
         .from('pre_preparos_ingredientes')
         .delete()
         .eq('pre_preparo_id', receitaParaExcluir.id);
 
-      // Excluir mão de obra do pré-receita
+      // Excluir mão de obra do receita
       await supabase
         .from('pre_preparos_mao_obra')
         .delete()
         .eq('pre_preparo_id', receitaParaExcluir.id);
 
-      // Excluir o pré-receita
+      // Excluir o receita
       const { error: deleteError } = await supabase
         .from('pre_preparos')
         .delete()
@@ -228,16 +228,16 @@ export default function Receitas() {
       if (deleteError) throw deleteError;
 
       toast({
-        title: 'Pré-receita excluído',
-        description: 'O pré-receita foi excluído com sucesso.',
+        title: 'Receita excluído',
+        description: 'O receita foi excluído com sucesso.',
       });
 
       fetchReceitas();
     } catch (error: any) {
-      console.error('Erro ao excluir pré-receita:', error);
+      console.error('Erro ao excluir receita:', error);
       toast({
         title: 'Erro ao excluir',
-        description: error.message || 'Não foi possível excluir o pré-receita.',
+        description: error.message || 'Não foi possível excluir o receita.',
         variant: 'destructive',
       });
     } finally {
@@ -251,7 +251,7 @@ export default function Receitas() {
     setDialogExcluirAberto(true);
   };
 
-  if (loading) return <LoadingState message="Carregando Receitas" submessage="Listando pré-receitas..." />;
+  if (loading) return <LoadingState message="Carregando Receitas" submessage="Listando receitas..." />;
 
   return (
     <div className="container mx-auto px-6 pt-1 pb-6 space-y-6">
@@ -306,16 +306,16 @@ export default function Receitas() {
       <div className="flex justify-start">
         <Button onClick={() => navigate('/cadastros/receitas/novo')} className="bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90">
           <Plus className="mr-2 h-4 w-4" />
-          Criar Novo Pré-Receita
+          Criar Novo Receita
         </Button>
       </div>
 
       {receitas.length === 0 ? (
         <EmptyState
           icon={ChefHat}
-          title="Nenhum pré-receita cadastrado"
-          description="Crie seus pré-receitas para otimizar a produção e calcular custos de forma precisa"
-          actionLabel="Criar novo Pré-Receita"
+          title="Nenhum receita cadastrado"
+          description="Crie seus receitas para otimizar a produção e calcular custos de forma precisa"
+          actionLabel="Criar novo Receita"
           onAction={() => navigate('/cadastros/receitas/novo')}
         />
       ) : (
@@ -402,7 +402,7 @@ export default function Receitas() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja excluir o pré-receita "{receitaParaExcluir?.nome}"?
+              Tem certeza que deseja excluir o receita "{receitaParaExcluir?.nome}"?
               Esta ação não pode ser desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
