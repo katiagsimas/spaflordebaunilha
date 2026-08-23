@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Search, Loader2, ListChecks, FileDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Loader2, ListChecks } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -30,9 +30,10 @@ import { useCategorias } from "@/hooks/useCategorias";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Label } from "@/components/ui/label";
 
 export default function TiposServico() {
-  const { categorias, isLoading, addCategoria, updateCategoria, deleteCategoria } = useCategorias();
+  const { categorias, isLoading, createCategoria, updateCategoria, deleteCategoria } = useCategorias();
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<{ id: string; nome: string } | null>(null);
@@ -52,17 +53,18 @@ export default function TiposServico() {
 
     try {
       if (editingCategory) {
-        await updateCategoria.mutateAsync({ id: editingCategory.id, nome: newCategoryName });
+        await updateCategoria(editingCategory.id, { nome: newCategoryName });
         toast.success("Tipo de serviço atualizado!");
       } else {
-        await addCategoria.mutateAsync(newCategoryName);
+        await createCategoria(newCategoryName);
         toast.success("Tipo de serviço criado!");
       }
       setIsDialogOpen(false);
       setNewCategoryName("");
       setEditingCategory(null);
     } catch (error) {
-      toast.error("Erro ao salvar tipo de serviço");
+      console.error(error);
+      // O hook já mostra toast de erro
     }
   };
 
@@ -75,12 +77,12 @@ export default function TiposServico() {
   const handleDelete = async () => {
     if (!categoryToDelete) return;
     try {
-      await deleteCategoria.mutateAsync(categoryToDelete);
-      toast.success("Tipo de serviço excluído!");
+      await deleteCategoria(categoryToDelete);
       setDeleteConfirmOpen(false);
       setCategoryToDelete(null);
     } catch (error) {
-      toast.error("Erro ao excluir tipo de serviço");
+      console.error(error);
+      // O hook já mostra toast de erro
     }
   };
 
@@ -235,5 +237,3 @@ export default function TiposServico() {
     </div>
   );
 }
-
-import { Label } from "@/components/ui/label";

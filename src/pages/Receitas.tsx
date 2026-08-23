@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowLeft, ListChecks } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
