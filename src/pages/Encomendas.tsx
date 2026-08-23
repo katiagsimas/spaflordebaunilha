@@ -292,29 +292,7 @@ const Encomendas = () => {
       }
     };
 
-    const fetchTags = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Buscar tags do usuário E tags do sistema (user_id IS NULL)
-        const { data, error } = await supabase
-          .from('tags_encomendas')
-          .select('*')
-          .or(`user_id.eq.${user.id},user_id.is.null`)
-          .eq('ativo', true)
-          .order('padrao_sistema', { ascending: false })
-          .order('nome');
-
-        if (error) throw error;
-        setTagsDisponiveis(data || []);
-      } catch (error) {
-        console.error('Erro ao buscar tags:', error);
-      }
-    };
-
     fetchPlanoContasVenda();
-    fetchTags();
   }, []);
 
   const resetForm = () => {
