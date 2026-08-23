@@ -359,45 +359,6 @@ export function EncomendaStatusCard({
               </Select>
             </div>
 
-            <div>
-              <Label className="text-xs mb-1.5 block">Origem</Label>
-              <Select value={origemFilter} onValueChange={setOrigemFilter}>
-                <SelectTrigger className="bg-background h-9 text-sm">
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todas</SelectItem>
-                  {origensTags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
-                        {tag.nome}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-xs mb-1.5 block">Evento</Label>
-              <Select value={eventoFilter} onValueChange={setEventoFilter}>
-                <SelectTrigger className="bg-background h-9 text-sm">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {eventoTags.map((tag) => (
-                    <SelectItem key={tag.id} value={tag.id}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.cor }} />
-                        {tag.nome}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
 
             <div>
               <Label className="text-xs mb-1.5 block">Data de Entrega</Label>
