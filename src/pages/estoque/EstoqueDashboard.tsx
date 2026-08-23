@@ -221,13 +221,13 @@ export default function EstoqueDashboard() {
                 <thead>
                   <tr className="bg-sfb-baunilha text-left">
                     <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
-                      Insumo
+                      Descrição
                     </th>
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Valor no Estoque
                     </th>
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
-                      Total Itens
+                      Total em Estoque
                     </th>
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Status / Mínimo
@@ -257,10 +257,6 @@ export default function EstoqueDashboard() {
                                 {item.nome_insumo}
                               </p>
                               <p className="font-body text-[11px] text-sfb-cacau/50">
-                                {Number(item.quantidade_atual).toLocaleString('pt-BR', {
-                                  maximumFractionDigits: 2,
-                                })}{' '}
-                                {item.unidade} ·{' '}
                                 {item.tipo === 'ingrediente' ? 'Insumo' : 'Embalagem'}
                               </p>
                             </div>
