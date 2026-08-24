@@ -189,16 +189,12 @@ const Encomendas = () => {
     }
   }, [encomendas, editingOrder]);
 
-  // Encomendas do mês selecionado (filtradas por data_entrega ou data_pedido)
+  // Encomendas do mês selecionado (aparece se a data do PEDIDO ou a de ENTREGA cair no período)
   const encomendasMes = useMemo(() => {
     if (!encomendas) return [] as any[];
-    return encomendas.filter((enc: any) => {
-      const dataRef = enc.data_entrega || enc.data_pedido;
-      if (!dataRef) return false;
-      const d = parseISOToDate(dataRef);
-      return d.getMonth() === mesSelecionado && d.getFullYear() === anoSelecionado;
-    });
+    return encomendas.filter((enc: any) => noPeriodoSelecionado(enc, mesSelecionado, anoSelecionado));
   }, [encomendas, mesSelecionado, anoSelecionado]);
+
 
   // Calcular indicadores do dashboard
   useEffect(() => {
