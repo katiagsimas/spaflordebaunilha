@@ -1109,7 +1109,7 @@ const Encomendas = () => {
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
                           <Plus className="h-4 w-4 mr-2" />
-                          Adicionar Produtos
+                          {formMode === "servico" ? "Adicionar Serviços" : "Adicionar Produtos"}
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="max-w-2xl">
