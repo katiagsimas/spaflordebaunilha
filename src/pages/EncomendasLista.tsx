@@ -15,7 +15,7 @@ import {
   XCircle,
   CalendarDays,
 } from "lucide-react";
-import { parseISOToDate } from "@/lib/dateUtils";
+import { parseISOToDate, noPeriodoSelecionado } from "@/lib/dateUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -48,13 +48,9 @@ export default function EncomendasLista() {
 
   const encomendasMes = useMemo(() => {
     if (!encomendas) return [] as any[];
-    return encomendas.filter((enc: any) => {
-      const dataRef = enc.data_entrega || enc.data_pedido;
-      if (!dataRef) return false;
-      const d = parseISOToDate(dataRef);
-      return d.getMonth() === mesSelecionado && d.getFullYear() === anoSelecionado;
-    });
+    return encomendas.filter((enc: any) => noPeriodoSelecionado(enc, mesSelecionado, anoSelecionado));
   }, [encomendas, mesSelecionado, anoSelecionado]);
+
 
   const clientesComEncomendas = useMemo(
     () => Array.from(new Set(encomendas.map((e: any) => e.cliente).filter((c: string) => c && c.trim() !== ""))).sort(),

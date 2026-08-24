@@ -146,3 +146,21 @@ export function formatarMesReferencia(refIso: string): string {
   if (mesIndex < 0 || mesIndex > 11) return datePart;
   return `${meses[mesIndex]} de ${year}`;
 }
+
+/**
+ * Verifica se uma encomenda/venda pertence ao mês/ano selecionado.
+ * Considera tanto a data do pedido quanto a data de entrega, evitando que
+ * registros com entrega em outro mês "desapareçam" da listagem.
+ */
+export function noPeriodoSelecionado(
+  registro: { data_pedido?: string | null; data_entrega?: string | null },
+  mes: number,
+  ano: number,
+): boolean {
+  const datas = [registro.data_pedido, registro.data_entrega].filter(Boolean) as string[];
+  if (datas.length === 0) return false;
+  return datas.some((iso) => {
+    const d = parseISOToDate(iso);
+    return d.getMonth() === mes && d.getFullYear() === ano;
+  });
+}
