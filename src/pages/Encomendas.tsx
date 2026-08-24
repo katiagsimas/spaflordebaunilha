@@ -1006,7 +1006,7 @@ const Encomendas = () => {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="hora_entrega">Hora da Entrega</Label>
+                        <Label htmlFor="hora_entrega">Hora do Atendimento</Label>
                         <Input
                           id="hora_entrega"
                           type="time"
