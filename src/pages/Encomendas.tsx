@@ -995,7 +995,7 @@ const Encomendas = () => {
                   {formMode === "servico" && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="data_entrega">Data de Entrega</Label>
+                        <Label htmlFor="data_entrega">Data Agendada</Label>
                         <Input
                           id="data_entrega"
                           type="date"
