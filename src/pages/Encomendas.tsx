@@ -380,6 +380,11 @@ const Encomendas = () => {
         
         await updateEncomenda(editingOrder.id, dadosParaSalvar);
         
+        // Feedback se o status mudou
+        if (editingOrder.status !== dadosParaSalvar.status) {
+          toast.info(`Status alterado de "${statusLabels[editingOrder.status as keyof typeof statusLabels]}" para "${statusLabels[dadosParaSalvar.status as keyof typeof statusLabels]}". O registro será movido para a aba correspondente.`);
+        }
+        
         // Baixa automática de estoque ao marcar como "entregue"
         if (
           dadosParaSalvar.status === 'entregue' &&
