@@ -1,7 +1,7 @@
 /* Módulo de Vendas refinado: no formulário "Venda de Produtos", a busca de serviços foi removida e substituída pela busca de produtos Natura/Avon via código (BuscarProdutoRevenda), permitindo o cadastro imediato de novos itens. As nomenclaturas foram adaptadas para o contexto de venda e serviço. */
 import { useState, useMemo, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
-import { getTodayISO, formatDateBR, parseISOToDate } from "@/lib/dateUtils";
+import { getTodayISO, formatDateBR, parseISOToDate, noPeriodoSelecionado } from "@/lib/dateUtils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -208,16 +208,11 @@ const Encomendas = () => {
     const amanha = addDays(hoje, 1);
     const fimSemana = addDays(hoje, 7);
 
-    // Filtrar encomendas do mês selecionado pela DATA DE ENTREGA ou DATA DO PEDIDO
-    const encomendasMes = encomendas.filter((enc) => {
-      const dataRef = enc.data_entrega || enc.data_pedido;
-      if (!dataRef) return false;
-      const dataEntrega = parseISOToDate(dataRef);
-      return (
-        dataEntrega.getMonth() === mesSelecionado &&
-        dataEntrega.getFullYear() === anoSelecionado
-      );
-    });
+    // Filtrar encomendas do mês selecionado (data do pedido OU data de entrega)
+    const encomendasMes = encomendas.filter((enc) =>
+      noPeriodoSelecionado(enc as any, mesSelecionado, anoSelecionado),
+    );
+
 
     // CARDS DE VISÃO GERAL
     const total = encomendasMes.length;
