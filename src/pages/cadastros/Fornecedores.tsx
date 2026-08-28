@@ -500,6 +500,15 @@ export default function Fornecedores() {
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                pagina={paginaAtual}
+                totalPaginas={totalPaginas}
+                total={fornecedoresFiltrados.length}
+                porPagina={porPagina}
+                onPaginaChange={setPagina}
+                onPorPaginaChange={(n) => { setPorPagina(n); setPagina(1); }}
+                label="fornecedores"
+              />
             </div>
           )}
         </CardContent>

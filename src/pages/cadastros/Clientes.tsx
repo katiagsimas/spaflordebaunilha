@@ -579,6 +579,15 @@ export default function Clientes() {
                   ))}
                 </TableBody>
               </Table>
+              <TablePagination
+                pagina={paginaAtual}
+                totalPaginas={totalPaginas}
+                total={clientesFiltrados.length}
+                porPagina={porPagina}
+                onPaginaChange={setPagina}
+                onPorPaginaChange={(n) => { setPorPagina(n); setPagina(1); }}
+                label="clientes"
+              />
             </div>
           )}
         </CardContent>
