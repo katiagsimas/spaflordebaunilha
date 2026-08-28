@@ -9,7 +9,7 @@ import { LoadingState } from '@/components/LoadingState';
 import { EmptyState } from '@/components/EmptyState';
 import { ArrowDownUp, Package, Plus, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -29,7 +29,10 @@ interface EncomendaRef {
 
 export default function EstoqueMovimentacoes() {
   const navigate = useNavigate();
-  const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque();
+  const [searchParams] = useSearchParams();
+  const escopo = searchParams.get('escopo') === 'revenda' ? 'revenda' : 'operacional';
+  const rotaVoltar = escopo === 'revenda' ? '/estoque/revenda' : '/estoque/operacional';
+  const { movimentacoes, itens, loadingMov, fetchMovimentacoes } = useEstoque(escopo);
 
   const encomendaIds = useMemo(
     () => [
@@ -72,7 +75,7 @@ export default function EstoqueMovimentacoes() {
       <PageHeader
         title="Movimentações de Estoque"
         description="Histórico completo de entradas, saídas e ajustes"
-        backButton={<BackButton to="/estoque" />}
+        backButton={<BackButton to={rotaVoltar} />}
         actions={
           <div className="flex gap-2">
             <Button

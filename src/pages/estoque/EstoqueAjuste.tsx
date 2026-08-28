@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,11 @@ import { toast } from 'sonner';
 
 export default function EstoqueAjuste() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const escopo = searchParams.get('escopo') === 'revenda' ? 'revenda' : 'operacional';
+  const rotaVoltar = escopo === 'revenda' ? '/estoque/revenda' : '/estoque/operacional';
   const { activeGroup } = useGroup();
-  const { itens, registrarSaidaManual } = useEstoque();
+  const { itens, registrarSaidaManual } = useEstoque(escopo);
   const [estoqueId, setEstoqueId] = useState('');
   const [tipoAjuste, setTipoAjuste] = useState('perda');
   const [quantidade, setQuantidade] = useState('');
@@ -43,7 +46,7 @@ export default function EstoqueAjuste() {
         motivo: `[${tipoAjuste.toUpperCase()}] ${motivo}`,
         tipo_ajuste: tipoAjuste === 'correcao' ? 'correcao' : 'saida_manual',
       });
-      navigate('/estoque');
+      navigate(rotaVoltar);
     } catch (err: any) {
       toast.error('Erro ao registrar ajuste: ' + (err.message || ''));
     } finally {
@@ -56,7 +59,7 @@ export default function EstoqueAjuste() {
       <PageHeader
         title="Ajuste Manual de Estoque"
         description="Registre perdas, doações ou correções de inventário"
-        backButton={<BackButton to="/estoque" />}
+        backButton={<BackButton to={rotaVoltar} />}
       />
 
       <Card>
@@ -127,7 +130,7 @@ export default function EstoqueAjuste() {
               <Button type="submit" disabled={salvando}>
                 {salvando ? 'Salvando...' : 'Registrar Ajuste'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate('/estoque')}>
+              <Button type="button" variant="outline" onClick={() => navigate(rotaVoltar)}>
                 Cancelar
               </Button>
             </div>
