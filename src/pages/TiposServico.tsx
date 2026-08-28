@@ -29,6 +29,9 @@ import { Badge } from "@/components/ui/badge";
 import { useCategorias } from "@/hooks/useCategorias";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/EmptyState";
+import { TablePagination } from "@/components/TablePagination";
+import { usePaginacao } from "@/hooks/usePaginacao";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Label } from "@/components/ui/label";
 
@@ -41,9 +44,11 @@ export default function TiposServico() {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
-  const filteredCategories = categorias.filter((c) =>
-    c.nome.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredCategories = ordenarAlfabetico(
+    categorias.filter((c) => c.nome.toLowerCase().includes(searchTerm.toLowerCase())),
+    (c) => c.nome,
   );
+  const paginacao = usePaginacao(filteredCategories, 25);
 
   const handleSave = async () => {
     if (!newCategoryName.trim()) {
@@ -159,7 +164,7 @@ export default function TiposServico() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCategories.map((category) => (
+              {paginacao.itensPagina.map((category) => (
                 <TableRow key={category.id} className="hover:bg-sfb-baunilha/20 border-b border-sfb-areia/10">
                   <TableCell className="font-medium text-sfb-cacau">{category.nome}</TableCell>
                   <TableCell>
@@ -194,6 +199,15 @@ export default function TiposServico() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            pagina={paginacao.pagina}
+            totalPaginas={paginacao.totalPaginas}
+            total={paginacao.total}
+            porPagina={paginacao.porPagina}
+            onPaginaChange={paginacao.setPagina}
+            onPorPaginaChange={paginacao.setPorPagina}
+            label="tipos"
+          />
         </div>
       )}
 
