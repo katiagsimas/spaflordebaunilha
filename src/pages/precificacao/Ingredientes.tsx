@@ -9,6 +9,9 @@ import { useReceitas } from '@/hooks/useReceitas';
 import { useUserProfile } from "@/hooks/useUserProfile";
 
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
@@ -216,6 +219,8 @@ export default function Ingredientes() {
       return nomeIngrediente.includes(termo) || marcaIngrediente.includes(termo);
     });
   }, [todosIngredientes, termoBusca]);
+
+  const paginacaoIngredientes = usePaginacao(ingredientesFiltrados, 25);
 
   // Verificar se preço está desatualizado (>30 dias)
   const verificarDesatualizado = (dataAtualizacao: string) => {
@@ -666,7 +671,7 @@ export default function Ingredientes() {
                 <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                   {termoBusca ? 'Nenhum insumo encontrado com esse termo.' : 'Nenhum insumo cadastrado. Clique em "Novo Insumo".'}
                 </TableCell>
-              </TableRow> : ingredientesFiltrados.map((ingrediente: any) => {
+              </TableRow> : paginacaoIngredientes.itensPagina.map((ingrediente: any) => {
             const desatualizado = verificarDesatualizado(ingrediente.data_atualizacao);
             const eReceitaBase = ingrediente.e_pre_preparo || ingrediente.tipo_insumo?.pre_preparo_id;
             const eReceita = ingrediente.e_receita;
