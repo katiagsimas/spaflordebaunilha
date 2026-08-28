@@ -22,11 +22,15 @@ export default function EstoqueEntrada() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const editId = searchParams.get('edit');
+  const isRevenda = searchParams.get('escopo') === 'revenda';
+  const rotaVoltar = isRevenda ? '/estoque/revenda' : '/estoque/operacional';
   const { user } = useAuth();
   const { activeGroup } = useGroup();
   const { registrarEntrada, itens, updateEstoqueItem } = useEstoque();
   const queryClient = useQueryClient();
-  const [tipo, setTipo] = useState<'ingrediente' | 'embalagem'>('ingrediente');
+  const [tipo, setTipo] = useState<'ingrediente' | 'embalagem' | 'revenda'>(
+    isRevenda ? 'revenda' : 'ingrediente',
+  );
   const [insumoId, setInsumoId] = useState('');
   const [quantidade, setQuantidade] = useState('');
   const [custoTotal, setCustoTotal] = useState('');
@@ -45,7 +49,13 @@ export default function EstoqueEntrada() {
       if (item) {
         setItemEmEdicao(item);
         setTipo(item.tipo);
-        setInsumoId(item.tipo === 'ingrediente' ? item.ingrediente_id || '' : item.embalagem_id || '');
+        setInsumoId(
+          item.tipo === 'ingrediente'
+            ? item.ingrediente_id || ''
+            : item.tipo === 'embalagem'
+              ? item.embalagem_id || ''
+              : item.produto_revenda_id || '',
+        );
         setQuantidade(item.quantidade_atual.toString());
         setPrecoProduto(item.custo_medio.toString());
         setQuantidadeEmbalagem('1'); // Padrão se for edição direta do saldo
@@ -94,7 +104,28 @@ export default function EstoqueEntrada() {
     enabled: !!activeGroup?.id && tipo === 'embalagem',
   });
 
-  const insumos: any[] = tipo === 'ingrediente' ? ingredientes : embalagens;
+  const { data: produtosRevenda = [] } = useQuery({
+    queryKey: ['produtos-revenda-estoque', activeGroup?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('produtos_revenda')
+        .select('id, codigo, descricao, marca, preco, quantidade_ml')
+        .eq('owner_group_id', activeGroup?.id)
+        .order('descricao') as any;
+      return (data || []).map((p: any) => ({
+        id: p.id,
+        nome: `${p.codigo ? p.codigo + ' — ' : ''}${p.descricao}`,
+        marca: p.marca || null,
+        preco: Number(p.preco) || 0,
+        quantidade_embalagem: 1,
+        sigla: 'un',
+      }));
+    },
+    enabled: !!activeGroup?.id && tipo === 'revenda',
+  });
+
+  const insumos: any[] =
+    tipo === 'ingrediente' ? ingredientes : tipo === 'embalagem' ? embalagens : produtosRevenda;
 
   const formatarPreco = (v: number) =>
     v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -209,7 +240,7 @@ export default function EstoqueEntrada() {
       }
 
       // Se solicitado, atualizar preço global do insumo
-      if (atualizarGlobal && insumoId) {
+      if (atualizarGlobal && insumoId && tipo !== 'revenda') {
         const table = tipo === 'ingrediente' ? 'ingredientes' : 'embalagens';
         const { error: updateError } = await supabase
           .from(table)
@@ -228,12 +259,13 @@ export default function EstoqueEntrada() {
         tipo,
         ingrediente_id: tipo === 'ingrediente' ? insumoId : undefined,
         embalagem_id: tipo === 'embalagem' ? insumoId : undefined,
+        produto_revenda_id: tipo === 'revenda' ? insumoId : undefined,
         quantidade: Number(quantidade),
         custo_total: Number(custoTotal),
         estoque_minimo: estoqueMinimo !== '' ? Number(estoqueMinimo) : null,
         observacao: observacao || undefined,
       });
-      navigate('/estoque');
+      navigate(rotaVoltar);
     } catch (err: any) {
       toast.error('Erro ao processar: ' + (err.message || ''));
     } finally {
@@ -245,8 +277,14 @@ export default function EstoqueEntrada() {
     <div className="space-y-6">
       <PageHeader
         title={editId ? "Editar Item de Estoque" : "Nova Entrada de Estoque"}
-        description={editId ? `Editando saldo e valores de ${itemEmEdicao?.nome_insumo || ''}` : "Registre uma compra de insumo ou embalagem"}
-        backButton={<BackButton to="/estoque" />}
+        description={
+          editId
+            ? `Editando saldo e valores de ${itemEmEdicao?.nome_insumo || ''}`
+            : isRevenda
+              ? 'Registre uma compra de produto para revenda'
+              : 'Registre uma compra de insumo ou embalagem'
+        }
+        backButton={<BackButton to={rotaVoltar} />}
       />
 
       <Card>
@@ -255,6 +293,7 @@ export default function EstoqueEntrada() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
+            {!isRevenda && (
             <div className="rounded-lg border p-4">
               <BuscarProdutoRevenda
                 onImportado={handleProdutoRevendaImportado}
@@ -262,7 +301,9 @@ export default function EstoqueEntrada() {
                 origem="estoque"
               />
             </div>
+            )}
 
+            {!isRevenda && (
             <div className="space-y-2">
               <Label>Tipo de Insumo *</Label>
               <Select disabled={!!editId} value={tipo} onValueChange={(v) => { setTipo(v as any); setInsumoId(''); }}>
@@ -275,12 +316,13 @@ export default function EstoqueEntrada() {
                 </SelectContent>
               </Select>
             </div>
+            )}
 
             <div className="space-y-2">
-              <Label>Insumo *</Label>
+              <Label>{isRevenda ? 'Produto para Revenda *' : 'Insumo *'}</Label>
               <Select disabled={!!editId} value={insumoId} onValueChange={handleSelecionarInsumo}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o insumo" />
+                  <SelectValue placeholder={isRevenda ? 'Selecione o produto' : 'Selecione o insumo'} />
                 </SelectTrigger>
                 <SelectContent>
                   {insumos.map((i: any) => (
@@ -425,7 +467,7 @@ export default function EstoqueEntrada() {
               <Button type="submit" disabled={salvando}>
                 {salvando ? 'Salvando...' : (editId ? 'Salvar Alterações' : 'Registrar Entrada')}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate('/estoque')}>
+              <Button type="button" variant="outline" onClick={() => navigate(rotaVoltar)}>
                 Cancelar
               </Button>
             </div>

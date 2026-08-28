@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1599,6 +1599,7 @@ export type Database = {
           id: string
           ingrediente_id: string | null
           owner_group_id: string | null
+          produto_revenda_id: string | null
           quantidade_atual: number
           tipo: string
           updated_at: string
@@ -1612,6 +1613,7 @@ export type Database = {
           id?: string
           ingrediente_id?: string | null
           owner_group_id?: string | null
+          produto_revenda_id?: string | null
           quantidade_atual?: number
           tipo: string
           updated_at?: string
@@ -1625,6 +1627,7 @@ export type Database = {
           id?: string
           ingrediente_id?: string | null
           owner_group_id?: string | null
+          produto_revenda_id?: string | null
           quantidade_atual?: number
           tipo?: string
           updated_at?: string
@@ -1643,6 +1646,13 @@ export type Database = {
             columns: ["ingrediente_id"]
             isOneToOne: false
             referencedRelation: "ingredientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estoque_produto_revenda_id_fkey"
+            columns: ["produto_revenda_id"]
+            isOneToOne: false
+            referencedRelation: "produtos_revenda"
             referencedColumns: ["id"]
           },
         ]

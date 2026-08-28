@@ -45,8 +45,14 @@ import valorEstoqueImg from '@/assets/estoque-valor-total.png';
 import itensCadastradosImg from '@/assets/estoque-itens-cadastrados.png';
 import abaixoMinimoImg from '@/assets/estoque-abaixo-minimo.png';
 
-export default function EstoqueDashboard() {
+interface EstoqueDashboardProps {
+  escopo?: 'operacional' | 'revenda';
+}
+
+export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDashboardProps) {
   const navigate = useNavigate();
+  const isRevenda = escopo === 'revenda';
+  const sufixoRota = isRevenda ? '?escopo=revenda' : '';
   const { 
     itens, 
     loading, 
@@ -55,7 +61,7 @@ export default function EstoqueDashboard() {
     updateEstoqueItem,
     deleteEstoqueItem,
     duplicateEstoqueItem 
-  } = useEstoque();
+  } = useEstoque(escopo);
   const [busca, setBusca] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
@@ -118,28 +124,42 @@ export default function EstoqueDashboard() {
     <div className="space-y-6">
       {/* HERO BANNER padronizado - Imagem removida conforme solicitação */}
       <HeroBanner
-        title="Estoque"
-        subtitle="Controle o estoque de insumos e embalagens da sua confeitaria"
+        title={isRevenda ? 'Estoque de Revenda' : 'Estoque Operacional'}
+        subtitle={
+          isRevenda
+            ? 'Controle o estoque dos produtos para revenda (Natura, Avon e outras marcas)'
+            : 'Controle o estoque de insumos e embalagens do seu spa'
+        }
       />
+
+      <div>
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/estoque')}
+          className="gap-2 text-sfb-cacau hover:bg-sfb-baunilha"
+        >
+          ← Voltar para Estoque
+        </Button>
+      </div>
 
       {/* AÇÕES */}
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button
-          onClick={() => navigate('/estoque/entrada')}
+          onClick={() => navigate(`/estoque/entrada${sufixoRota}`)}
           className="gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
         >
           <Plus className="h-4 w-4" /> Nova Entrada
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/estoque/ajuste')}
+          onClick={() => navigate(`/estoque/ajuste${sufixoRota}`)}
           className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
           <SlidersHorizontal className="h-4 w-4" /> Ajuste Manual
         </Button>
         <Button
           variant="outline"
-          onClick={() => navigate('/estoque/movimentacoes')}
+          onClick={() => navigate(`/estoque/movimentacoes${sufixoRota}`)}
           className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
           <ArrowDownUp className="h-4 w-4" /> Ver Histórico
@@ -183,16 +203,18 @@ export default function EstoqueDashboard() {
             className="rounded-lg border-sfb-cacau/20 bg-white pl-9 focus-visible:border-sfb-terracota"
           />
         </div>
-        <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-          <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
-            <SelectValue placeholder="Todos os tipos" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="todos">Todos os tipos</SelectItem>
-            <SelectItem value="ingrediente">Insumos</SelectItem>
-            <SelectItem value="embalagem">Embalagens</SelectItem>
-          </SelectContent>
-        </Select>
+        {!isRevenda && (
+          <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+            <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
+              <SelectValue placeholder="Todos os tipos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os tipos</SelectItem>
+              <SelectItem value="ingrediente">Insumos</SelectItem>
+              <SelectItem value="embalagem">Embalagens</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
           <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os status" />
@@ -263,7 +285,7 @@ export default function EstoqueDashboard() {
                                 {item.nome_insumo}
                               </p>
                               <p className="font-body text-[11px] text-sfb-cacau/50">
-                                {item.tipo === 'ingrediente' ? 'Insumo' : 'Embalagem'}
+                                {item.tipo === 'ingrediente' ? 'Insumo' : item.tipo === 'embalagem' ? 'Embalagem' : 'Produto de Revenda'}
                               </p>
                             </div>
                           </div>
@@ -352,12 +374,12 @@ export default function EstoqueDashboard() {
                 loading="lazy"
               />
               <p className="mt-4 font-display text-lg leading-snug text-sfb-cacau">
-                Nenhum insumo
+                {isRevenda ? 'Nenhum produto' : 'Nenhum insumo'}
                 <br />
                 cadastrado ainda
               </p>
               <Button
-                onClick={() => navigate('/estoque/entrada')}
+                onClick={() => navigate(`/estoque/entrada${sufixoRota}`)}
                 className="mt-5 gap-2 rounded-lg bg-sfb-terracota text-sfb-baunilha hover:bg-sfb-terracota/90"
               >
                 <Plus className="h-4 w-4" /> Nova Entrada
@@ -394,7 +416,7 @@ export default function EstoqueDashboard() {
               </ul>
               <Button
                 variant="outline"
-                onClick={() => navigate('/estoque/entrada')}
+                onClick={() => navigate(`/estoque/entrada${sufixoRota}`)}
                 className="w-full gap-2 rounded-lg border-sfb-cacau/30 text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
               >
                 <Plus className="h-4 w-4" /> Repor estoque
@@ -414,7 +436,7 @@ export default function EstoqueDashboard() {
                 Estoque equilibrado
               </p>
               <p className="mt-1 font-body text-xs text-sfb-cacau/60">
-                Nenhum insumo abaixo do mínimo.
+                {isRevenda ? 'Nenhum produto abaixo do mínimo.' : 'Nenhum insumo abaixo do mínimo.'}
               </p>
             </div>
           )}

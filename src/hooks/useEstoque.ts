@@ -9,9 +9,10 @@ export interface EstoqueItem {
   id: string;
   usuario_id: string;
   owner_group_id: string | null;
-  tipo: 'ingrediente' | 'embalagem';
+  tipo: 'ingrediente' | 'embalagem' | 'revenda';
   ingrediente_id: string | null;
   embalagem_id: string | null;
+  produto_revenda_id?: string | null;
   quantidade_atual: number;
   custo_medio: number;
   estoque_minimo: number | null;
@@ -22,6 +23,12 @@ export interface EstoqueItem {
   unidade?: string;
   unidade_medida_id?: string;
   tipo_insumo_id?: string;
+}
+
+export type EstoqueEscopo = 'operacional' | 'revenda';
+
+export function escopoDoItem(item: { tipo: string }): EstoqueEscopo {
+  return item.tipo === 'revenda' ? 'revenda' : 'operacional';
 }
 
 export interface EstoqueMovimentacao {
@@ -51,6 +58,8 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
   const items = (data || []) as any[];
   const ingredienteIds = items.filter(i => i.ingrediente_id).map(i => i.ingrediente_id);
   const embalagemIds = items.filter(i => i.embalagem_id).map(i => i.embalagem_id);
+  const revendaIds = items.filter(i => i.produto_revenda_id).map(i => i.produto_revenda_id);
+  const revendaMap: Record<string, { nome: string; unidade: string }> = {};
 
   const ingredientesMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
   const embalagensMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
@@ -85,19 +94,37 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
     });
   };
 
+  const buscarRevenda = async () => {
+    const { data: produtos } = await supabase
+      .from('produtos_revenda')
+      .select('id, descricao, marca, quantidade_ml')
+      .in('id', revendaIds) as any;
+    (produtos || []).forEach((p: any) => {
+      revendaMap[p.id] = {
+        nome: [p.descricao, p.marca].filter(Boolean).join(' — ') || 'Produto de Revenda',
+        unidade: 'un',
+      };
+    });
+  };
+
   const promises: Promise<void>[] = [];
   if (ingredienteIds.length > 0) promises.push(buscarIngredientes());
   if (embalagemIds.length > 0) promises.push(buscarEmbalagens());
+  if (revendaIds.length > 0) promises.push(buscarRevenda());
   await Promise.all(promises);
 
   return items.map(item => ({
     ...item,
-    nome_insumo: item.tipo === 'ingrediente'
-      ? ingredientesMap[item.ingrediente_id]?.nome || 'Insumo'
-      : embalagensMap[item.embalagem_id]?.nome || 'Embalagem',
-    unidade: item.tipo === 'ingrediente'
-      ? ingredientesMap[item.ingrediente_id]?.unidade || ''
-      : embalagensMap[item.embalagem_id]?.unidade || '',
+    nome_insumo: item.tipo === 'revenda'
+      ? revendaMap[item.produto_revenda_id]?.nome || 'Produto de Revenda'
+      : item.tipo === 'ingrediente'
+        ? ingredientesMap[item.ingrediente_id]?.nome || 'Insumo'
+        : embalagensMap[item.embalagem_id]?.nome || 'Embalagem',
+    unidade: item.tipo === 'revenda'
+      ? revendaMap[item.produto_revenda_id]?.unidade || 'un'
+      : item.tipo === 'ingrediente'
+        ? ingredientesMap[item.ingrediente_id]?.unidade || ''
+        : embalagensMap[item.embalagem_id]?.unidade || '',
     unidade_medida_id: item.tipo === 'ingrediente'
       ? ingredientesMap[item.ingrediente_id]?.unidade_medida_id || ''
       : embalagensMap[item.embalagem_id]?.unidade_medida_id || '',
@@ -126,7 +153,7 @@ async function fetchEstoqueMovimentacoes(
   return (data || []) as EstoqueMovimentacao[];
 }
 
-export function useEstoque() {
+export function useEstoque(escopo?: EstoqueEscopo) {
   const { user } = useAuth();
   const { activeGroupId } = useGroup();
   const queryClient = useQueryClient();
@@ -142,7 +169,8 @@ export function useEstoque() {
     },
   });
 
-  const itens = itensQuery.data ?? [];
+  const todosItens = itensQuery.data ?? [];
+  const itens = escopo ? todosItens.filter(i => escopoDoItem(i) === escopo) : todosItens;
   const loading = itensQuery.isLoading;
 
   // ============ Movimentações ============
@@ -172,9 +200,10 @@ export function useEstoque() {
   // ============ Mutations ============
   const registrarEntradaMutation = useMutation({
     mutationFn: async (params: {
-      tipo: 'ingrediente' | 'embalagem';
+      tipo: 'ingrediente' | 'embalagem' | 'revenda';
       ingrediente_id?: string;
       embalagem_id?: string;
+      produto_revenda_id?: string;
       quantidade: number;
       custo_total: number;
       estoque_minimo?: number | null;
@@ -184,8 +213,14 @@ export function useEstoque() {
 
       const custoUnitario = params.quantidade > 0 ? params.custo_total / params.quantidade : 0;
 
-      const filterCol = params.tipo === 'ingrediente' ? 'ingrediente_id' : 'embalagem_id';
-      const filterVal = params.tipo === 'ingrediente' ? params.ingrediente_id : params.embalagem_id;
+      const filterCol =
+        params.tipo === 'ingrediente' ? 'ingrediente_id'
+        : params.tipo === 'embalagem' ? 'embalagem_id'
+        : 'produto_revenda_id';
+      const filterVal =
+        params.tipo === 'ingrediente' ? params.ingrediente_id
+        : params.tipo === 'embalagem' ? params.embalagem_id
+        : params.produto_revenda_id;
 
       const { data: existing } = await (supabase.from('estoque' as any) as any)
         .select('*')
@@ -220,6 +255,7 @@ export function useEstoque() {
           tipo: params.tipo,
           ingrediente_id: params.ingrediente_id || null,
           embalagem_id: params.embalagem_id || null,
+          produto_revenda_id: params.produto_revenda_id || null,
           quantidade_atual: params.quantidade,
           custo_medio: custoUnitario,
           estoque_minimo: params.estoque_minimo || null,
@@ -371,7 +407,7 @@ export function useEstoque() {
     mutationFn: async (item: EstoqueItem) => {
       if (!user || !activeGroupId) throw new Error('Sessão inválida');
       
-      const { id, created_at, updated_at, nome_insumo, unidade, ...insertData } = item as any;
+      const { id, created_at, updated_at, nome_insumo, unidade, unidade_medida_id, tipo_insumo_id, ...insertData } = item as any;
       insertData.usuario_id = user.id;
       insertData.owner_group_id = activeGroupId;
 
