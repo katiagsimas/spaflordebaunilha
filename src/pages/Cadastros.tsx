@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag, Armchair } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag, Armchair, Boxes } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
@@ -35,6 +35,12 @@ export default function Cadastros() {
       description: "Controle de embalagens e materiais secundários",
       icon: Ruler,
       to: "/cadastros/embalagens",
+    },
+    {
+      title: "Tipos de Insumos e Embalagens",
+      description: "Matriz de tipos base: edite, duplique ou exclua os itens",
+      icon: Boxes,
+      to: "/configuracoes/tipos-insumos",
     },
     {
       title: "Utensílios e Mobiliário",
