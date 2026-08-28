@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag, Armchair } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag, Armchair, Boxes } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
