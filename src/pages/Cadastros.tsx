@@ -37,6 +37,12 @@ export default function Cadastros() {
       to: "/cadastros/embalagens",
     },
     {
+      title: "Utensílios e Mobiliário",
+      description: "Registre compras de utensílios e mobiliário do seu espaço",
+      icon: Armchair,
+      to: "/cadastros/utensilios",
+    },
+    {
       title: "Produtos para Revenda",
       description: "Gerencie itens adquiridos para revenda direta (Natura, Avon)",
       icon: ShoppingBag,
