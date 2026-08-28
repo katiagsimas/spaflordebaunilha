@@ -254,7 +254,7 @@ export default function TiposInsumosOutros() {
   };
 
   const handleExportarExcel = () => {
-    const dadosExportar = paginacao.itensPagina.map(tipo => ({
+    const dadosExportar = tiposFiltrados.map(tipo => ({
       'Descrição': tipo.descricao,
       'Quantidade por Embalagem': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.sigla || '',

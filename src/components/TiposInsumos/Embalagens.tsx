@@ -283,7 +283,7 @@ export default function TiposInsumosEmbalagens() {
       return;
     }
 
-    const dadosExport = paginacao.itensPagina.map((tipo) => ({
+    const dadosExport = tiposFiltrados.map((tipo) => ({
       'Descrição': tipo.descricao,
       'Quantidade': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.nome,
@@ -359,7 +359,7 @@ export default function TiposInsumosEmbalagens() {
                 </TableCell>
               </TableRow>
             ) : (
-              tiposFiltrados.map((tipo) => (
+              paginacao.itensPagina.map((tipo) => (
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
