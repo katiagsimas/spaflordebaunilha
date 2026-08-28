@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useEstoque, type EstoqueItem } from '@/hooks/useEstoque';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { compararTexto } from '@/lib/sortUtils';
 import { 
   Package, 
   AlertTriangle, 
@@ -61,8 +64,6 @@ export default function EstoqueDashboard() {
   const [editando, setEditando] = useState(false);
 
 
-  if (loading) return <LoadingState />;
-
   const itensFiltrados = itens.filter((item) => {
     const matchBusca = !busca || (item.nome_insumo || '').toLowerCase().includes(busca.toLowerCase());
     const matchTipo = filtroTipo === 'todos' || item.tipo === filtroTipo;
@@ -74,7 +75,11 @@ export default function EstoqueDashboard() {
       (filtroStatus === 'zerado' && zerado) ||
       (filtroStatus === 'normal' && !abaixo && !zerado);
     return matchBusca && matchTipo && matchStatus;
-  });
+  }).sort((a, b) => compararTexto(a.nome_insumo, b.nome_insumo));
+
+  const paginacao = usePaginacao(itensFiltrados, 25);
+
+  if (loading) return <LoadingState />;
 
   const kpis = [
     {
@@ -239,7 +244,7 @@ export default function EstoqueDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {itensFiltrados.map((item, idx) => {
+                  {paginacao.itensPagina.map((item, idx) => {
                     const abaixoMinimo =
                       item.estoque_minimo != null && item.quantidade_atual < item.estoque_minimo;
                     const valorItem = item.quantidade_atual * item.custo_medio;
@@ -321,6 +326,15 @@ export default function EstoqueDashboard() {
                   })}
                 </tbody>
               </table>
+              <TablePagination
+                pagina={paginacao.pagina}
+                totalPaginas={paginacao.totalPaginas}
+                total={paginacao.total}
+                porPagina={paginacao.porPagina}
+                onPaginaChange={paginacao.setPagina}
+                onPorPaginaChange={paginacao.setPorPagina}
+                label="itens"
+              />
             </div>
           )}
         </div>
