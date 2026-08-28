@@ -52,6 +52,7 @@ import ConfiguracaoJurosPage from "./pages/configuracoes/ConfiguracaoJuros";
 import BackupPage from "./pages/configuracoes/Backup";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
+import Utensilios from "./pages/cadastros/Utensilios";
 import Receitas from "./pages/precificacao/Receitas";
 import ReceitaForm from "./pages/precificacao/ReceitaForm";
 import Financeiro from "./pages/financeiro/Financeiro";
