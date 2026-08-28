@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveGroupId } from '@/lib/activeGroup';
+import { verificarUsoTipoInsumo } from '@/lib/tiposInsumosUsage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, Info, Search, Download, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 
@@ -210,53 +211,62 @@ export default function TiposInsumosIngredientes() {
     }
   };
 
+  const handleDuplicar = async (tipo: any) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
+
+      const { error } = await supabase.from('tipos_insumos').insert({
+        descricao: `${tipo.descricao} (cópia)`,
+        quantidade_embalagem: tipo.quantidade_embalagem,
+        unidade_medida_id: tipo.unidade_medida?.id ?? tipo.unidade_medida_id,
+        usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
+        tipo: 'ingrediente',
+      });
+
+      if (error) {
+        if (error.code === '23505') throw new Error('Já existe um item com este nome. Renomeie a cópia.');
+        throw error;
+      }
+
+      toast({ title: '✅ Duplicado', description: 'Item duplicado com sucesso!' });
+      fetchTipos();
+    } catch (error: any) {
+      console.error('Erro ao duplicar:', error);
+      toast({ title: 'Erro ao duplicar', description: error.message, variant: 'destructive' });
+    }
+  };
+
   const handleExcluir = async (id: string, descricao: string) => {
     try {
-      const { data: emUso, error: erroVerificacao } = await supabase
-        .from('ingredientes')
-        .select('id')
-        .eq('tipo_insumo_id', id);
+      const { emUso, detalhes } = await verificarUsoTipoInsumo(id);
 
-      if (erroVerificacao) throw erroVerificacao;
-
-      if (emUso && emUso.length > 0) {
+      if (emUso) {
         alert(
           `⚠️ EXCLUSÃO BLOQUEADA!\n\n` +
-          `O tipo "${descricao}" está sendo usado em ${emUso.length} insumo(s).\n\n` +
-          `Para excluir, primeiro remova todos os insumos que usam este tipo em:\n` +
-          `Precificação > Insumos`
+          `"${descricao}" está em uso no sistema:\n\n` +
+          detalhes.map((d) => `• ${d}`).join('\n') +
+          `\n\nRemova esses vínculos antes de excluir.`
         );
         return;
       }
 
       const confirmacao = window.confirm(
         `⚠️ EXCLUSÃO PERMANENTE\n\n` +
-        `Confirma a exclusão de:\n"${descricao}"\n\n` +
-        `Esta ação NÃO pode ser desfeita!`
+        `A varredura não encontrou uso em Receitas, Serviços ou Estoque.\n\n` +
+        `Confirma a exclusão de:\n"${descricao}"?`
       );
-
       if (!confirmacao) return;
 
-      const { error } = await supabase
-        .from('tipos_insumos')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('tipos_insumos').delete().eq('id', id);
       if (error) throw error;
 
-      toast({
-        title: '✅ Excluído',
-        description: 'Tipo removido com sucesso!',
-      });
-
+      toast({ title: '✅ Excluído', description: 'Item removido com sucesso!' });
       fetchTipos();
     } catch (error: any) {
       console.error('Erro ao excluir:', error);
-      toast({
-        title: 'Erro ao excluir',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -350,6 +360,14 @@ export default function TiposInsumosIngredientes() {
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
                   <TableCell>{tipo.unidade_medida?.nome}</TableCell>
                   <TableCell className="text-right space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      title="Duplicar"
+                      onClick={() => handleDuplicar(tipo)}
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"

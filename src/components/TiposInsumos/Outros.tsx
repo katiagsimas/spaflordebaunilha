@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { getActiveGroupId } from '@/lib/activeGroup';
+import { verificarUsoTipoInsumo } from '@/lib/tiposInsumosUsage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,7 +32,7 @@ import {
 } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit, Trash2, Info, Search, Download } from 'lucide-react';
+import { Plus, Edit, Trash2, Info, Search, Download, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 
@@ -190,33 +191,62 @@ export default function TiposInsumosOutros() {
     }
   };
 
-  const handleExcluir = async (id: string) => {
+  const handleDuplicar = async (tipo: any) => {
     try {
-      // Confirmar exclusão
-      if (!confirm('Tem certeza que deseja excluir este item?')) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Não autenticado');
+
+      const { error } = await supabase.from('tipos_insumos').insert({
+        descricao: `${tipo.descricao} (cópia)`,
+        quantidade_embalagem: tipo.quantidade_embalagem,
+        unidade_medida_id: tipo.unidade_medida?.id ?? tipo.unidade_medida_id,
+        usuario_id: user.id,
+        owner_group_id: await getActiveGroupId(user.id),
+        tipo: 'outros',
+      });
+
+      if (error) {
+        if (error.code === '23505') throw new Error('Já existe um item com este nome. Renomeie a cópia.');
+        throw error;
+      }
+
+      toast({ title: '✅ Duplicado', description: 'Item duplicado com sucesso!' });
+      fetchTipos();
+    } catch (error: any) {
+      console.error('Erro ao duplicar:', error);
+      toast({ title: 'Erro ao duplicar', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleExcluir = async (id: string, descricao: string) => {
+    try {
+      const { emUso, detalhes } = await verificarUsoTipoInsumo(id);
+
+      if (emUso) {
+        alert(
+          `⚠️ EXCLUSÃO BLOQUEADA!\n\n` +
+          `"${descricao}" está em uso no sistema:\n\n` +
+          detalhes.map((d) => `• ${d}`).join('\n') +
+          `\n\nRemova esses vínculos antes de excluir.`
+        );
         return;
       }
 
-      const { error } = await supabase
-        .from('tipos_insumos')
-        .delete()
-        .eq('id', id);
+      const confirmacao = window.confirm(
+        `⚠️ EXCLUSÃO PERMANENTE\n\n` +
+        `A varredura não encontrou uso em Receitas, Serviços ou Estoque.\n\n` +
+        `Confirma a exclusão de:\n"${descricao}"?`
+      );
+      if (!confirmacao) return;
 
+      const { error } = await supabase.from('tipos_insumos').delete().eq('id', id);
       if (error) throw error;
 
-      toast({
-        title: 'Sucesso',
-        description: 'Item excluído com sucesso!',
-      });
-
+      toast({ title: '✅ Excluído', description: 'Item removido com sucesso!' });
       fetchTipos();
     } catch (error: any) {
       console.error('Erro ao excluir:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao excluir',
-        description: error.message,
-      });
+      toast({ title: 'Erro ao excluir', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -313,6 +343,14 @@ export default function TiposInsumosOutros() {
                       <Button
                         variant="ghost"
                         size="sm"
+                        title="Duplicar"
+                        onClick={() => handleDuplicar(tipo)}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleAbrirModal(tipo)}
                       >
                         <Edit className="h-4 w-4" />
@@ -320,7 +358,7 @@ export default function TiposInsumosOutros() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleExcluir(tipo.id)}
+                        onClick={() => handleExcluir(tipo.id, tipo.descricao)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
