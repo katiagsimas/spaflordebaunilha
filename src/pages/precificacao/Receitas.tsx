@@ -15,6 +15,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Edit, Clock, Scale, Info, MoreVertical, Trash2, FileDown, ArrowLeft, ArrowRight } from 'lucide-react';
 import { exportarPrePreparoPDF } from '@/utils/exportarPrePreparoPDF';
 import { EmptyState } from '@/components/EmptyState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
@@ -248,6 +251,9 @@ export default function Receitas() {
     }
   };
 
+  const receitasOrdenadas = ordenarAlfabetico(receitas as any[], (r: any) => r.nome);
+  const paginacao = usePaginacao(receitasOrdenadas, 25);
+
   const handleExcluir = (receita: any) => {
     setReceitaParaExcluir(receita);
     setDialogExcluirAberto(true);
@@ -315,7 +321,7 @@ export default function Receitas() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {receitas.map(receita => (
+              {paginacao.itensPagina.map((receita: any) => (
                 <TableRow key={receita.id}>
                   <TableCell className="font-medium">{receita.nome}</TableCell>
                   <TableCell>
@@ -378,6 +384,15 @@ export default function Receitas() {
               ))}
             </TableBody>
           </Table>
+          <TablePagination
+            pagina={paginacao.pagina}
+            totalPaginas={paginacao.totalPaginas}
+            total={paginacao.total}
+            porPagina={paginacao.porPagina}
+            onPaginaChange={paginacao.setPagina}
+            onPorPaginaChange={paginacao.setPorPagina}
+            label="receitas"
+          />
         </div>
       )}
 

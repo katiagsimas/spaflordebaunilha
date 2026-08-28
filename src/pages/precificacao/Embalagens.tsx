@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import {
   Table,
   TableBody,
@@ -197,10 +200,11 @@ export default function Embalagens() {
 
   // Filtrar embalagens pela busca
   const embalagensFiltradas = useMemo(() => {
-    if (!termoBusca.trim()) return embalagens;
+    const ordenadas = ordenarAlfabetico(embalagens as any[], (e: any) => e.tipo_insumo?.descricao);
+    if (!termoBusca.trim()) return ordenadas;
 
     const termo = termoBusca.toLowerCase();
-    return embalagens.filter((embalagem: any) => {
+    return ordenadas.filter((embalagem: any) => {
       const nomeEmbalagem = embalagem.tipo_insumo?.descricao?.toLowerCase() || '';
       const marcaEmbalagem = embalagem.marca?.toLowerCase() || '';
       const codigoEmbalagem = embalagem.codigo?.toLowerCase() || '';
@@ -208,6 +212,8 @@ export default function Embalagens() {
       return nomeEmbalagem.includes(termo) || marcaEmbalagem.includes(termo) || codigoEmbalagem.includes(termo) || medidaEmbalagem.includes(termo);
     });
   }, [embalagens, termoBusca]);
+
+  const paginacaoEmbalagens = usePaginacao(embalagensFiltradas, 25);
 
   // Verificar se preço está desatualizado (>30 dias)
   const verificarDesatualizado = (dataAtualizacao: string) => {
@@ -691,7 +697,7 @@ export default function Embalagens() {
                 </TableCell>
               </TableRow>
             ) : (
-              embalagensFiltradas.map((embalagem: any) => {
+              paginacaoEmbalagens.itensPagina.map((embalagem: any) => {
                 const desatualizado = verificarDesatualizado(embalagem.data_atualizacao);
                 const eReceitaBase = embalagem.e_pre_preparo || embalagem.tipo_insumo?.pre_preparo_id;
                 
@@ -764,6 +770,15 @@ export default function Embalagens() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacaoEmbalagens.pagina}
+          totalPaginas={paginacaoEmbalagens.totalPaginas}
+          total={paginacaoEmbalagens.total}
+          porPagina={paginacaoEmbalagens.porPagina}
+          onPaginaChange={paginacaoEmbalagens.setPagina}
+          onPorPaginaChange={paginacaoEmbalagens.setPorPagina}
+          label="embalagens"
+        />
       </div>
 
       {/* Modal Cadastro/Edição Embalagem */}

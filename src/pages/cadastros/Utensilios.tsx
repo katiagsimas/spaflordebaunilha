@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
+
 import {
   Table,
   TableBody,
@@ -105,10 +109,14 @@ export default function Utensilios() {
   };
 
   const itensFiltrados = useMemo(() => {
-    if (!termoBusca.trim()) return itens;
-    const termo = termoBusca.toLowerCase();
-    return itens.filter((i) => (i.descricao || '').toLowerCase().includes(termo));
+    const base = !termoBusca.trim()
+      ? itens
+      : itens.filter((i) => (i.descricao || '').toLowerCase().includes(termoBusca.toLowerCase()));
+    return ordenarAlfabetico(base, (i) => i.descricao);
   }, [itens, termoBusca]);
+
+  const paginacao = usePaginacao(itensFiltrados, 25);
+
 
   const valorIndividual = (item: Utensilio) => {
     const qtd = Number(item.quantidade) || 0;
@@ -291,7 +299,7 @@ export default function Utensilios() {
                 </TableCell>
               </TableRow>
             ) : (
-              itensFiltrados.map((item) => (
+              paginacao.itensPagina.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{formatarData(item.data_compra)}</TableCell>
                   <TableCell className="font-medium">{item.descricao}</TableCell>
@@ -331,7 +339,17 @@ export default function Utensilios() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacao.pagina}
+          totalPaginas={paginacao.totalPaginas}
+          total={paginacao.total}
+          porPagina={paginacao.porPagina}
+          onPaginaChange={paginacao.setPagina}
+          onPorPaginaChange={paginacao.setPorPagina}
+          label="itens"
+        />
       </div>
+
 
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent>

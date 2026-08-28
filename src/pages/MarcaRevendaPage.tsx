@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from "react";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { 
   Plus, Edit2, ChevronLeft, Leaf, Sparkles, Home, MoreVertical, 
@@ -62,7 +63,7 @@ export default function MarcaRevendaPage() {
 
   const filteredProdutos = useMemo(() => {
     const term = searchQuery.trim().toLowerCase();
-    return produtos.filter((produto) => {
+    return ordenarAlfabetico(produtos, (p: any) => p.descricao).filter((produto) => {
       const matchesStatus = statusFilter === "todos" || produto.status === statusFilter;
       const matchesCategoria = categoriaFilter === "todos" || produto.categoria_id === categoriaFilter;
       

@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import {
   Table,
   TableBody,
@@ -298,11 +301,13 @@ export default function TiposInsumosEmbalagens() {
     });
   };
 
-  if (loading) return <LoadingState message="Carregando Tipos de Embalagens" submessage="Organizando categorias..." />;
-
-  const tiposFiltrados = tipos.filter((tipo) =>
-    tipo.descricao.toLowerCase().includes(busca.toLowerCase())
+  const tiposFiltrados = ordenarAlfabetico(
+    tipos.filter((tipo) => tipo.descricao.toLowerCase().includes(busca.toLowerCase())),
+    (t) => t.descricao,
   );
+  const paginacao = usePaginacao(tiposFiltrados, 25);
+
+  if (loading) return <LoadingState message="Carregando Tipos de Embalagens" submessage="Organizando categorias..." />;
 
   return (
     <div className="space-y-4">
@@ -354,7 +359,7 @@ export default function TiposInsumosEmbalagens() {
                 </TableCell>
               </TableRow>
             ) : (
-              tiposFiltrados.map((tipo) => (
+              paginacao.itensPagina.map((tipo) => (
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem.toLocaleString('pt-BR')}</TableCell>
@@ -389,6 +394,15 @@ export default function TiposInsumosEmbalagens() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacao.pagina}
+          totalPaginas={paginacao.totalPaginas}
+          total={paginacao.total}
+          porPagina={paginacao.porPagina}
+          onPaginaChange={paginacao.setPagina}
+          onPorPaginaChange={paginacao.setPorPagina}
+          label="embalagens"
+        />
       </div>
 
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>

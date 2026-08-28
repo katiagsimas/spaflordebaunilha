@@ -3,6 +3,9 @@ import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, Copy, AlertTriangle, Loader2, CookingPot, FileDown, ArrowLeft, ListChecks } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { TablePagination } from "@/components/TablePagination";
+import { usePaginacao } from "@/hooks/usePaginacao";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
@@ -33,9 +36,8 @@ export default function Receitas() {
     return true;
   });
 
-  const resumosOrdenados = [...resumosFiltrados].sort((a, b) => 
-    a.nome.localeCompare(b.nome, 'pt-BR')
-  );
+  const resumosOrdenados = ordenarAlfabetico(resumosFiltrados, (r) => r.nome);
+  const paginacao = usePaginacao(resumosOrdenados, 25);
 
   const handleDeletar = async () => {
     if (!receitaParaDeletar) return;
@@ -186,7 +188,7 @@ export default function Receitas() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {resumosOrdenados.map((r) => (
+                {paginacao.itensPagina.map((r) => (
                   <TableRow key={r.receitaId}>
                     <TableCell className="font-medium">{r.nome}</TableCell>
                     <TableCell>{r.categoria || "-"}</TableCell>
@@ -236,6 +238,15 @@ export default function Receitas() {
               </TableBody>
             </Table>
           </div>
+          <TablePagination
+            pagina={paginacao.pagina}
+            totalPaginas={paginacao.totalPaginas}
+            total={paginacao.total}
+            porPagina={paginacao.porPagina}
+            onPaginaChange={paginacao.setPagina}
+            onPorPaginaChange={paginacao.setPorPagina}
+            label="serviços"
+          />
         </div>
       )}
       <ConfirmDialog open={dialogAberto} onOpenChange={setDialogAberto} onConfirm={handleDeletar} title="Deletar Receita" description="Tem certeza que deseja deletar esta receita?" />
