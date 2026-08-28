@@ -9,6 +9,9 @@ import { toast } from "sonner";
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { useFamiliares } from "@/hooks/useFamiliares";
 import { parseISOToDate } from "@/lib/dateUtils";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
+import { usePaginacao } from "@/hooks/usePaginacao";
+import { TablePagination } from "@/components/TablePagination";
 
 import { HeroBanner } from "@/components/HeroBanner";
 import { Card } from "@/components/ui/card";
@@ -101,7 +104,7 @@ export default function ClientesFornecedores() {
   );
 
   const clientesFiltrados = useMemo(() => {
-    return clientes.filter((c) => {
+    return ordenarAlfabetico(clientes, (c) => c.nome).filter((c) => {
       if (busca) {
         const q = busca.toLowerCase();
         const hit =
@@ -117,7 +120,7 @@ export default function ClientesFornecedores() {
   }, [clientes, busca, tipoFiltro]);
 
   const fornecedoresFiltrados = useMemo(() => {
-    return fornecedores.filter((f) => {
+    return ordenarAlfabetico(fornecedores, (f) => f.nome).filter((f) => {
       if (busca) {
         const q = busca.toLowerCase();
         const hit =
@@ -133,6 +136,9 @@ export default function ClientesFornecedores() {
   }, [fornecedores, busca, tipoFiltro]);
 
   const tiposOptions = tab === "clientes" ? tiposClientes : tiposFornecedores;
+
+  const pagClientes = usePaginacao(clientesFiltrados, 25);
+  const pagFornecedores = usePaginacao(fornecedoresFiltrados, 25);
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] pb-24">
@@ -263,7 +269,7 @@ export default function ClientesFornecedores() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {clientesFiltrados.map((c) => (
+                    {pagClientes.itensPagina.map((c) => (
                       <TableRow key={c.id}>
                         <TableCell className="font-medium text-sfb-cacau">{c.nome}</TableCell>
                         <TableCell className="text-sm text-sfb-cacau/80">{c.tipo || "-"}</TableCell>
@@ -301,6 +307,15 @@ export default function ClientesFornecedores() {
                   </TableBody>
                 </Table>
               )}
+                <TablePagination
+                  pagina={pagClientes.pagina}
+                  totalPaginas={pagClientes.totalPaginas}
+                  total={pagClientes.total}
+                  porPagina={pagClientes.porPagina}
+                  onPaginaChange={pagClientes.setPagina}
+                  onPorPaginaChange={pagClientes.setPorPagina}
+                  label="clientes"
+                />
             </TabsContent>
 
             <TabsContent value="fornecedores" className="m-0">
@@ -326,7 +341,7 @@ export default function ClientesFornecedores() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {fornecedoresFiltrados.map((f) => (
+                    {pagFornecedores.itensPagina.map((f) => (
                       <TableRow key={f.id}>
                         <TableCell className="font-medium text-sfb-cacau">{f.nome}</TableCell>
                         <TableCell className="text-sm text-sfb-cacau/80">{f.tipo || "-"}</TableCell>
@@ -361,6 +376,15 @@ export default function ClientesFornecedores() {
                   </TableBody>
                 </Table>
               )}
+                <TablePagination
+                  pagina={pagFornecedores.pagina}
+                  totalPaginas={pagFornecedores.totalPaginas}
+                  total={pagFornecedores.total}
+                  porPagina={pagFornecedores.porPagina}
+                  onPaginaChange={pagFornecedores.setPagina}
+                  onPorPaginaChange={pagFornecedores.setPorPagina}
+                  label="fornecedores"
+                />
             </TabsContent>
           </Tabs>
         </Card>
