@@ -105,10 +105,14 @@ export default function Utensilios() {
   };
 
   const itensFiltrados = useMemo(() => {
-    if (!termoBusca.trim()) return itens;
-    const termo = termoBusca.toLowerCase();
-    return itens.filter((i) => (i.descricao || '').toLowerCase().includes(termo));
+    const base = !termoBusca.trim()
+      ? itens
+      : itens.filter((i) => (i.descricao || '').toLowerCase().includes(termoBusca.toLowerCase()));
+    return ordenarAlfabetico(base, (i) => i.descricao);
   }, [itens, termoBusca]);
+
+  const paginacao = usePaginacao(itensFiltrados, 25);
+
 
   const valorIndividual = (item: Utensilio) => {
     const qtd = Number(item.quantidade) || 0;
