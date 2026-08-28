@@ -37,6 +37,12 @@ export default function Cadastros() {
       to: "/cadastros/embalagens",
     },
     {
+      title: "Tipos de Insumos e Embalagens",
+      description: "Matriz de tipos base: edite, duplique ou exclua os itens",
+      icon: Boxes,
+      to: "/configuracoes/tipos-insumos",
+    },
+    {
       title: "Utensílios e Mobiliário",
       description: "Registre compras de utensílios e mobiliário do seu espaço",
       icon: Armchair,
