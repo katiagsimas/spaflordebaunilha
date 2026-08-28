@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TablePagination } from "@/components/TablePagination";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { EmptyState } from "@/components/EmptyState";
 import { useClientes } from "@/hooks/useClientes";
 
@@ -41,6 +43,7 @@ export default function Clientes() {
   const { buscarCEP, loading: loadingCEP } = useViaCEP();
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [pagina, setPagina] = useState(1);
   const [familiarDialogOpen, setFamiliarDialogOpen] = useState(false);
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
   const [selectedClienteNome, setSelectedClienteNome] = useState<string>("");
@@ -200,12 +203,15 @@ export default function Clientes() {
 
 
   // Filtrar clientes por busca
-  const clientesFiltrados = clientes.filter(cliente =>
-    cliente.nome.toLowerCase().includes(busca.toLowerCase())
+  const clientesFiltrados = ordenarAlfabetico(
+    clientes.filter(cliente => cliente.nome.toLowerCase().includes(busca.toLowerCase())),
+    (c) => c.nome,
   );
 
   // Paginação
-  const clientesPaginados = clientesFiltrados.slice(0, porPagina);
+  const totalPaginas = Math.max(1, Math.ceil(clientesFiltrados.length / porPagina));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const clientesPaginados = clientesFiltrados.slice((paginaAtual - 1) * porPagina, paginaAtual * porPagina);
 
   const handleExportarExcel = () => {
     if (clientesFiltrados.length === 0) {

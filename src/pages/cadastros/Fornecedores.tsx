@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { TablePagination } from "@/components/TablePagination";
+import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { EmptyState } from "@/components/EmptyState";
 import { useFornecedores } from "@/hooks/useFornecedores";
 import { Plus, Pencil, Trash2, Truck, ChevronDown, Cake, Search, Download, MoreVertical, UserPlus } from "lucide-react";
@@ -49,6 +51,7 @@ export default function Fornecedores() {
   const [observacoesOpen, setObservacoesOpen] = useState(false);
   const [busca, setBusca] = useState("");
   const [porPagina, setPorPagina] = useState(10);
+  const [pagina, setPagina] = useState(1);
   const [contatoDialogOpen, setContatoDialogOpen] = useState(false);
   const [selectedFornecedorId, setSelectedFornecedorId] = useState<string | null>(null);
   const [editingContato, setEditingContato] = useState<any>(null);
@@ -222,15 +225,18 @@ export default function Fornecedores() {
 
   // Filtrar fornecedores por busca
   const fornecedoresFiltrados = useMemo(() => {
-    return fornecedores.filter(fornecedor =>
-      fornecedor.nome.toLowerCase().includes(busca.toLowerCase())
+    return ordenarAlfabetico(
+      fornecedores.filter(fornecedor => fornecedor.nome.toLowerCase().includes(busca.toLowerCase())),
+      (f) => f.nome,
     );
   }, [fornecedores, busca]);
 
   // Paginação
+  const totalPaginas = Math.max(1, Math.ceil(fornecedoresFiltrados.length / porPagina));
+  const paginaAtual = Math.min(pagina, totalPaginas);
   const fornecedoresPaginados = useMemo(() => {
-    return fornecedoresFiltrados.slice(0, porPagina);
-  }, [fornecedoresFiltrados, porPagina]);
+    return fornecedoresFiltrados.slice((paginaAtual - 1) * porPagina, paginaAtual * porPagina);
+  }, [fornecedoresFiltrados, porPagina, paginaAtual]);
 
   const handleExportarExcel = () => {
     if (fornecedoresFiltrados.length === 0) {
