@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import {
   Table,
   TableBody,
@@ -251,7 +254,7 @@ export default function TiposInsumosOutros() {
   };
 
   const handleExportarExcel = () => {
-    const dadosExportar = tiposFiltrados.map(tipo => ({
+    const dadosExportar = paginacao.itensPagina.map(tipo => ({
       'Descrição': tipo.descricao,
       'Quantidade por Embalagem': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.sigla || '',
@@ -269,9 +272,11 @@ export default function TiposInsumosOutros() {
     });
   };
 
-  const tiposFiltrados = tipos.filter(tipo =>
-    tipo.descricao?.toLowerCase().includes(busca.toLowerCase())
+  const tiposFiltrados = ordenarAlfabetico(
+    tipos.filter(tipo => tipo.descricao?.toLowerCase().includes(busca.toLowerCase())),
+    (t) => t.descricao,
   );
+  const paginacao = usePaginacao(tiposFiltrados, 25);
 
   if (loading) {
     return <LoadingState message="Carregando tipos de outros insumos..." />;
@@ -333,7 +338,7 @@ export default function TiposInsumosOutros() {
                 </TableCell>
               </TableRow>
             ) : (
-              tiposFiltrados.map((tipo) => (
+              paginacao.itensPagina.map((tipo) => (
                 <TableRow key={tipo.id}>
                   <TableCell className="font-medium">{tipo.descricao}</TableCell>
                   <TableCell>{tipo.quantidade_embalagem}</TableCell>
@@ -369,6 +374,15 @@ export default function TiposInsumosOutros() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacao.pagina}
+          totalPaginas={paginacao.totalPaginas}
+          total={paginacao.total}
+          porPagina={paginacao.porPagina}
+          onPaginaChange={paginacao.setPagina}
+          onPorPaginaChange={paginacao.setPorPagina}
+          label="itens"
+        />
       </div>
 
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>

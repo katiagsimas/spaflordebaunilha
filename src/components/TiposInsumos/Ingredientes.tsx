@@ -7,6 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
 import {
   Table,
   TableBody,
@@ -280,7 +283,7 @@ export default function TiposInsumosIngredientes() {
       return;
     }
 
-    const dadosExport = tiposFiltrados.map((tipo) => ({
+    const dadosExport = paginacao.itensPagina.map((tipo) => ({
       'Descrição': tipo.descricao,
       'Quantidade': tipo.quantidade_embalagem,
       'Unidade': tipo.unidade_medida?.nome,
@@ -298,11 +301,13 @@ export default function TiposInsumosIngredientes() {
     });
   };
 
-  if (loading) return <LoadingState message="Carregando Tipos de Insumos" submessage="Organizando categorias..." />;
-
-  const tiposFiltrados = tipos.filter((tipo) =>
-    tipo.descricao.toLowerCase().includes(busca.toLowerCase())
+  const tiposFiltrados = ordenarAlfabetico(
+    tipos.filter((tipo) => tipo.descricao.toLowerCase().includes(busca.toLowerCase())),
+    (t) => t.descricao,
   );
+  const paginacao = usePaginacao(tiposFiltrados, 25);
+
+  if (loading) return <LoadingState message="Carregando Tipos de Insumos" submessage="Organizando categorias..." />;
 
   return (
     <div className="space-y-4">
@@ -389,6 +394,15 @@ export default function TiposInsumosIngredientes() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacao.pagina}
+          totalPaginas={paginacao.totalPaginas}
+          total={paginacao.total}
+          porPagina={paginacao.porPagina}
+          onPaginaChange={paginacao.setPagina}
+          onPorPaginaChange={paginacao.setPorPagina}
+          label="insumos"
+        />
       </div>
 
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
