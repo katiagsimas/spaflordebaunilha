@@ -604,8 +604,11 @@ export default function Embalagens() {
         </div>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex flex-col items-start">
-            <h1 className="font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
+            <h1 className="flex items-center gap-3 font-display text-3xl tracking-tight text-sfb-cacau sm:text-4xl">
               Embalagens
+              <span className="rounded-full bg-sfb-terracota px-3 py-1 font-body text-sm font-semibold text-sfb-baunilha">
+                {embalagens.length}
+              </span>
             </h1>
             <div className="mt-2 flex items-center gap-3">
               <span className="h-px w-12 bg-sfb-terracota" />
