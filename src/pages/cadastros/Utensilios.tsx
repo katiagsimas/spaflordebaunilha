@@ -339,7 +339,17 @@ export default function Utensilios() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacao.pagina}
+          totalPaginas={paginacao.totalPaginas}
+          total={paginacao.total}
+          porPagina={paginacao.porPagina}
+          onPaginaChange={paginacao.setPagina}
+          onPorPaginaChange={paginacao.setPorPagina}
+          label="itens"
+        />
       </div>
+
 
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent>
