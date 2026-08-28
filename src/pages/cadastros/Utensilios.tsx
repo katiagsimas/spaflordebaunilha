@@ -299,7 +299,7 @@ export default function Utensilios() {
                 </TableCell>
               </TableRow>
             ) : (
-              itensFiltrados.map((item) => (
+              paginacao.itensPagina.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{formatarData(item.data_compra)}</TableCell>
                   <TableCell className="font-medium">{item.descricao}</TableCell>
