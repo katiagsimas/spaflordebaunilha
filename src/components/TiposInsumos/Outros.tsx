@@ -39,6 +39,7 @@ import { Plus, Edit, Trash2, Info, Search, Download, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 
+import { DualScroll } from '@/components/DualScroll';
 export default function TiposInsumosOutros() {
   const { toast } = useToast();
   const [tipos, setTipos] = useState<any[]>([]);
@@ -319,6 +320,7 @@ export default function TiposInsumosOutros() {
       </div>
 
       <div className="border rounded-lg">
+        <DualScroll>
         <Table>
           <TableHeader>
             <TableRow>
@@ -374,6 +376,7 @@ export default function TiposInsumosOutros() {
             )}
           </TableBody>
         </Table>
+        </DualScroll>
         <TablePagination
           pagina={paginacao.pagina}
           totalPaginas={paginacao.totalPaginas}

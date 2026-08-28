@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { DualScroll } from "@/components/DualScroll";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -257,6 +258,7 @@ export default function ClientesFornecedores() {
                   </p>
                 </div>
               ) : (
+                <DualScroll>
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-sfb-baunilha/60">
@@ -306,6 +308,7 @@ export default function ClientesFornecedores() {
                     ))}
                   </TableBody>
                 </Table>
+                </DualScroll>
               )}
                 <TablePagination
                   pagina={pagClientes.pagina}
@@ -330,6 +333,7 @@ export default function ClientesFornecedores() {
                   </p>
                 </div>
               ) : (
+                <DualScroll>
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-[#FBF6EE]/60">
@@ -375,6 +379,7 @@ export default function ClientesFornecedores() {
                     ))}
                   </TableBody>
                 </Table>
+                </DualScroll>
               )}
                 <TablePagination
                   pagina={pagFornecedores.pagina}

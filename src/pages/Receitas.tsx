@@ -19,6 +19,7 @@ import { useCalculosReceita } from "@/hooks/useCalculosReceita";
 import { exportarReceitaPDF } from "@/utils/exportarReceitaPDF";
 
 
+import { DualScroll } from "@/components/DualScroll";
 export default function Receitas() {
   
 
@@ -170,6 +171,7 @@ export default function Receitas() {
         <div className="overflow-hidden rounded-2xl border border-sfb-areia/40 bg-sfb-baunilha/10 shadow-[0_4px_24px_-12px_rgba(91,26,43,0.15)]">
           <div className="overflow-x-auto">
 
+            <DualScroll>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -237,6 +239,7 @@ export default function Receitas() {
                 ))}
               </TableBody>
             </Table>
+            </DualScroll>
           </div>
           <TablePagination
             pagina={paginacao.pagina}

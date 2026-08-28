@@ -21,6 +21,7 @@ import { ordenarAlfabetico } from '@/lib/sortUtils';
 import { ChefHat } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BackButton } from '@/components/BackButton';
+import { DualScroll } from '@/components/DualScroll';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -310,6 +311,7 @@ export default function Receitas() {
         />
       ) : (
         <div className="border rounded-lg">
+          <DualScroll>
           <Table>
             <TableHeader>
               <TableRow>
@@ -384,6 +386,7 @@ export default function Receitas() {
               ))}
             </TableBody>
           </Table>
+          </DualScroll>
           <TablePagination
             pagina={paginacao.pagina}
             totalPaginas={paginacao.totalPaginas}

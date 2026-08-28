@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 
+import { DualScroll } from '@/components/DualScroll';
 const TIPO_LABELS: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   entrada: { label: 'Entrada', variant: 'default' },
   saida_producao: { label: 'Saída (Produção)', variant: 'destructive' },
@@ -100,6 +101,7 @@ export default function EstoqueMovimentacoes() {
       ) : (<>
         <Card>
           <CardContent className="p-0">
+            <DualScroll>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -172,6 +174,7 @@ export default function EstoqueMovimentacoes() {
                 })}
               </TableBody>
             </Table>
+            </DualScroll>
           </CardContent>
         </Card>
         {movimentacoes.length === 500 && (

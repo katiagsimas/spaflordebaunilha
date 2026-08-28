@@ -35,6 +35,7 @@ import { ordenarAlfabetico } from "@/lib/sortUtils";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Label } from "@/components/ui/label";
 
+import { DualScroll } from "@/components/DualScroll";
 export default function TiposServico() {
   const { categorias, isLoading, createCategoria, updateCategoria, deleteCategoria } = useCategorias('servico');
   const [searchTerm, setSearchTerm] = useState("");
@@ -155,6 +156,7 @@ export default function TiposServico() {
         />
       ) : (
         <div className="overflow-hidden rounded-2xl border border-sfb-areia/40 bg-sfb-baunilha/10 shadow-sm">
+          <DualScroll>
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-sfb-areia/20">
@@ -199,6 +201,7 @@ export default function TiposServico() {
               ))}
             </TableBody>
           </Table>
+          </DualScroll>
           <TablePagination
             pagina={paginacao.pagina}
             totalPaginas={paginacao.totalPaginas}
