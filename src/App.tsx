@@ -267,6 +267,7 @@ const App = () => (
           {/* Cadastros - Insumos e Embalagens */}
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/utensilios" element={<ProtectedRoute><Layout><Utensilios /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ingredientes" element={<Navigate to="/cadastros/ingredientes" replace />} />
           <Route path="/precificacao/embalagens" element={<Navigate to="/cadastros/embalagens" replace />} />
 
