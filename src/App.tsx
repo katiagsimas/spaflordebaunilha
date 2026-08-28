@@ -52,6 +52,7 @@ import ConfiguracaoJurosPage from "./pages/configuracoes/ConfiguracaoJuros";
 import BackupPage from "./pages/configuracoes/Backup";
 import Ingredientes from "./pages/precificacao/Ingredientes";
 import Embalagens from "./pages/precificacao/Embalagens";
+import Utensilios from "./pages/cadastros/Utensilios";
 import Receitas from "./pages/precificacao/Receitas";
 import ReceitaForm from "./pages/precificacao/ReceitaForm";
 import Financeiro from "./pages/financeiro/Financeiro";
@@ -266,6 +267,7 @@ const App = () => (
           {/* Cadastros - Insumos e Embalagens */}
           <Route path="/cadastros/ingredientes" element={<ProtectedRoute><Layout><Ingredientes /></Layout></ProtectedRoute>} />
           <Route path="/cadastros/embalagens" element={<ProtectedRoute><Layout><Embalagens /></Layout></ProtectedRoute>} />
+          <Route path="/cadastros/utensilios" element={<ProtectedRoute><Layout><Utensilios /></Layout></ProtectedRoute>} />
           <Route path="/precificacao/ingredientes" element={<Navigate to="/cadastros/ingredientes" replace />} />
           <Route path="/precificacao/embalagens" element={<Navigate to="/cadastros/embalagens" replace />} />
 

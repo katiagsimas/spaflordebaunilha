@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag } from "lucide-react";
+import { Scale, FlaskConical, Cake, ChevronLeft, Utensils, Ruler, ShoppingBag, Armchair } from "lucide-react";
 import { HeroBanner } from "@/components/HeroBanner";
 
 export default function Cadastros() {
@@ -35,6 +35,12 @@ export default function Cadastros() {
       description: "Controle de embalagens e materiais secundários",
       icon: Ruler,
       to: "/cadastros/embalagens",
+    },
+    {
+      title: "Utensílios e Mobiliário",
+      description: "Registre compras de utensílios e mobiliário do seu espaço",
+      icon: Armchair,
+      to: "/cadastros/utensilios",
     },
     {
       title: "Produtos para Revenda",

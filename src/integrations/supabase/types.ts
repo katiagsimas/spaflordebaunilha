@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -3652,6 +3652,45 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      utensilios: {
+        Row: {
+          created_at: string
+          data_compra: string
+          descricao: string
+          id: string
+          observacoes: string | null
+          owner_group_id: string
+          quantidade: number
+          updated_at: string
+          usuario_id: string
+          valor_compra: number
+        }
+        Insert: {
+          created_at?: string
+          data_compra?: string
+          descricao: string
+          id?: string
+          observacoes?: string | null
+          owner_group_id: string
+          quantidade?: number
+          updated_at?: string
+          usuario_id: string
+          valor_compra?: number
+        }
+        Update: {
+          created_at?: string
+          data_compra?: string
+          descricao?: string
+          id?: string
+          observacoes?: string | null
+          owner_group_id?: string
+          quantidade?: number
+          updated_at?: string
+          usuario_id?: string
+          valor_compra?: number
         }
         Relationships: []
       }
