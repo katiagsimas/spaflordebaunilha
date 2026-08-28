@@ -5,6 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoadingState } from '@/components/LoadingState';
+import { TablePagination } from '@/components/TablePagination';
+import { usePaginacao } from '@/hooks/usePaginacao';
+import { ordenarAlfabetico } from '@/lib/sortUtils';
+
 import {
   Table,
   TableBody,
