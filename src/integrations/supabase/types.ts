@@ -3655,6 +3655,45 @@ export type Database = {
         }
         Relationships: []
       }
+      utensilios: {
+        Row: {
+          created_at: string
+          data_compra: string
+          descricao: string
+          id: string
+          observacoes: string | null
+          owner_group_id: string
+          quantidade: number
+          updated_at: string
+          usuario_id: string
+          valor_compra: number
+        }
+        Insert: {
+          created_at?: string
+          data_compra?: string
+          descricao: string
+          id?: string
+          observacoes?: string | null
+          owner_group_id: string
+          quantidade?: number
+          updated_at?: string
+          usuario_id: string
+          valor_compra?: number
+        }
+        Update: {
+          created_at?: string
+          data_compra?: string
+          descricao?: string
+          id?: string
+          observacoes?: string | null
+          owner_group_id?: string
+          quantidade?: number
+          updated_at?: string
+          usuario_id?: string
+          valor_compra?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       v_aniversariantes_completa: {
