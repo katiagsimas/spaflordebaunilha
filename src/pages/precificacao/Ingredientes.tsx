@@ -737,6 +737,15 @@ export default function Ingredientes() {
           })}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacaoIngredientes.pagina}
+          totalPaginas={paginacaoIngredientes.totalPaginas}
+          total={paginacaoIngredientes.total}
+          porPagina={paginacaoIngredientes.porPagina}
+          onPaginaChange={paginacaoIngredientes.setPagina}
+          onPorPaginaChange={paginacaoIngredientes.setPorPagina}
+          label="insumos"
+        />
       </div>
 
       {/* Modal Cadastro/Edição Ingrediente */}

@@ -770,6 +770,15 @@ export default function Embalagens() {
             )}
           </TableBody>
         </Table>
+        <TablePagination
+          pagina={paginacaoEmbalagens.pagina}
+          totalPaginas={paginacaoEmbalagens.totalPaginas}
+          total={paginacaoEmbalagens.total}
+          porPagina={paginacaoEmbalagens.porPagina}
+          onPaginaChange={paginacaoEmbalagens.setPagina}
+          onPorPaginaChange={paginacaoEmbalagens.setPorPagina}
+          label="embalagens"
+        />
       </div>
 
       {/* Modal Cadastro/Edição Embalagem */}
