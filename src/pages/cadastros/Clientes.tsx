@@ -31,6 +31,7 @@ import { parseISOToDate } from "@/lib/dateUtils";
 import { Badge } from "@/components/ui/badge";
 import * as XLSX from '@/lib/xlsxShim';
 
+import { DualScroll } from '@/components/DualScroll';
 export default function Clientes() {
   
 
@@ -519,6 +520,7 @@ export default function Clientes() {
             )
           ) : (
             <div className="overflow-x-auto">
+              <DualScroll>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -579,6 +581,7 @@ export default function Clientes() {
                   ))}
                 </TableBody>
               </Table>
+              </DualScroll>
               <TablePagination
                 pagina={paginaAtual}
                 totalPaginas={totalPaginas}

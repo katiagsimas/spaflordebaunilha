@@ -33,6 +33,7 @@ import {
 import { RelatorioCategorias } from "@/components/RelatorioCategorias";
 
 
+import { DualScroll } from "@/components/DualScroll";
 export default function Categorias() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const { categorias, loading, updateCategoria, createCategoria, deleteCategoria } = useCategorias('geral');
@@ -362,6 +363,7 @@ export default function Categorias() {
                   : 'Nenhuma categoria cadastrada.'}
               </div>
             ) : (
+              <DualScroll>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -435,6 +437,7 @@ export default function Categorias() {
                   ))}
                 </TableBody>
               </Table>
+              </DualScroll>
             )}
 
             {/* Paginação */}

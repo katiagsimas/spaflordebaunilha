@@ -48,6 +48,7 @@ import { BackButton } from '@/components/BackButton';
 import { formatBRL } from '@/lib/formatUtils';
 import { formatDateToISO } from '@/lib/dateUtils';
 
+import { DualScroll } from '@/components/DualScroll';
 interface Utensilio {
   id: string;
   data_compra: string;
@@ -278,6 +279,7 @@ export default function Utensilios() {
       </div>
 
       <div className="border rounded-lg">
+        <DualScroll>
         <Table>
           <TableHeader>
             <TableRow>
@@ -339,6 +341,7 @@ export default function Utensilios() {
             )}
           </TableBody>
         </Table>
+        </DualScroll>
         <TablePagination
           pagina={paginacao.pagina}
           totalPaginas={paginacao.totalPaginas}

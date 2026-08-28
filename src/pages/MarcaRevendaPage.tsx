@@ -24,6 +24,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 
+import { DualScroll } from '@/components/DualScroll';
 export default function MarcaRevendaPage() {
   const navigate = useNavigate();
   const { marca } = useParams<{ marca: 'natura' | 'avon' }>();
@@ -272,6 +273,7 @@ export default function MarcaRevendaPage() {
 
         <div className="bg-white border-2 border-sfb-areia/60 rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
+            <DualScroll>
             <Table>
               <TableHeader className="bg-sfb-terracota">
                 <TableRow className="hover:bg-sfb-terracota border-sfb-terracota">
@@ -373,6 +375,7 @@ export default function MarcaRevendaPage() {
                 )}
               </TableBody>
             </Table>
+            </DualScroll>
           </div>
           
           {totalPages > 1 && (

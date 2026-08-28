@@ -31,6 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import * as XLSX from '@/lib/xlsxShim';
 
+import { DualScroll } from '@/components/DualScroll';
 interface FormDataFornecedor {
   nome: string;
   tipo: "PF" | "PJ";
@@ -452,6 +453,7 @@ export default function Fornecedores() {
             )
           ) : (
             <div className="overflow-x-auto">
+              <DualScroll>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -500,6 +502,7 @@ export default function Fornecedores() {
                   ))}
                 </TableBody>
               </Table>
+              </DualScroll>
               <TablePagination
                 pagina={paginaAtual}
                 totalPaginas={totalPaginas}

@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import * as XLSX from '@/lib/xlsxShim';
 import { BackButton } from '@/components/BackButton';
 
+import { DualScroll } from '@/components/DualScroll';
 export default function Ingredientes() {
   const { profile: userProfile } = useUserProfile();
   
@@ -654,6 +655,7 @@ export default function Ingredientes() {
 
       {/* Tabela */}
       <div className="border rounded-lg">
+        <DualScroll>
         <Table>
           <TableHeader>
             <TableRow>
@@ -737,6 +739,7 @@ export default function Ingredientes() {
           })}
           </TableBody>
         </Table>
+        </DualScroll>
         <TablePagination
           pagina={paginacaoIngredientes.pagina}
           totalPaginas={paginacaoIngredientes.totalPaginas}

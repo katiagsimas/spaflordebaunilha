@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { useGlobalLoading } from "@/contexts/GlobalLoadingContext";
 
 
+import { DualScroll } from "@/components/DualScroll";
 export default function UnidadesMedida() {
   const { showLoading, hideLoading } = useGlobalLoading();
   const { unidades, loading, createUnidade, updateUnidade, toggleAtivo, refetch } = useUnidadesMedida();
@@ -205,6 +206,7 @@ export default function UnidadesMedida() {
             />
           ) : (
             <div className="overflow-x-auto">
+              <DualScroll>
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -279,6 +281,7 @@ export default function UnidadesMedida() {
                   ))}
                 </TableBody>
               </Table>
+              </DualScroll>
             </div>
           )}
         </CardContent>
