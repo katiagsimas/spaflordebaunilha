@@ -81,6 +81,7 @@ import CofreBackups from "./pages/admin/CofreBackups";
 import GovernancaHub from "./pages/Governanca";
 import { MotherGuard } from "./components/MotherGuard";
 
+import EstoqueHub from "./pages/estoque/EstoqueHub";
 import EstoqueDashboard from "./pages/estoque/EstoqueDashboard";
 import EstoqueEntrada from "./pages/estoque/EstoqueEntrada";
 import EstoqueAjuste from "./pages/estoque/EstoqueAjuste";
