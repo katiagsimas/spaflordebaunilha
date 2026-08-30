@@ -322,7 +322,9 @@ const App = () => (
           <Route path="/financeiro/fechamento-mes" element={<ProtectedRoute><Layout><FechamentoMes /></Layout></ProtectedRoute>} />
           
           {/* Estoque */}
-          <Route path="/estoque" element={<ProtectedRoute><Layout><EstoqueDashboard /></Layout></ProtectedRoute>} />
+          <Route path="/estoque" element={<ProtectedRoute><Layout><EstoqueHub /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/operacional" element={<ProtectedRoute><Layout><EstoqueDashboard escopo="operacional" /></Layout></ProtectedRoute>} />
+          <Route path="/estoque/revenda" element={<ProtectedRoute><Layout><EstoqueDashboard escopo="revenda" /></Layout></ProtectedRoute>} />
           <Route path="/estoque/entrada" element={<ProtectedRoute><Layout><EstoqueEntrada /></Layout></ProtectedRoute>} />
           <Route path="/estoque/ajuste" element={<ProtectedRoute><Layout><EstoqueAjuste /></Layout></ProtectedRoute>} />
           <Route path="/estoque/movimentacoes" element={<ProtectedRoute><Layout><EstoqueMovimentacoes /></Layout></ProtectedRoute>} />
