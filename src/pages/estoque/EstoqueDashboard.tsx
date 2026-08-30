@@ -197,7 +197,7 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
         <div className="relative flex-1 md:max-w-[45%]">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sfb-cacau/40" />
           <Input
-            placeholder="Buscar insumo..."
+            placeholder={isRevenda ? 'Buscar produto...' : 'Buscar insumo...'}
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="rounded-lg border-sfb-cacau/20 bg-white pl-9 focus-visible:border-sfb-terracota"
