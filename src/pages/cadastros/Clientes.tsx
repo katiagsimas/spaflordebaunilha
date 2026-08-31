@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageHeader } from "@/components/PageHeader";
 
 import { BackButton } from "@/components/BackButton";
@@ -73,6 +73,20 @@ export default function Clientes() {
       setIsDialogOpen(true);
     }
   }, [editingCliente]);
+
+  // Abre o cadastro do cliente ao chegar via /clientes?edit=<id> (ex.: card de aniversariantes)
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const editId = searchParams.get("edit");
+    if (!editId || loadingClientes) return;
+    const alvo = clientes.find((c) => c.id === editId);
+    if (alvo) {
+      setEditingCliente(alvo);
+    }
+    // Limpa o parâmetro para não reabrir o diálogo em navegações futuras
+    searchParams.delete("edit");
+    setSearchParams(searchParams, { replace: true });
+  }, [searchParams, clientes, loadingClientes]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
