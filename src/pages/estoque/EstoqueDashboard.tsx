@@ -22,8 +22,10 @@ import {
   MoreVertical,
   Edit2,
   Trash,
-  Copy
+  Copy,
+  FileSpreadsheet
 } from 'lucide-react';
+import * as XLSX from '@/lib/xlsxShim';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +67,14 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
   const [busca, setBusca] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<string>('todos');
   const [filtroStatus, setFiltroStatus] = useState<string>('todos');
+  const [filtroCategoria, setFiltroCategoria] = useState<string>('todas');
+
+  const rotuloTipo = (t: string) =>
+    t === 'ingrediente' ? 'Insumo' : t === 'embalagem' ? 'Embalagem' : 'Produto de Revenda';
+
+  const categoriasDisponiveis = Array.from(
+    new Set(itens.map((i) => i.categoria_nome).filter(Boolean) as string[]),
+  ).sort(compararTexto);
 
   // Estados para exclusão/duplicação (edição agora navega)
   const [editando, setEditando] = useState(false);
@@ -80,10 +90,36 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
       (filtroStatus === 'baixo' && abaixo) ||
       (filtroStatus === 'zerado' && zerado) ||
       (filtroStatus === 'normal' && !abaixo && !zerado);
-    return matchBusca && matchTipo && matchStatus;
+    const matchCategoria =
+      filtroCategoria === 'todas' ||
+      (filtroCategoria === 'sem' && !item.categoria_nome) ||
+      item.categoria_nome === filtroCategoria;
+    return matchBusca && matchTipo && matchStatus && matchCategoria;
   }).sort((a, b) => compararTexto(a.nome_insumo, b.nome_insumo));
 
   const paginacao = usePaginacao(itensFiltrados, 25);
+
+  const exportarExcel = () => {
+    if (itensFiltrados.length === 0) {
+      toast.error('Nenhum item para exportar com os filtros atuais.');
+      return;
+    }
+    const dados = itensFiltrados.map((item) => ({
+      Descrição: item.nome_insumo || '',
+      'Tipo de Insumo': rotuloTipo(item.tipo),
+      Categoria: item.categoria_nome || '—',
+      Quantidade: Number(item.quantidade_atual) || 0,
+      Unidade: item.unidade || '',
+      'Custo Médio (R$)': Number(item.custo_medio) || 0,
+      'Valor em Estoque (R$)': (Number(item.quantidade_atual) || 0) * (Number(item.custo_medio) || 0),
+      'Estoque Mínimo': item.estoque_minimo ?? '',
+    }));
+    const ws = XLSX.utils.json_to_sheet(dados);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Estoque');
+    XLSX.writeFile(wb, `estoque-${isRevenda ? 'revenda' : 'operacional'}.xlsx`);
+    toast.success('Exportação gerada com os filtros aplicados!');
+  };
 
   if (loading) return <LoadingState />;
 
@@ -159,6 +195,13 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
         </Button>
         <Button
           variant="outline"
+          onClick={exportarExcel}
+          className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
+        >
+          <FileSpreadsheet className="h-4 w-4" /> Exportar em Excel
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => navigate(`/estoque/movimentacoes${sufixoRota}`)}
           className="gap-2 rounded-lg border-sfb-cacau/30 bg-white text-sfb-cacau hover:border-sfb-cacau hover:bg-sfb-baunilha"
         >
@@ -215,6 +258,18 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
             </SelectContent>
           </Select>
         )}
+        <Select value={filtroCategoria} onValueChange={setFiltroCategoria}>
+          <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
+            <SelectValue placeholder="Todas as categorias" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todas">Todas as categorias</SelectItem>
+            <SelectItem value="sem">Sem categoria</SelectItem>
+            {categoriasDisponiveis.map((c) => (
+              <SelectItem key={c} value={c}>{c}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Select value={filtroStatus} onValueChange={setFiltroStatus}>
           <SelectTrigger className="w-full rounded-lg border-sfb-cacau/20 bg-white md:w-48">
             <SelectValue placeholder="Todos os status" />
@@ -251,6 +306,12 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
                     <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Descrição
                     </th>
+                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                      Tipo de Insumo
+                    </th>
+                    <th className="px-5 py-3 font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
+                      Categoria
+                    </th>
                     <th className="px-5 py-3 text-right font-body text-xs font-medium uppercase tracking-wide text-sfb-cacau/70">
                       Valor no Estoque
                     </th>
@@ -284,11 +345,14 @@ export default function EstoqueDashboard({ escopo = 'operacional' }: EstoqueDash
                               <p className="truncate font-body text-sm font-medium text-sfb-cacau">
                                 {item.nome_insumo}
                               </p>
-                              <p className="font-body text-[11px] text-sfb-cacau/50">
-                                {item.tipo === 'ingrediente' ? 'Insumo' : item.tipo === 'embalagem' ? 'Embalagem' : 'Produto de Revenda'}
-                              </p>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-5 py-3 font-body text-sm text-sfb-cacau/80">
+                          {rotuloTipo(item.tipo)}
+                        </td>
+                        <td className="px-5 py-3 font-body text-sm text-sfb-cacau/80">
+                          {item.categoria_nome || '—'}
                         </td>
                         <td className="px-5 py-3 text-right font-body text-sm text-sfb-cacau">
                           {valorItem.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}

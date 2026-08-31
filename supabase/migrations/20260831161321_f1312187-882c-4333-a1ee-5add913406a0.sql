@@ -1,0 +1,2 @@
+ALTER TABLE public.estoque ADD COLUMN IF NOT EXISTS categoria_id uuid REFERENCES public.categorias(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_estoque_categoria_id ON public.estoque(categoria_id);

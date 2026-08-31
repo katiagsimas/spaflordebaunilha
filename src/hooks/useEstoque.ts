@@ -13,6 +13,7 @@ export interface EstoqueItem {
   ingrediente_id: string | null;
   embalagem_id: string | null;
   produto_revenda_id?: string | null;
+  categoria_id?: string | null;
   quantidade_atual: number;
   custo_medio: number;
   estoque_minimo: number | null;
@@ -23,6 +24,7 @@ export interface EstoqueItem {
   unidade?: string;
   unidade_medida_id?: string;
   tipo_insumo_id?: string;
+  categoria_nome?: string | null;
 }
 
 export type EstoqueEscopo = 'operacional' | 'revenda';
@@ -60,6 +62,8 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
   const embalagemIds = items.filter(i => i.embalagem_id).map(i => i.embalagem_id);
   const revendaIds = items.filter(i => i.produto_revenda_id).map(i => i.produto_revenda_id);
   const revendaMap: Record<string, { nome: string; unidade: string }> = {};
+  const categoriaIds = Array.from(new Set(items.filter(i => i.categoria_id).map(i => i.categoria_id)));
+  const categoriasMap: Record<string, string> = {};
 
   const ingredientesMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
   const embalagensMap: Record<string, { nome: string; unidade: string; unidade_medida_id: string; tipo_insumo_id: string }> = {};
@@ -107,7 +111,16 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
     });
   };
 
+  const buscarCategorias = async () => {
+    const { data: cats } = await supabase
+      .from('categorias')
+      .select('id, nome')
+      .in('id', categoriaIds as string[]) as any;
+    (cats || []).forEach((c: any) => { categoriasMap[c.id] = c.nome; });
+  };
+
   const promises: Promise<void>[] = [];
+  if (categoriaIds.length > 0) promises.push(buscarCategorias());
   if (ingredienteIds.length > 0) promises.push(buscarIngredientes());
   if (embalagemIds.length > 0) promises.push(buscarEmbalagens());
   if (revendaIds.length > 0) promises.push(buscarRevenda());
@@ -115,6 +128,7 @@ async function fetchEstoqueItens(activeGroupId: string): Promise<EstoqueItem[]> 
 
   return items.map(item => ({
     ...item,
+    categoria_nome: item.categoria_id ? categoriasMap[item.categoria_id] || null : null,
     nome_insumo: item.tipo === 'revenda'
       ? revendaMap[item.produto_revenda_id]?.nome || 'Produto de Revenda'
       : item.tipo === 'ingrediente'
@@ -207,6 +221,7 @@ export function useEstoque(escopo?: EstoqueEscopo) {
       quantidade: number;
       custo_total: number;
       estoque_minimo?: number | null;
+      categoria_id?: string | null;
       observacao?: string;
     }) => {
       if (!user || !activeGroupId) throw new Error('Sessão inválida');
@@ -243,6 +258,7 @@ export function useEstoque(escopo?: EstoqueEscopo) {
             quantidade_atual: novaQtd,
             custo_medio: novoCustoMedio,
             estoque_minimo: params.estoque_minimo !== undefined ? params.estoque_minimo : existing.estoque_minimo,
+            categoria_id: params.categoria_id !== undefined && params.categoria_id !== null ? params.categoria_id : existing.categoria_id,
           })
           .eq('id', existing.id);
 
@@ -259,6 +275,7 @@ export function useEstoque(escopo?: EstoqueEscopo) {
           quantidade_atual: params.quantidade,
           custo_medio: custoUnitario,
           estoque_minimo: params.estoque_minimo || null,
+          categoria_id: params.categoria_id || null,
         };
 
         const { data: created, error } = await (supabase.from('estoque' as any) as any)
@@ -358,18 +375,21 @@ export function useEstoque(escopo?: EstoqueEscopo) {
       estoqueId, 
       quantidade, 
       custoMedio,
-      estoqueMinimo 
+      estoqueMinimo,
+      categoriaId,
     }: { 
       estoqueId: string; 
       quantidade: number;
       custoMedio?: number;
       estoqueMinimo?: number | null;
+      categoriaId?: string | null;
     }) => {
       const updateData: any = { 
         quantidade_atual: quantidade,
       };
       if (custoMedio !== undefined) updateData.custo_medio = custoMedio;
       if (estoqueMinimo !== undefined) updateData.estoque_minimo = estoqueMinimo;
+      if (categoriaId !== undefined) updateData.categoria_id = categoriaId;
 
       const { error } = await (supabase.from('estoque' as any) as any)
         .update(updateData)
@@ -407,7 +427,7 @@ export function useEstoque(escopo?: EstoqueEscopo) {
     mutationFn: async (item: EstoqueItem) => {
       if (!user || !activeGroupId) throw new Error('Sessão inválida');
       
-      const { id, created_at, updated_at, nome_insumo, unidade, unidade_medida_id, tipo_insumo_id, ...insertData } = item as any;
+      const { id, created_at, updated_at, nome_insumo, unidade, unidade_medida_id, tipo_insumo_id, categoria_nome, ...insertData } = item as any;
       insertData.usuario_id = user.id;
       insertData.owner_group_id = activeGroupId;
 

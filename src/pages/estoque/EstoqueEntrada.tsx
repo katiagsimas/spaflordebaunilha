@@ -17,6 +17,8 @@ import { toast } from 'sonner';
 import { BuscarProdutoRevenda } from '@/components/BuscarProdutoRevenda';
 import { useQueryClient } from '@tanstack/react-query';
 import type { InsumoImportado } from '@/lib/produtoRevenda';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useCategorias } from '@/hooks/useCategorias';
 
 export default function EstoqueEntrada() {
   const navigate = useNavigate();
@@ -41,6 +43,11 @@ export default function EstoqueEntrada() {
   const [observacao, setObservacao] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [itemEmEdicao, setItemEmEdicao] = useState<EstoqueItem | null>(null);
+  const [categoriaId, setCategoriaId] = useState<string>('');
+  const { categoriasAtivas } = useCategorias('geral');
+
+  // Lista de destino conforme o tipo escolhido
+  const rotaDestino = tipo === 'revenda' ? '/estoque/revenda' : '/estoque/operacional';
 
   // Carregar dados para edição
   useEffect(() => {
@@ -61,6 +68,7 @@ export default function EstoqueEntrada() {
         setQuantidadeEmbalagem('1'); // Padrão se for edição direta do saldo
         setCustoTotal((item.quantidade_atual * item.custo_medio).toFixed(2));
         setEstoqueMinimo(item.estoque_minimo?.toString() || '');
+        setCategoriaId(item.categoria_id || '');
       }
     }
   }, [editId, itens]);
@@ -217,6 +225,7 @@ export default function EstoqueEntrada() {
             ? Number(precoProduto) / Number(quantidadeEmbalagem) 
             : Number(precoProduto),
           estoqueMinimo: estoqueMinimo !== '' ? Number(estoqueMinimo) : null,
+          categoriaId: categoriaId || null,
         });
 
         // Opcional: registrar uma movimentação de ajuste para manter o histórico
@@ -235,7 +244,7 @@ export default function EstoqueEntrada() {
         if (movError) console.error('Erro ao registrar histórico de ajuste:', movError);
         
         toast.success('Estoque atualizado com sucesso!');
-        navigate('/estoque');
+        navigate(rotaDestino);
         return;
       }
 
@@ -263,9 +272,10 @@ export default function EstoqueEntrada() {
         quantidade: Number(quantidade),
         custo_total: Number(custoTotal),
         estoque_minimo: estoqueMinimo !== '' ? Number(estoqueMinimo) : null,
+        categoria_id: categoriaId || null,
         observacao: observacao || undefined,
       });
-      navigate(rotaVoltar);
+      navigate(rotaDestino);
     } catch (err: any) {
       toast.error('Erro ao processar: ' + (err.message || ''));
     } finally {
@@ -293,7 +303,7 @@ export default function EstoqueEntrada() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
-            {!isRevenda && (
+            {tipo !== 'revenda' && (
             <div className="rounded-lg border p-4">
               <BuscarProdutoRevenda
                 onImportado={handleProdutoRevendaImportado}
@@ -303,26 +313,58 @@ export default function EstoqueEntrada() {
             </div>
             )}
 
-            {!isRevenda && (
             <div className="space-y-2">
-              <Label>Tipo de Insumo *</Label>
-              <Select disabled={!!editId} value={tipo} onValueChange={(v) => { setTipo(v as any); setInsumoId(''); }}>
+              <Label>Tipo de Item *</Label>
+              <div className="flex flex-wrap gap-4 rounded-lg border p-3">
+                {([
+                  { value: 'ingrediente', label: 'Insumos' },
+                  { value: 'embalagem', label: 'Embalagens' },
+                  { value: 'revenda', label: 'Produtos para Revenda' },
+                ] as const).map((opt) => (
+                  <div key={opt.value} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`tipo-${opt.value}`}
+                      disabled={!!editId}
+                      checked={tipo === opt.value}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setTipo(opt.value);
+                          setInsumoId('');
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`tipo-${opt.value}`} className="cursor-pointer text-sm font-normal">
+                      {opt.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Insumos e Embalagens vão para o <strong>Estoque Operacional</strong>; Produtos para
+                Revenda vão para o <strong>Estoque de Revenda</strong>.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Categoria</Label>
+              <Select value={categoriaId || 'sem'} onValueChange={(v) => setCategoriaId(v === 'sem' ? '' : v)}>
                 <SelectTrigger>
-                  <SelectValue />
+                  <SelectValue placeholder="Selecione a categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ingrediente">Insumo</SelectItem>
-                  <SelectItem value="embalagem">Embalagem</SelectItem>
+                  <SelectItem value="sem">Sem categoria</SelectItem>
+                  {categoriasAtivas.map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
-            )}
 
             <div className="space-y-2">
-              <Label>{isRevenda ? 'Produto para Revenda *' : 'Insumo *'}</Label>
+              <Label>{tipo === 'revenda' ? 'Produto para Revenda *' : tipo === 'embalagem' ? 'Embalagem *' : 'Insumo *'}</Label>
               <Select disabled={!!editId} value={insumoId} onValueChange={handleSelecionarInsumo}>
                 <SelectTrigger>
-                  <SelectValue placeholder={isRevenda ? 'Selecione o produto' : 'Selecione o insumo'} />
+                  <SelectValue placeholder={tipo === 'revenda' ? 'Selecione o produto' : 'Selecione o item'} />
                 </SelectTrigger>
                 <SelectContent>
                   {insumos.map((i: any) => (

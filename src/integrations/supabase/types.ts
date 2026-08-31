@@ -1592,6 +1592,7 @@ export type Database = {
       }
       estoque: {
         Row: {
+          categoria_id: string | null
           created_at: string
           custo_medio: number
           embalagem_id: string | null
@@ -1606,6 +1607,7 @@ export type Database = {
           usuario_id: string
         }
         Insert: {
+          categoria_id?: string | null
           created_at?: string
           custo_medio?: number
           embalagem_id?: string | null
@@ -1620,6 +1622,7 @@ export type Database = {
           usuario_id: string
         }
         Update: {
+          categoria_id?: string | null
           created_at?: string
           custo_medio?: number
           embalagem_id?: string | null
@@ -1634,6 +1637,13 @@ export type Database = {
           usuario_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "estoque_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "estoque_embalagem_id_fkey"
             columns: ["embalagem_id"]
