@@ -1213,14 +1213,20 @@ export default function Dashboard() {
                 {aniversariantes.slice(0, 3).map((c: any) => {
                   const partes = (c.data_aniversario || "").split("-");
                   const dia = parseInt(partes[2] || "0");
+                  const primeiroNome = (c.nome || "").trim().split(/\s+/)[0];
                   return (
                     <li key={c.id} className="flex items-center gap-3 py-2">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sfb-baunilha/10 ring-1 ring-sfb-baunilha/30">
                         <Cake className="h-4 w-4 text-sfb-baunilha" />
                       </div>
-                      <p className="min-w-0 flex-1 truncate font-display text-base text-sfb-baunilha">
-                        {c.nome}
-                      </p>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/clientes?edit=${c.id}`)}
+                        title={`Abrir cadastro de ${c.nome}`}
+                        className="min-w-0 flex-1 truncate text-left font-display text-base text-sfb-baunilha underline-offset-4 transition hover:underline focus:outline-none focus-visible:underline"
+                      >
+                        {primeiroNome}
+                      </button>
                       <span className="text-xs font-body italic text-sfb-baunilha/90">
                         dia {String(dia).padStart(2, "0")}
                       </span>
