@@ -5,6 +5,7 @@ export interface InsumoImportado {
   id: string;
   usuario_id: string;
   marca: string | null;
+  codigo: string;
   preco: number;
   preco_venda: number;
   tipo_insumo: {
@@ -199,6 +200,7 @@ export async function importarProdutoRevendaComoInsumo(
     id: ingrediente.id,
     usuario_id: ingrediente.usuario_id,
     marca: ingrediente.marca,
+    codigo: String(produto.codigo ?? codigo).trim(),
     preco: Number(ingrediente.preco) || 0,
     preco_venda: Number(ingrediente.preco_venda) || 0,
     tipo_insumo: {
