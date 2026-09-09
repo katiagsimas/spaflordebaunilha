@@ -292,14 +292,15 @@ export default function DarBaixaPagarDialog({
         return;
       }
 
-      if (valorLiquido > valorRestante) {
+      if (valor > valorRestante + 0.005) {
         toast({
           title: 'Erro',
-          description: `Valor líquido (${formatarValor(valorLiquido)}) excede o restante (${formatarValor(valorRestante)})`,
+          description: `Valor pago (${formatarValor(valor)}) excede o restante (${formatarValor(valorRestante)})`,
           variant: 'destructive',
         });
         return;
       }
+
 
       setLoading(true);
 
@@ -335,15 +336,16 @@ export default function DarBaixaPagarDialog({
         }
       }
 
-      const novoTotal = (parcela.valor_pago || 0) + valorLiquido;
-      const statusPagamento = novoTotal >= parcela.valor_parcela ? 'completo' : 'parcial';
+      const novoTotal = valorPagoPrincipal + valor;
+      const statusPagamento = novoTotal >= parcela.valor_parcela - 0.005 ? 'completo' : 'parcial';
 
       toast({
         title: '✅ Pagamento registrado',
         description: statusPagamento === 'completo'
-          ? 'Parcela paga integralmente!'
+          ? `Parcela quitada! Valor desembolsado: ${formatarValor(valorLiquido)}`
           : `Pagamento parcial. Restante: ${formatarValor(parcela.valor_parcela - novoTotal)}`,
       });
+
 
       onSuccess();
       onOpenChange(false);
@@ -443,8 +445,9 @@ export default function DarBaixaPagarDialog({
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                Os juros serão calculados sobre este valor
+                Valor abatido da parcela (mantenha o total para quitar)
               </p>
+
             </div>
           </div>
 
@@ -481,8 +484,9 @@ export default function DarBaixaPagarDialog({
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                Desconto concedido (opcional)
+                Reduz o valor desembolsado, mantendo a quitação da parcela
               </p>
+
             </div>
           </div>
 

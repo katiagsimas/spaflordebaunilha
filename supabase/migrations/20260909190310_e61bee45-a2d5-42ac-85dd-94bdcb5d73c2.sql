@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.atualizar_parcela_apos_pagamento() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.atualizar_parcela_pagar_apos_pagamento() FROM PUBLIC, anon, authenticated;
