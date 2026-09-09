@@ -445,8 +445,9 @@ export default function DarBaixaPagarDialog({
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                Os juros serão calculados sobre este valor
+                Valor abatido da parcela (mantenha o total para quitar)
               </p>
+
             </div>
           </div>
 
@@ -483,8 +484,9 @@ export default function DarBaixaPagarDialog({
                 }}
               />
               <p className="text-xs text-muted-foreground">
-                Desconto concedido (opcional)
+                Reduz o valor desembolsado, mantendo a quitação da parcela
               </p>
+
             </div>
           </div>
 
