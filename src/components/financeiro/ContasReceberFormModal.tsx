@@ -381,28 +381,147 @@ export default function ContasReceberFormModal({
   };
 
   const handleProdutoRevendaImportado = (insumo: any) => {
-    if (insumo.preco_venda > 0) {
-      setValorTotal(insumo.preco_venda.toFixed(2).replace('.', ','));
-      if (!descricao) {
-        setDescricao(`Venda: ${insumo.tipo_insumo.descricao}`);
-      }
-    } else {
+    const qtd = parseFloat(String(quantidadeItem).replace(',', '.')) || 0;
+    if (qtd <= 0) {
       toast({
-        title: "Atenção",
-        description: "Este produto está sem Preço de Venda cadastrado.",
-        variant: "destructive"
+        title: 'Quantidade inválida',
+        description: 'Informe uma quantidade maior que zero antes de incluir o produto.',
+        variant: 'destructive',
       });
+      return;
     }
+
+    if (!(insumo.preco_venda > 0)) {
+      toast({
+        title: 'Atenção',
+        description: 'Este produto está sem Preço de Venda cadastrado.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const codigoItem = String(insumo.codigo || '').trim();
+
+    setItens((atuais) => {
+      const idx = atuais.findIndex((i) => i.codigo === codigoItem);
+      if (idx >= 0) {
+        const copia = [...atuais];
+        copia[idx] = { ...copia[idx], quantidade: copia[idx].quantidade + qtd };
+        return copia;
+      }
+      return [
+        ...atuais,
+        {
+          codigo: codigoItem,
+          descricao: insumo.tipo_insumo?.descricao || '',
+          marca: insumo.marca || '',
+          quantidade: qtd,
+          custoUnitario: Number(insumo.preco) || 0,
+          vendaUnitaria: Number(insumo.preco_venda) || 0,
+        },
+      ];
+    });
+
+    setQuantidadeItem('1');
+    toast({
+      title: '✅ Produto incluído',
+      description: `${insumo.tipo_insumo?.descricao} — ${qtd} un.`,
+    });
   };
+
+  const handleAlterarQuantidadeItem = (index: number, valor: string) => {
+    const qtd = parseFloat(valor.replace(',', '.')) || 0;
+    setItens((atuais) => atuais.map((item, i) => (i === index ? { ...item, quantidade: qtd } : item)));
+  };
+
+  const handleRemoverItem = (index: number) => {
+    setItens((atuais) => atuais.filter((_, i) => i !== index));
+  };
+
+  const totalCustoItens = itens.reduce((acc, i) => acc + i.custoUnitario * i.quantidade, 0);
+  const totalVendaItens = itens.reduce((acc, i) => acc + i.vendaUnitaria * i.quantidade, 0);
+  const formatarMoeda = (v: number) =>
+    v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   return (
     <div className="space-y-6 max-h-[70vh] overflow-y-auto p-6">
-      <div className="rounded-lg border p-4 bg-sfb-baunilha/30">
+      <div className="rounded-lg border p-4 bg-sfb-baunilha/30 space-y-4">
+        <div className="space-y-2 max-w-[160px]">
+          <Label htmlFor="qtd-produto">Quantidade</Label>
+          <Input
+            id="qtd-produto"
+            type="number"
+            min="1"
+            step="1"
+            value={quantidadeItem}
+            onChange={(e) => setQuantidadeItem(e.target.value)}
+          />
+        </div>
+
         <BuscarProdutoRevenda 
           onImportado={handleProdutoRevendaImportado}
-          hint="Busque por código para preencher o Preço de Venda automaticamente."
+          label="Produto de Revenda (Natura / Avon) — por código"
+          hint="Informe a quantidade, digite o código e clique em Carregar para incluir o produto na venda. Você pode incluir quantos produtos precisar."
         />
+
+        {itens.length > 0 && (
+          <div className="border rounded-lg overflow-x-auto bg-background">
+            <table className="w-full text-sm">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="p-2 text-left">Código</th>
+                  <th className="p-2 text-left">Descrição</th>
+                  <th className="p-2 text-center">Qtd.</th>
+                  <th className="p-2 text-right">Custo Total</th>
+                  <th className="p-2 text-right">A Receber Total</th>
+                  <th className="p-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {itens.map((item, index) => (
+                  <tr key={`${item.codigo}-${index}`} className="border-t">
+                    <td className="p-2">{item.codigo}</td>
+                    <td className="p-2">
+                      {item.descricao}
+                      {item.marca ? <span className="text-xs text-muted-foreground"> ({item.marca})</span> : null}
+                    </td>
+                    <td className="p-2 text-center">
+                      <Input
+                        type="number"
+                        min="0"
+                        value={item.quantidade}
+                        onChange={(e) => handleAlterarQuantidadeItem(index, e.target.value)}
+                        className="w-20 mx-auto text-center"
+                      />
+                    </td>
+                    <td className="p-2 text-right">{formatarMoeda(item.custoUnitario * item.quantidade)}</td>
+                    <td className="p-2 text-right">{formatarMoeda(item.vendaUnitaria * item.quantidade)}</td>
+                    <td className="p-2 text-right">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoverItem(index)}
+                      >
+                        Remover
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-muted font-semibold">
+                <tr>
+                  <td colSpan={3} className="p-2 text-right">Totais:</td>
+                  <td className="p-2 text-right">{formatarMoeda(totalCustoItens)}</td>
+                  <td className="p-2 text-right">{formatarMoeda(totalVendaItens)}</td>
+                  <td />
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
       </div>
+
 
       <div className="space-y-2">
         <Label htmlFor="data-emissao">Data de Emissão *</Label>
