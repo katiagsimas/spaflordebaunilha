@@ -337,15 +337,16 @@ export default function DarBaixaDialog({
         }
       }
 
-      const novoTotal = (parcela.valor_pago || 0) + valorLiquido;
-      const statusPagamento = novoTotal >= parcela.valor_parcela ? 'completo' : 'parcial';
+      const novoTotal = valorPagoPrincipal + valor;
+      const statusPagamento = novoTotal >= parcela.valor_parcela - 0.005 ? 'completo' : 'parcial';
 
       toast({
         title: '✅ Pagamento registrado',
         description: statusPagamento === 'completo'
-          ? 'Parcela paga integralmente!'
+          ? `Parcela quitada! Valor recebido: ${formatarValor(valorLiquido)}`
           : `Pagamento parcial. Restante: ${formatarValor(parcela.valor_parcela - novoTotal)}`,
       });
+
 
       onSuccess();
       onOpenChange(false);
