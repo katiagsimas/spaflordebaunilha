@@ -292,14 +292,15 @@ export default function DarBaixaPagarDialog({
         return;
       }
 
-      if (valorLiquido > valorRestante) {
+      if (valor > valorRestante + 0.005) {
         toast({
           title: 'Erro',
-          description: `Valor líquido (${formatarValor(valorLiquido)}) excede o restante (${formatarValor(valorRestante)})`,
+          description: `Valor pago (${formatarValor(valor)}) excede o restante (${formatarValor(valorRestante)})`,
           variant: 'destructive',
         });
         return;
       }
+
 
       setLoading(true);
 
