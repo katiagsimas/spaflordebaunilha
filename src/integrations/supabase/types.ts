@@ -986,6 +986,76 @@ export type Database = {
           },
         ]
       }
+      contas_receber_itens: {
+        Row: {
+          codigo: string
+          conta_receber_id: string
+          created_at: string
+          descricao: string
+          id: string
+          marca: string | null
+          owner_group_id: string
+          produto_revenda_id: string | null
+          quantidade: number
+          updated_at: string
+          usuario_id: string
+          valor_custo_unitario: number
+          valor_venda_unitario: number
+        }
+        Insert: {
+          codigo: string
+          conta_receber_id: string
+          created_at?: string
+          descricao: string
+          id?: string
+          marca?: string | null
+          owner_group_id: string
+          produto_revenda_id?: string | null
+          quantidade: number
+          updated_at?: string
+          usuario_id: string
+          valor_custo_unitario?: number
+          valor_venda_unitario?: number
+        }
+        Update: {
+          codigo?: string
+          conta_receber_id?: string
+          created_at?: string
+          descricao?: string
+          id?: string
+          marca?: string | null
+          owner_group_id?: string
+          produto_revenda_id?: string | null
+          quantidade?: number
+          updated_at?: string
+          usuario_id?: string
+          valor_custo_unitario?: number
+          valor_venda_unitario?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contas_receber_itens_conta_receber_id_fkey"
+            columns: ["conta_receber_id"]
+            isOneToOne: false
+            referencedRelation: "contas_receber"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_itens_owner_group_id_fkey"
+            columns: ["owner_group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contas_receber_itens_produto_revenda_id_fkey"
+            columns: ["produto_revenda_id"]
+            isOneToOne: false
+            referencedRelation: "produtos_revenda"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contas_receber_pagamentos: {
         Row: {
           banco_id: string
