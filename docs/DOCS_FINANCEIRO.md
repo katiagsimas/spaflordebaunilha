@@ -38,6 +38,12 @@ Módulo completo de gestão financeira. **Requer Flor de Baunilha Business**, `a
 - `valor_pago`, `juros`, `desconto`
 - `observacao`, `observacao_interna`, `tags[]`
 
+**`contas_receber_itens`** — Produtos de revenda vinculados ao título
+- `produto_revenda_id`, `codigo`, `descricao`, `marca`
+- `quantidade`, `valor_custo_unitario`, `valor_venda_unitario`
+- Os preços são gravados no momento da venda para preservar o histórico, mesmo após alterações no cadastro do produto.
+- A soma de quantidade × valor de venda compõe automaticamente o valor total da conta.
+
 **`contas_receber_pagamentos`** — Pagamentos de parcelas
 - `parcela_id`, `data_pagamento`, `valor_pago`
 - `banco_id`, `tipo_documento_id`

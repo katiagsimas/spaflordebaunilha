@@ -295,6 +295,15 @@ export default function ContasReceberFormModal({
         return;
       }
 
+      if (itens.some((item) => item.quantidade <= 0)) {
+        toast({
+          title: 'Quantidade inválida',
+          description: 'Todos os produtos devem ter quantidade maior que zero.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setLoading(true);
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -326,6 +335,26 @@ export default function ContasReceberFormModal({
 
       if (errorConta) throw errorConta;
 
+      // Salvar parcelas editadas
+      const parcelas_data = parcelasGeradas.map(p => ({
+        conta_receber_id: conta.id,
+        numero_parcela: p.numero_parcela,
+        data_emissao: p.data_emissao,
+        data_vencimento: p.data_vencimento,
+        valor_total: p.valor_total,
+        valor_parcela: p.valor_parcela,
+        status: 'aberto',
+      }));
+
+      const { error: errorParcelas } = await supabase
+        .from('contas_receber_parcelas')
+        .insert(parcelas_data);
+
+      if (errorParcelas) {
+        await supabase.from('contas_receber').delete().eq('id', conta.id);
+        throw errorParcelas;
+      }
+
       if (itens.length > 0) {
         const itensData = itens.map((item) => ({
           conta_receber_id: conta.id,
@@ -349,23 +378,6 @@ export default function ContasReceberFormModal({
           throw errorItens;
         }
       }
-
-      // Salvar parcelas editadas
-      const parcelas_data = parcelasGeradas.map(p => ({
-        conta_receber_id: conta.id,
-        numero_parcela: p.numero_parcela,
-        data_emissao: p.data_emissao,
-        data_vencimento: p.data_vencimento,
-        valor_total: p.valor_total,
-        valor_parcela: p.valor_parcela,
-        status: 'aberto',
-      }));
-
-      const { error: errorParcelas } = await supabase
-        .from('contas_receber_parcelas')
-        .insert(parcelas_data);
-
-      if (errorParcelas) throw errorParcelas;
 
       toast({
         title: '✅ Conta a receber criada',
@@ -480,7 +492,15 @@ export default function ContasReceberFormModal({
   };
 
   const handleRemoverItem = (index: number) => {
-    setItens((atuais) => atuais.filter((_, i) => i !== index));
+    setItens((atuais) => {
+      const restantes = atuais.filter((_, i) => i !== index);
+      if (restantes.length === 0) {
+        setValorTotal('0,00');
+        setParcelasGeradas([]);
+        setParcelasEditadas(false);
+      }
+      return restantes;
+    });
   };
 
   const totalCustoItens = itens.reduce((acc, i) => acc + i.custoUnitario * i.quantidade, 0);
