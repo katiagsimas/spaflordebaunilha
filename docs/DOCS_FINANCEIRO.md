@@ -234,3 +234,11 @@ Encomendas podem gerar contas a receber automaticamente:
 | `vw_contas_receber_parcelas` | Parcelas com dados do título, cliente, banco, plano de contas |
 | `vw_contas_receber_dashboard` | Resumo: totais a receber, recebido, atrasado |
 | `vw_resumo_financeiro` | Saldos bancários consolidados |
+
+### 2.5 Produtos de revenda na nova conta
+- O formulário permite incluir vários produtos Natura/Avon por código e quantidade.
+- Códigos repetidos somam a quantidade ao item existente.
+- A grade mostra código, descrição, quantidade, custo total e valor total a receber.
+- Alterações de quantidade e remoções recalculam automaticamente o valor da conta e invalidam parcelas ainda não salvas.
+- Produtos inexistentes mantêm o cadastro direto já disponível na busca.
+- Ao salvar, cada produto fica vinculado à conta em `contas_receber_itens`, protegido pelo grupo ativo.
