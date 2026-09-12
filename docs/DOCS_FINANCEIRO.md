@@ -38,6 +38,12 @@ Módulo completo de gestão financeira. **Requer Flor de Baunilha Business**, `a
 - `valor_pago`, `juros`, `desconto`
 - `observacao`, `observacao_interna`, `tags[]`
 
+**`contas_receber_itens`** — Produtos de revenda vinculados ao título
+- `produto_revenda_id`, `codigo`, `descricao`, `marca`
+- `quantidade`, `valor_custo_unitario`, `valor_venda_unitario`
+- Os preços são gravados no momento da venda para preservar o histórico, mesmo após alterações no cadastro do produto.
+- A soma de quantidade × valor de venda compõe automaticamente o valor total da conta.
+
 **`contas_receber_pagamentos`** — Pagamentos de parcelas
 - `parcela_id`, `data_pagamento`, `valor_pago`
 - `banco_id`, `tipo_documento_id`
@@ -228,3 +234,11 @@ Encomendas podem gerar contas a receber automaticamente:
 | `vw_contas_receber_parcelas` | Parcelas com dados do título, cliente, banco, plano de contas |
 | `vw_contas_receber_dashboard` | Resumo: totais a receber, recebido, atrasado |
 | `vw_resumo_financeiro` | Saldos bancários consolidados |
+
+### 2.5 Produtos de revenda na nova conta
+- O formulário permite incluir vários produtos Natura/Avon por código e quantidade.
+- Códigos repetidos somam a quantidade ao item existente.
+- A grade mostra código, descrição, quantidade, custo total e valor total a receber.
+- Alterações de quantidade e remoções recalculam automaticamente o valor da conta e invalidam parcelas ainda não salvas.
+- Produtos inexistentes mantêm o cadastro direto já disponível na busca.
+- Ao salvar, cada produto fica vinculado à conta em `contas_receber_itens`, protegido pelo grupo ativo.

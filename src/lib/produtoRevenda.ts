@@ -3,6 +3,7 @@ import { getActiveGroupId } from '@/lib/activeGroup';
 
 export interface InsumoImportado {
   id: string;
+  produto_revenda_id: string;
   usuario_id: string;
   marca: string | null;
   codigo: string;
@@ -198,6 +199,7 @@ export async function importarProdutoRevendaComoInsumo(
 
   return {
     id: ingrediente.id,
+    produto_revenda_id: produto.id,
     usuario_id: ingrediente.usuario_id,
     marca: ingrediente.marca,
     codigo: String(produto.codigo ?? codigo).trim(),

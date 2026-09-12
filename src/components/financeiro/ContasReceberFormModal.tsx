@@ -38,6 +38,16 @@ interface ContasReceberFormModalProps {
   onCancelar: () => void;
 }
 
+interface ProdutoRevendaSelecionado {
+  produtoRevendaId: string;
+  codigo: string;
+  descricao: string;
+  marca: string;
+  quantidade: number;
+  custoUnitario: number;
+  vendaUnitaria: number;
+}
+
 import { useUserProfile } from '@/hooks/useUserProfile';
 
 export default function ContasReceberFormModal({
@@ -74,6 +84,8 @@ export default function ContasReceberFormModal({
   const [loading, setLoading] = useState(false);
   const [parcelasGeradas, setParcelasGeradas] = useState<any[]>([]);
   const [parcelasEditadas, setParcelasEditadas] = useState(false);
+  const [quantidadeItem, setQuantidadeItem] = useState('1');
+  const [itens, setItens] = useState<ProdutoRevendaSelecionado[]>([]);
 
   useEffect(() => {
     fetchDados();
@@ -85,6 +97,14 @@ export default function ContasReceberFormModal({
       handleGerarParcelas();
     }
   }, [tipoLancamento, numeroParcelas]);
+
+  useEffect(() => {
+    if (itens.length === 0) return;
+    const total = itens.reduce((acc, item) => acc + item.vendaUnitaria * item.quantidade, 0);
+    setValorTotal(total.toFixed(2).replace('.', ','));
+    setParcelasGeradas([]);
+    setParcelasEditadas(false);
+  }, [itens]);
 
   const fetchDados = async () => {
     try {
@@ -275,6 +295,15 @@ export default function ContasReceberFormModal({
         return;
       }
 
+      if (itens.some((item) => item.quantidade <= 0)) {
+        toast({
+          title: 'Quantidade inválida',
+          description: 'Todos os produtos devem ter quantidade maior que zero.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
       setLoading(true);
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -321,7 +350,34 @@ export default function ContasReceberFormModal({
         .from('contas_receber_parcelas')
         .insert(parcelas_data);
 
-      if (errorParcelas) throw errorParcelas;
+      if (errorParcelas) {
+        await supabase.from('contas_receber').delete().eq('id', conta.id);
+        throw errorParcelas;
+      }
+
+      if (itens.length > 0) {
+        const itensData = itens.map((item) => ({
+          conta_receber_id: conta.id,
+          produto_revenda_id: item.produtoRevendaId,
+          usuario_id: user.id,
+          owner_group_id: activeGroupId,
+          codigo: item.codigo,
+          descricao: item.descricao,
+          marca: item.marca || null,
+          quantidade: item.quantidade,
+          valor_custo_unitario: item.custoUnitario,
+          valor_venda_unitario: item.vendaUnitaria,
+        }));
+
+        const { error: errorItens } = await supabase
+          .from('contas_receber_itens')
+          .insert(itensData);
+
+        if (errorItens) {
+          await supabase.from('contas_receber').delete().eq('id', conta.id);
+          throw errorItens;
+        }
+      }
 
       toast({
         title: '✅ Conta a receber criada',
@@ -412,6 +468,7 @@ export default function ContasReceberFormModal({
       return [
         ...atuais,
         {
+          produtoRevendaId: insumo.produto_revenda_id,
           codigo: codigoItem,
           descricao: insumo.tipo_insumo?.descricao || '',
           marca: insumo.marca || '',
@@ -435,7 +492,15 @@ export default function ContasReceberFormModal({
   };
 
   const handleRemoverItem = (index: number) => {
-    setItens((atuais) => atuais.filter((_, i) => i !== index));
+    setItens((atuais) => {
+      const restantes = atuais.filter((_, i) => i !== index);
+      if (restantes.length === 0) {
+        setValorTotal('0,00');
+        setParcelasGeradas([]);
+        setParcelasEditadas(false);
+      }
+      return restantes;
+    });
   };
 
   const totalCustoItens = itens.reduce((acc, i) => acc + i.custoUnitario * i.quantidade, 0);
